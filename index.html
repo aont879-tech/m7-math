@@ -3,10 +3,20 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="ສື່ການສອນຄະນິດສາດ ມັດທະຍົມສຶກສາ ປີທີ 7 ຄົບ 45 ບົດ: ສະໄລ້ສອນ, ບົດເຝິກຫັດ, ວຽກບ້ານ, ບົດກວດກາທ້າຍບົດ">
+<meta name="theme-color" content="#1b2a4a">
+<meta property="og:type" content="website">
+<meta property="og:title" content="ຫ້ອງຮຽນຄະນິດ ມ.7">
+<meta property="og:description" content="ສື່ການສອນຄະນິດສາດ ມ.7 ຄົບ 45 ບົດ: ສະໄລ້ສອນ, ບົດເຝິກຫັດ, ວຽກບ້ານ, ບົດກວດກາທ້າຍບົດ">
+<meta property="og:url" content="https://aont879-tech.github.io/m7-math/">
+<meta property="og:image" content="https://aont879-tech.github.io/m7-math/logo.jpg">
+<meta name="twitter:card" content="summary">
 <style>[hidden]{display:none!important}body{margin:0}img{max-width:100%}</style>
 </head>
 <body>
 <title>ຫ້ອງຮຽນຄະນິດ ມ.7</title>
+<link rel="icon" type="image/jpeg" href="logo.jpg">
+<link rel="apple-touch-icon" href="logo.jpg">
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -42,7 +52,15 @@ mjx-container[display="true"]{overflow-x:auto;overflow-y:hidden;max-width:100%;p
 .side{position:sticky;top:0;height:100vh;overflow-y:auto;background:var(--sheet);border-right:1px solid var(--line);
   padding-block:20px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:14px}
 .brand{display:flex;gap:12px;align-items:center;padding-bottom:16px;border-bottom:2px solid var(--ink);margin-bottom:12px;cursor:pointer;background:none;border-top:0;border-left:0;border-right:0;width:100%;text-align:left}
-.brand .mark{width:42px;height:42px;border-radius:8px;background:var(--blue);color:#fff;display:grid;place-items:center;font-family:var(--display);font-size:18px;flex:none}
+.brand .mark{width:52px;height:auto;aspect-ratio:202/208;border-radius:8px;flex:none;display:block;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.toplogo{width:30px;height:auto;border-radius:5px;display:block}
+.herologo{width:clamp(84px,14vw,120px);height:auto;border-radius:12px;box-shadow:var(--shadow);flex:none}
+.herohead{display:flex;gap:18px;align-items:center;margin-left:44px}
+.herohead h1{margin:6px 0 0 !important}
+.slogo{width:22px;height:auto;border-radius:4px;flex:none}
+.sbar .left{display:flex;gap:8px;align-items:center;min-width:0}
+.footer{display:flex;gap:12px;align-items:center}
+.footer img{width:36px;height:auto;border-radius:6px;flex:none}
 .brand b{display:block;font-family:var(--display);font-size:18px;line-height:1.3}
 .brand small{color:var(--ink-2);font-size:12.5px}
 .search{width:100%;padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);font:inherit;font-size:14px;margin-bottom:10px}
@@ -185,10 +203,10 @@ mjx-container[display="true"]{overflow-x:auto;overflow-y:hidden;max-width:100%;p
 @media (prefers-reduced-motion:reduce){.side{transition:none}}
 </style>
 
-<div class="topbar"><button class="btn" id="menuBtn" aria-label="ເປີດລາຍການບົດ">☰ ບົດຮຽນ</button><b>ຄະນິດສາດ ມ.7</b></div>
+<div class="topbar"><button class="btn" id="menuBtn" aria-label="ເປີດລາຍການບົດ">☰ ບົດຮຽນ</button><img class="toplogo" src="logo.jpg" alt=""><b>ຄະນິດສາດ ມ.7</b></div>
 <div class="app">
   <aside class="side" id="side">
-    <button class="brand" id="homeBtn"><span class="mark">ມ.7</span><span><b>ຫ້ອງຮຽນຄະນິດ ມ.7</b><small>ແບບຮຽນຄະນິດສາດ ມັດທະຍົມ ປີທີ 7 · 45 ບົດ</small></span></button>
+    <button class="brand" id="homeBtn"><img class="mark" src="logo.jpg" alt="ໂລໂກ້ ຄະນິດສາດ ມ.7"><span><b>ຫ້ອງຮຽນຄະນິດ ມ.7</b><small>ແບບຮຽນຄະນິດສາດ ມັດທະຍົມ ປີທີ 7 · 45 ບົດ</small></span></button>
     <input class="search" id="search" type="search" placeholder="ຊອກຫາບົດ ເຊັ່ນ: ສັງຄະນິດ" aria-label="ຊອກຫາບົດ">
     <nav id="nav"></nav>
   </aside>
@@ -261,7 +279,7 @@ function home(){
   cur=null; try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}
   buildNav($('#search').value);
   let h=`<section class="hero"><div class="eyebrow">ກະຊວງສຶກສາທິການ ແລະ ກິລາ · ຫຼັກສູດປັບປຸງ 2025</div>
-  <h1>ຫ້ອງຮຽນຄະນິດສາດ ມັດທະຍົມ ປີທີ 7</h1>
+  <div class="herohead"><img class="herologo" src="logo.jpg" alt="ໂລໂກ້ ຄະນິດສາດ ມັດທະຍົມ ປີທີ 7"><h1>ຫ້ອງຮຽນຄະນິດສາດ ມັດທະຍົມ ປີທີ 7</h1></div>
   <p>ສື່ການສອນຕາມແບບຮຽນ ມ.7 ຄົບທັງ 8 ພາກ 45 ບົດ. ແຕ່ລະບົດມີ 4 ພາກສ່ວນ ເລືອກບົດຈາກລາຍການ ແລ້ວກົດປຸ່ມລູກສອນ ← → ເພື່ອປ່ຽນສະໄລ້.</p>
   <div class="legend"><span class="chip"><i style="background:var(--blue)"></i>ສະໄລ້ສອນ</span><span class="chip"><i style="background:var(--amber)"></i>ບົດເຝິກຫັດ ພ້ອມບົດແກ້</span><span class="chip"><i style="background:var(--green)"></i>ວຽກບ້ານ ພ້ອມຄຳຕອບສຳລັບຄູ</span><span class="chip"><i style="background:var(--red)"></i>ບົດກວດກາທ້າຍບົດ + ພາກປາລະໄນຈາກສະຫຼຸບບົດຮຽນ (239 ຂໍ້) ກວດຄະແນນອັດຕະໂນມັດ</span></div></section>
   <div class="parts">`;
@@ -270,7 +288,7 @@ function home(){
     chs.filter(c=>c.part===i+1).forEach(c=>h+=`<li><button data-n="${c.n}"><b>${c.n}</b><span>${esc(c.title)}</span></button></li>`);
     h+='</ol></div>';
   });
-  h+=`</div><div class="footer">ເນື້ອຫາສະຫຼຸບ ແລະ ຮຽບຮຽງຄືນຈາກແບບຮຽນຄະນິດສາດ ມ.7 (ສະຖາບັນຄົ້ນຄວ້າວິທະຍາສາດການສຶກສາ, 2025). ຄູສາມາດໃຊ້ສະໄລ້ສອນໃນຫ້ອງ ແລະ ມອບວຽກບ້ານໃຫ້ນັກຮຽນ.</div>`;
+  h+=`</div><div class="footer"><img src="logo.jpg" alt=""><span>ເນື້ອຫາສະຫຼຸບ ແລະ ຮຽບຮຽງຄືນຈາກແບບຮຽນຄະນິດສາດ ມ.7 (ສະຖາບັນຄົ້ນຄວ້າວິທະຍາສາດການສຶກສາ, 2025). ຄູສາມາດໃຊ້ສະໄລ້ສອນໃນຫ້ອງ ແລະ ມອບວຽກບ້ານໃຫ້ນັກຮຽນ.</span></div>`;
   view.innerHTML=h;
   view.querySelectorAll('.pcard button').forEach(b=>b.onclick=()=>openCh(+b.dataset.n));
   window.scrollTo(0,0);
@@ -298,7 +316,7 @@ function renderCh(){
 
 function renderSlides(){
   const c=cur, pane=$('#pane'), s=c.slides[si];
-  pane.innerHTML=`<div class="stage" id="stage"><div class="sbar"><span class="ch">ບົດທີ ${c.n} · ${esc(c.title)}</span><span class="cnt">ສະໄລ້ ${si+1} / ${c.slides.length}</span></div>
+  pane.innerHTML=`<div class="stage" id="stage"><div class="sbar"><span class="left"><img class="slogo" src="logo.jpg" alt=""><span class="ch">ບົດທີ ${c.n} · ${esc(c.title)}</span></span><span class="cnt">ສະໄລ້ ${si+1} / ${c.slides.length}</span></div>
    <div class="scontent"><h2 class="stitle">${s[0]}</h2><div class="sbody">${s[1]}</div></div></div>
    <div class="scontrols"><button class="btn" id="sp" ${si?'':'disabled'}>← ກ່ອນໜ້າ</button>
    <div class="dots">${c.slides.map((_,i)=>`<button class="dot${i===si?' on':''}" data-i="${i}" aria-label="ສະໄລ້ ${i+1}"></button>`).join('')}</div>
