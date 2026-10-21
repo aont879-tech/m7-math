@@ -153,6 +153,32 @@ mjx-container[display="true"]{overflow-x:auto;overflow-y:hidden;max-width:100%;p
 .dot{width:10px;height:10px;border-radius:50%;border:0;background:var(--line);padding:0}
 .dot.on{background:var(--blue)}
 .hint{font-size:12.5px;color:var(--ink-2)}
+/* chapter cover slide */
+.stitle:empty{display:none}
+.scontent:has(.cover){display:flex;flex-direction:column;justify-content:center}
+.cover{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:clamp(16px,3vw,36px);align-items:center}
+.cvpart{font-size:.78em;letter-spacing:.06em;color:var(--red);font-weight:700}
+.cvno{font-family:var(--display);font-size:1.25em;color:var(--ink-2);margin-top:4px;line-height:1.2}
+.cvno span{font-size:2.6em;color:var(--blue);font-variant-numeric:tabular-nums;vertical-align:-.1em}
+.cvtitle{font-size:clamp(22px,2.9vw,36px);margin:10px 0 14px}
+.cvtitle::after{content:"";display:block;width:64px;height:4px;background:var(--red);border-radius:2px;margin-top:12px}
+.cvgoal{font-size:.8em;color:var(--ink-2);line-height:1.6}
+.cvgoal b{color:var(--ink)}
+.cvfig{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:8px;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:12px 12px}
+.cvart{width:100%;height:auto;display:block}
+.cvart .ax{stroke:var(--ink-2);stroke-width:1.3;fill:none}
+.cvart .c1,.cvart .c2,.cvart .c3{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.cvart .c1{stroke:var(--blue);stroke-width:3} .cvart .c2{stroke:var(--red);stroke-width:3} .cvart .c3{stroke:var(--ink-2);stroke-width:1.6}
+.cvart .o0{opacity:.35} .cvart .o1{opacity:.55} .cvart .o2{opacity:.75} .cvart .o3{opacity:.9}
+.cvart .dash,.cvart .dashr{fill:none;stroke-width:1.4;stroke-dasharray:5 4} .cvart .dash{stroke:var(--ink-2)} .cvart .dashr{stroke:var(--red)}
+.cvart .f1{fill:var(--blue);fill-opacity:.2} .cvart .f2{fill:var(--red);fill-opacity:.2}
+.cvart .f1b{fill:var(--blue-soft);stroke:var(--blue);stroke-width:1.5} .cvart .f2b{fill:var(--red-soft);stroke:var(--red);stroke-width:1.5}
+.cvart .f1s{fill:var(--blue);fill-opacity:.12;stroke:var(--blue);stroke-width:1.2}
+.cvart .f0{fill:none;stroke:var(--ink-2);stroke-width:1.4;stroke-dasharray:5 4} .cvart .f0s{fill:var(--paper);stroke:var(--red);stroke-width:1.2}
+.cvart .dt{fill:var(--blue)} .cvart .rd{fill:var(--red)} .cvart .gd{fill:var(--ink-2);opacity:.5} .cvart .op{fill:var(--paper);stroke:var(--blue);stroke-width:2}
+.cvart text{font-family:var(--body);fill:var(--ink)} .cvart .txs{font-size:12px;fill:var(--ink-2)} .cvart .txb{font-size:14px;font-weight:600} .cvart .txr{font-size:13px;font-weight:600;fill:var(--red)}
+@media (max-width:640px){.cover{grid-template-columns:minmax(0,1fr)}.cvfig{max-width:360px}}
 
 /* exercises / homework */
 .qlist{display:grid;gap:12px;margin:0;padding:0;list-style:none;counter-reset:q}
@@ -243,6 +269,7 @@ window.R=String.raw;
 <script src="p7b.js"></script>
 <script src="p8.js"></script>
 <script src="p9.js"></script>
+<script src="covers.js"></script>
 <script>
 (function(){
 const $=s=>document.querySelector(s);
@@ -259,6 +286,10 @@ function typeset(el){
   go();
 }
 function esc(s){return String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}
+// every chapter opens on a cover slide: chapter number, title, aim and an illustration
+chs.forEach(c=>c.slides.unshift(['',`<div class="cover"><div><div class="cvpart">ພາກທີ ${c.part} · ${esc(M7.parts[c.part-1])}</div>
+ <div class="cvno">ບົດທີ <span>${c.n}</span></div><h3 class="cvtitle">${esc(c.title)}</h3><div class="cvgoal"><b>ຈຸດປະສົງ:</b> ${c.goal}</div></div>
+ <div class="cvfig">${M7.cover?M7.cover(c.n):''}</div></div>`]));
 
 function buildNav(filter=''){
   const f=filter.trim();
