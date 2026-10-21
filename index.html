@@ -153,6 +153,19 @@ mjx-container[display="true"]{overflow-x:auto;overflow-y:hidden;max-width:100%;p
 .dot{width:10px;height:10px;border-radius:50%;border:0;background:var(--line);padding:0}
 .dot.on{background:var(--blue)}
 .hint{font-size:12.5px;color:var(--ink-2)}
+/* textbook flipbook */
+.bookbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.bkbtns{display:flex;gap:8px;flex-wrap:wrap}
+a.btn{text-decoration:none;color:var(--ink);display:inline-block}
+.bookstage{background:#5b4636;background-image:radial-gradient(rgba(255,255,255,.06) 1px,transparent 1px);background-size:6px 6px;
+  border-radius:var(--r);padding:clamp(10px,2.4vw,26px);box-shadow:inset 0 0 40px rgba(0,0,0,.35);display:flex;justify-content:center;overflow:hidden}
+.bookstage:fullscreen{border-radius:0;align-items:center;padding:12px}
+.flip{width:100%;max-width:min(100%,calc((100vh - 170px)*1.414))}
+.bookstage:fullscreen .flip{max-width:calc((100vh - 24px)*1.414)}
+.bpage{background:#fff;overflow:hidden}
+.bpage img{width:100%;height:100%;object-fit:contain;display:block;user-select:none;-webkit-user-drag:none}
+@media (max-width:860px){.flip{max-width:min(100%,calc((100vh - 170px)*0.707))}.bookstage:fullscreen .flip{max-width:calc((100vh - 24px)*0.707)}}
+#bpos{font-variant-numeric:tabular-nums}
 /* chapter cover slide */
 .stitle:empty{display:none}
 .scontent:has(.cover){display:flex;flex-direction:column;justify-content:center}
@@ -274,7 +287,10 @@ window.R=String.raw;
 (function(){
 const $=s=>document.querySelector(s);
 const view=$('#view'), nav=$('#nav'), side=$('#side');
-const TABS=[['slides','ສະໄລ້ສອນ'],['ex','ບົດເຝິກຫັດ'],['hw','ວຽກບ້ານ'],['quiz','ບົດກວດກາທ້າຍບົດ']];
+const TABS=[['slides','ສະໄລ້ສອນ'],['ex','ບົດເຝິກຫັດ'],['hw','ວຽກບ້ານ'],['quiz','ບົດກວດກາທ້າຍບົດ'],['book','ປຶ້ມແບບຮຽນ']];
+// first PDF page of each chapter in the textbook (printed page = PDF page − 6); last entry = start of the review section
+const BOOK=[7,13,20,23,26,28,33,38,42,47,51,56,59,64,70,74,76,79,84,89,95,100,105,108,111,117,122,131,134,139,143,147,151,153,159,164,169,175,180,186,193,201,205,208,211,222];
+let book=null;
 const chs=M7.ch.slice().sort((a,b)=>a.n-b.n);
 let cur=null, tab='slides', si=0;
 const store={get(k){try{return JSON.parse(localStorage.getItem('m7:'+k))}catch(e){return null}},set(k,v){try{localStorage.setItem('m7:'+k,JSON.stringify(v))}catch(e){}}};
@@ -338,7 +354,8 @@ function openCh(n,t){
 }
 function renderCh(){
   const c=cur, idx=chs.indexOf(c), prev=chs[idx-1], next=chs[idx+1];
-  const counts={slides:c.slides.length,ex:c.ex.length,hw:c.hw.length,quiz:c.quiz.length+((M7.rev&&M7.rev[c.n]||[]).length)};
+  if(book){try{book.destroy()}catch(e){} book=null;}
+  const counts={slides:c.slides.length,ex:c.ex.length,hw:c.hw.length,quiz:c.quiz.length+((M7.rev&&M7.rev[c.n]||[]).length),book:BOOK[c.n]-BOOK[c.n-1]};
   view.innerHTML=`<div class="chhead"><div><div class="eyebrow">ພາກທີ ${c.part} · ${esc(M7.parts[c.part-1])}</div><h1>ບົດທີ ${c.n}: ${esc(c.title)}</h1></div>
    <div class="navbtns"><button class="btn" id="pv" ${prev?'':'disabled'}>← ບົດທີ ${prev?prev.n:''}</button><button class="btn" id="nx" ${next?'':'disabled'}>ບົດທີ ${next?next.n:''} →</button></div></div>
    <div class="goal"><b>ຈຸດປະສົງ:</b> ${c.goal}</div>
@@ -348,7 +365,7 @@ function renderCh(){
   $('#nx').onclick=()=>next&&openCh(next.n,tab);
   view.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{tab=b.dataset.t;renderCh();});
   typeset(view.querySelector('.goal'));
-  ({slides:renderSlides,ex:renderEx,hw:renderHw,quiz:renderQuiz})[tab]();
+  ({slides:renderSlides,ex:renderEx,hw:renderHw,quiz:renderQuiz,book:renderBook})[tab]();
 }
 
 function renderSlides(){
@@ -367,8 +384,42 @@ function renderSlides(){
 function go(d){const L=cur.slides.length; si=Math.max(0,Math.min(L-1,si+d)); const fs=document.fullscreenElement; if(fs){ // update in place to keep fullscreen
     const s=cur.slides[si]; fs.querySelector('.stitle').innerHTML=s[0]; fs.querySelector('.sbody').innerHTML=s[1]; fs.querySelector('.cnt').textContent=`ສະໄລ້ ${si+1} / ${L}`; typeset(fs);
     document.querySelectorAll('.dot').forEach((x,i)=>x.classList.toggle('on',i===si)); $('#sp').disabled=!si; } else renderSlides();}
-document.addEventListener('keydown',e=>{ if(!cur||tab!=='slides') return; if(/INPUT|TEXTAREA/.test(document.activeElement.tagName)) return;
-  if(e.key==='ArrowRight'||e.key==='PageDown'){go(1);e.preventDefault();} if(e.key==='ArrowLeft'||e.key==='PageUp'){go(-1);e.preventDefault();} });
+document.addEventListener('keydown',e=>{ if(!cur||(tab!=='slides'&&tab!=='book')) return; if(/INPUT|TEXTAREA/.test(document.activeElement.tagName)) return;
+  const d=(e.key==='ArrowRight'||e.key==='PageDown')?1:(e.key==='ArrowLeft'||e.key==='PageUp')?-1:0; if(!d) return;
+  e.preventDefault(); if(tab==='slides') go(d); else bookGo(d); });
+
+// textbook flipbook: page images rendered from the chapter's PDF pages, turned with StPageFlip
+let flipLib=null;
+function loadFlip(){
+  if(window.St&&St.PageFlip) return Promise.resolve();
+  return flipLib||(flipLib=new Promise((ok,no)=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.js';s.onload=ok;s.onerror=()=>{flipLib=null;no()};document.head.appendChild(s);}));
+}
+let bi=0; // page index for the plain fallback viewer
+function bookGo(d){ if(book){d>0?book.flipNext():book.flipPrev();} else { const N=document.querySelectorAll('#flip .bpage').length; bi=Math.max(0,Math.min(N-1,bi+d)); showPlain(); } }
+function showPlain(){ const pages=document.querySelectorAll('#flip .bpage'); pages.forEach((p,i)=>p.hidden=i!==bi); bookPos(bi,1,pages.length); }
+function bookPos(i,span,N){ const c=cur, p1=BOOK[c.n-1]-6+i, el=$('#bpos'); if(!el) return;
+  el.textContent=span>1&&i+1<N?`ໜ້າ ${p1}–${p1+1}`:`ໜ້າ ${p1}`; el.textContent+=` · ${i+span>=N?N:i+span} / ${N}`;
+  $('#bp').disabled=i<=0; $('#bn').disabled=i+span>=N; }
+function renderBook(){
+  const c=cur, pane=$('#pane'), id=String(c.n).padStart(2,'0'), from=BOOK[c.n-1], N=BOOK[c.n]-from, p1=from-6, pdf=`book/ch${id}.pdf`;
+  pane.innerHTML=`<div class="bookbar"><div><b>ປຶ້ມແບບຮຽນ · ບົດທີ ${c.n}</b><span class="hint"> · ໜ້າ ${p1}–${p1+N-1} ໃນປຶ້ມ (${N} ໜ້າ)</span></div>
+   <div class="bkbtns"><a class="btn" href="${pdf}" target="_blank" rel="noopener">ເປີດ PDF</a><a class="btn" href="${pdf}" download="ມ7-ບົດທີ${c.n}.pdf">⬇ ດາວໂຫຼດ PDF</a></div></div>
+   <div class="bookstage" id="bookstage"><div class="flip" id="flip">${Array.from({length:N},(_,i)=>`<div class="bpage"><img src="book/ch${id}-${i+1}.webp" alt="ໜ້າ ${p1+i}" draggable="false"></div>`).join('')}</div></div>
+   <div class="scontrols"><button class="btn" id="bp">← ໜ້າກ່ອນ</button><span class="hint" id="bpos"></span>
+   <div style="display:flex;gap:8px"><button class="btn" id="bfs">⛶ ເຕັມຈໍ</button><button class="btn primary" id="bn">ໜ້າຕໍ່ໄປ →</button></div></div>
+   <p class="hint">ກົດ ຫຼື ລາກມຸມໜ້າເຈ້ຍເພື່ອພິກໜ້າ, ຫຼື ໃຊ້ປຸ່ມລູກສອນ ← → ເທິງແປ້ນພິມ</p>`;
+  $('#bp').onclick=()=>bookGo(-1); $('#bn').onclick=()=>bookGo(1);
+  $('#bfs').onclick=()=>{const st=$('#bookstage'); if(document.fullscreenElement) document.exitFullscreen().catch(()=>{}); else if(st.requestFullscreen) st.requestFullscreen().catch(()=>{});};
+  bi=0; bookPos(0,1,N);
+  loadFlip().then(()=>{
+    if(tab!=='book'||cur!==c||!$('#flip')) return;
+    book=new St.PageFlip($('#flip'),{width:500,height:707,size:'stretch',minWidth:240,maxWidth:1000,minHeight:340,maxHeight:1414,
+      showCover:false,usePortrait:true,mobileScrollSupport:true,maxShadowOpacity:.45,flippingTime:750,drawShadow:true});
+    book.loadFromHTML(document.querySelectorAll('#flip .bpage'));
+    const upd=()=>bookPos(book.getCurrentPageIndex(),book.getOrientation()==='landscape'?2:1,N);
+    book.on('flip',upd); book.on('changeOrientation',upd); upd();
+  }).catch(showPlain);
+}
 
 function renderEx(){
   const pane=$('#pane');
