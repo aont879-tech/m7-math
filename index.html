@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="lo">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>[hidden]{display:none!important}body{margin:0}img{max-width:100%}</style>
+</head>
+<body>
+<title>ຫ້ອງຮຽນຄະນິດ ມ.7</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@400;500;600;700&family=Noto+Serif+Lao:wght@600;700&display=swap">
+<style>
+/* Layout: exercise-book page — grid-paper ground, ink-blue text, teacher's red pen for marks; sidebar of parts/chapters + one working pane */
+:root{
+  --paper:#f7f9fc; --grid:#dfe7f3; --sheet:#ffffff; --ink:#1b2a4a; --ink-2:#4a5878; --line:#cfd8e6;
+  --blue:#2350b8; --blue-soft:#e6edfb; --red:#c8332b; --red-soft:#fbe9e7; --green:#1f7a4d; --green-soft:#e3f3ea; --amber:#9a6a00; --amber-soft:#fbf1d9;
+  --display:"Noto Serif Lao","Phetsarath OT","Saysettha OT",serif;
+  --body:"Noto Sans Lao","Phetsarath OT","Saysettha OT",system-ui,sans-serif;
+  --r:10px; --shadow:0 1px 2px rgba(27,42,74,.08),0 6px 20px rgba(27,42,74,.06);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#0f1626; --grid:#18233a; --sheet:#141d31; --ink:#e3e9f6; --ink-2:#a5b2cc; --line:#2a3854;
+  --blue:#7fa3ff; --blue-soft:#1b2a4d; --red:#ff8a7f; --red-soft:#3a1d1f; --green:#6fd3a0; --green-soft:#16332a; --amber:#f0c060; --amber-soft:#3a2f14;
+  --shadow:0 1px 2px rgba(0,0,0,.4); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0f1626; --grid:#18233a; --sheet:#141d31; --ink:#e3e9f6; --ink-2:#a5b2cc; --line:#2a3854;
+  --blue:#7fa3ff; --blue-soft:#1b2a4d; --red:#ff8a7f; --red-soft:#3a1d1f; --green:#6fd3a0; --green-soft:#16332a; --amber:#f0c060; --amber-soft:#3a2f14;
+  --shadow:0 1px 2px rgba(0,0,0,.4); color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.75;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.35;margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible+span{outline:2px solid var(--blue);outline-offset:2px}
+a{color:var(--blue)}
+mjx-container{color:inherit}
+mjx-container[display="true"]{overflow-x:auto;overflow-y:hidden;max-width:100%;padding-block:2px}
+
+.app{display:grid;grid-template-columns:300px minmax(0,1fr);min-height:100vh}
+.side{position:sticky;top:0;height:100vh;overflow-y:auto;background:var(--sheet);border-right:1px solid var(--line);
+  padding-block:20px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:14px}
+.brand{display:flex;gap:12px;align-items:center;padding-bottom:16px;border-bottom:2px solid var(--ink);margin-bottom:12px;cursor:pointer;background:none;border-top:0;border-left:0;border-right:0;width:100%;text-align:left}
+.brand .mark{width:42px;height:42px;border-radius:8px;background:var(--blue);color:#fff;display:grid;place-items:center;font-family:var(--display);font-size:18px;flex:none}
+.brand b{display:block;font-family:var(--display);font-size:18px;line-height:1.3}
+.brand small{color:var(--ink-2);font-size:12.5px}
+.search{width:100%;padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);font:inherit;font-size:14px;margin-bottom:10px}
+.part{margin-top:10px}
+.part > button{width:100%;text-align:left;background:none;border:0;padding:6px 4px;font-size:12px;letter-spacing:.06em;color:var(--red);font-weight:700;text-transform:uppercase;display:flex;justify-content:space-between}
+.part ul{list-style:none;margin:0;padding:0}
+.chlink{width:100%;display:grid;grid-template-columns:30px 1fr auto;gap:6px;align-items:start;text-align:left;background:none;border:0;border-radius:6px;padding:5px 6px;font-size:14px;line-height:1.5;color:var(--ink)}
+.chlink:hover{background:var(--blue-soft)}
+.chlink.on{background:var(--blue);color:#fff}
+.chlink .no{font-variant-numeric:tabular-nums;color:var(--ink-2);font-weight:600}
+.chlink.on .no{color:#dbe5ff}
+.chlink .tick{font-size:11px;color:var(--green);font-weight:700}
+.chlink.on .tick{color:#c9f5dc}
+
+.main{min-width:0;padding-block:28px 60px;padding-left:max(16px,2.5vw);padding-right:max(16px,env(safe-area-inset-right,0px),2.5vw)}
+.topbar{display:none}
+.wrap{max-width:1040px;margin:0 auto}
+
+/* home */
+.hero{background:var(--sheet);border:1px solid var(--line);border-radius:var(--r);padding:28px clamp(18px,4vw,40px);box-shadow:var(--shadow);position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;left:56px;top:0;bottom:0;width:2px;background:var(--red);opacity:.5}
+.hero > *{position:relative;margin-left:44px}
+.hero .eyebrow{font-size:12.5px;letter-spacing:.08em;color:var(--red);font-weight:700}
+.hero h1{font-size:clamp(26px,4vw,38px);margin:6px 0 10px 44px}
+.hero p{color:var(--ink-2);max-width:62ch;margin-top:0}
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:13px;padding:3px 10px;border-radius:999px;border:1px solid var(--line);background:var(--paper)}
+.chip i{width:8px;height:8px;border-radius:50%;display:inline-block}
+.parts{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin-top:22px}
+.pcard{background:var(--sheet);border:1px solid var(--line);border-radius:var(--r);padding:18px;min-width:0}
+.pcard .pn{font-size:12px;letter-spacing:.06em;color:var(--red);font-weight:700}
+.pcard h2{font-size:19px;margin:2px 0 10px}
+.pcard ol{margin:0;padding:0;list-style:none;display:grid;gap:2px}
+.pcard li button{background:none;border:0;padding:4px 6px;margin-left:-6px;border-radius:6px;text-align:left;font-size:14.5px;line-height:1.5;display:flex;gap:8px;width:100%}
+.pcard li button:hover{background:var(--blue-soft)}
+.pcard li b{font-variant-numeric:tabular-nums;color:var(--blue);min-width:24px}
+
+/* chapter */
+.chhead{display:flex;justify-content:space-between;gap:16px;align-items:flex-end;flex-wrap:wrap;margin-bottom:14px}
+.chhead .eyebrow{font-size:12.5px;letter-spacing:.06em;color:var(--red);font-weight:700}
+.chhead h1{font-size:clamp(22px,3.2vw,32px)}
+.goal{background:var(--sheet);border:1px solid var(--line);border-left:4px solid var(--blue);border-radius:8px;padding:10px 14px;color:var(--ink-2);font-size:15px;margin-bottom:16px}
+.goal b{color:var(--ink)}
+.navbtns{display:flex;gap:8px}
+.btn{border:1px solid var(--line);background:var(--sheet);border-radius:8px;padding:6px 14px;font-size:14px}
+.btn:hover{border-color:var(--blue);color:var(--blue)}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn.primary:hover{filter:brightness(1.08);color:#fff}
+.btn:disabled{opacity:.4;cursor:default}
+.tabs{display:flex;gap:4px;border-bottom:2px solid var(--ink);margin-bottom:18px;overflow-x:auto}
+.tab{background:none;border:0;padding:10px 16px;font-size:15px;font-weight:600;color:var(--ink-2);border-radius:8px 8px 0 0;white-space:nowrap;display:flex;gap:8px;align-items:center}
+.tab .n{font-size:12px;background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:0 7px;font-weight:600;font-variant-numeric:tabular-nums}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--sheet)}
+.tab[aria-selected="true"] .n{background:transparent;color:var(--sheet);border-color:var(--sheet)}
+
+/* slides */
+.stage{background:var(--sheet);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);aspect-ratio:16/9.6;display:flex;flex-direction:column;overflow:hidden;max-width:100%}
+.stage:fullscreen{aspect-ratio:auto;border-radius:0;border:0}
+.stage:fullscreen .sbody{font-size:clamp(20px,2.2vw,34px)}
+.stage:fullscreen .stitle{font-size:clamp(26px,3vw,44px)}
+.sbar{display:flex;justify-content:space-between;align-items:center;padding:10px 22px;border-bottom:1px solid var(--line);font-size:13px;color:var(--ink-2);gap:10px}
+.sbar .ch{color:var(--red);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sbar .cnt{font-variant-numeric:tabular-nums;white-space:nowrap}
+.scontent{flex:1;overflow:auto;padding:22px clamp(18px,4vw,48px) 26px}
+.stitle{font-size:clamp(20px,2.4vw,28px);margin-bottom:14px;color:var(--blue)}
+.sbody{font-size:clamp(16px,1.6vw,19px)}
+.sbody p{margin:0 0 .7em}
+.sbody ul,.sbody ol{margin:0 0 .7em;padding-left:1.3em}
+.sbody li{margin-bottom:.25em}
+.box{border:1.5px solid var(--blue);background:var(--blue-soft);border-radius:8px;padding:10px 14px;margin:0 0 .8em}
+.box.red{border-color:var(--red);background:var(--red-soft)}
+.box.green{border-color:var(--green);background:var(--green-soft)}
+.box .lbl{display:block;font-size:.78em;font-weight:700;letter-spacing:.05em;color:var(--blue);margin-bottom:2px}
+.box.red .lbl{color:var(--red)} .box.green .lbl{color:var(--green)}
+.ex{border-left:3px dashed var(--amber);padding:4px 0 4px 14px;margin:0 0 .8em}
+.ex .lbl{font-weight:700;color:var(--amber);font-size:.85em}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.tbl{overflow-x:auto;margin-bottom:.8em}
+.tbl table{border-collapse:collapse;font-size:.92em}
+.tbl td,.tbl th{border:1px solid var(--line);padding:4px 10px;text-align:center}
+.tbl th{background:var(--paper)}
+.scontrols{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap}
+.dots{display:flex;gap:6px;flex-wrap:wrap}
+.dot{width:10px;height:10px;border-radius:50%;border:0;background:var(--line);padding:0}
+.dot.on{background:var(--blue)}
+.hint{font-size:12.5px;color:var(--ink-2)}
+
+/* exercises / homework */
+.qlist{display:grid;gap:12px;margin:0;padding:0;list-style:none;counter-reset:q}
+.qitem{background:var(--sheet);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px 12px 52px;position:relative;counter-increment:q;min-width:0}
+.qitem::before{content:counter(q);position:absolute;left:14px;top:13px;width:26px;height:26px;border-radius:50%;border:1.5px solid var(--ink);display:grid;place-items:center;font-size:13px;font-weight:700;font-variant-numeric:tabular-nums}
+.qitem .qt{margin:0}
+.qitem details{margin-top:8px}
+.qitem summary{cursor:pointer;color:var(--blue);font-size:14px;font-weight:600;width:max-content;max-width:100%}
+.ans{margin-top:8px;padding:10px 14px;border-radius:8px;background:var(--green-soft);border:1px solid var(--green);font-size:15px;overflow-x:auto}
+.ans .lbl{display:block;font-size:12px;font-weight:700;color:var(--green);letter-spacing:.05em}
+.hwhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;background:var(--amber-soft);border:1px solid var(--amber);border-radius:var(--r);padding:12px 16px;margin-bottom:14px}
+.hwhead p{margin:0;font-size:14.5px}
+.toggle{display:inline-flex;gap:8px;align-items:center;font-size:14px;font-weight:600;cursor:pointer}
+.toggle input{width:18px;height:18px;accent-color:var(--blue)}
+
+/* quiz */
+.quizhead{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.quizhead p{margin:0;color:var(--ink-2);font-size:14.5px}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin-top:10px}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:8px;padding:8px 12px;cursor:pointer;background:var(--paper);min-width:0}
+.opt:hover{border-color:var(--blue)}
+.opt input{margin-top:6px;accent-color:var(--blue);flex:none}
+.opt .k{font-weight:700;color:var(--ink-2)}
+.opt.sel{border-color:var(--blue);background:var(--blue-soft)}
+.opt.right{border-color:var(--green);background:var(--green-soft)}
+.opt.wrong{border-color:var(--red);background:var(--red-soft)}
+.fb{margin-top:8px;font-size:14.5px;padding:8px 12px;border-radius:8px}
+.fb.ok{background:var(--green-soft);color:var(--green)} .fb.no{background:var(--red-soft);color:var(--red)}
+.fb span{color:var(--ink)}
+.score{display:flex;gap:18px;align-items:center;background:var(--sheet);border:2px solid var(--red);border-radius:var(--r);padding:14px 20px;margin-top:16px;flex-wrap:wrap}
+.score .big{font-family:var(--display);font-size:40px;color:var(--red);line-height:1;font-variant-numeric:tabular-nums}
+.score p{margin:0}
+.qsec + .qsec{margin-top:34px;padding-top:22px;border-top:2px dashed var(--line)}
+.secttl{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.secttl h2{font-size:20px}
+.tag{font-size:12px;font-weight:700;letter-spacing:.05em;color:#fff;background:var(--blue);border-radius:6px;padding:2px 8px}
+.tag.red{background:var(--red)}
+.qnum{display:inline-block;font-size:12px;font-weight:700;color:var(--red);border:1px solid var(--red);border-radius:999px;padding:0 8px;margin-right:8px;vertical-align:middle}
+.footer{margin-top:40px;font-size:13px;color:var(--ink-2);border-top:1px solid var(--line);padding-top:14px}
+
+@media (max-width:860px){
+  .app{grid-template-columns:1fr}
+  .side{position:fixed;inset:0 auto 0 0;width:min(320px,88vw);z-index:20;transform:translateX(-105%);transition:transform .2s;box-shadow:var(--shadow);padding-top:calc(20px + env(safe-area-inset-top,0px))}
+  .side.open{transform:none}
+  .scrim{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:15}
+  .topbar{display:flex;position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:var(--sheet);border-bottom:1px solid var(--line);
+    padding-block:8px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));align-items:center;gap:10px}
+  .topbar b{font-family:var(--display);font-size:16px}
+  .main{padding-top:16px}
+  .stage{aspect-ratio:auto;min-height:420px}
+  .hero > *{margin-left:18px}.hero h1{margin-left:18px}.hero::before{left:24px}
+  .qitem{padding-left:46px}
+}
+@media (prefers-reduced-motion:reduce){.side{transition:none}}
+</style>
+
+<div class="topbar"><button class="btn" id="menuBtn" aria-label="ເປີດລາຍການບົດ">☰ ບົດຮຽນ</button><b>ຄະນິດສາດ ມ.7</b></div>
+<div class="app">
+  <aside class="side" id="side">
+    <button class="brand" id="homeBtn"><span class="mark">ມ.7</span><span><b>ຫ້ອງຮຽນຄະນິດ ມ.7</b><small>ແບບຮຽນຄະນິດສາດ ມັດທະຍົມ ປີທີ 7 · 45 ບົດ</small></span></button>
+    <input class="search" id="search" type="search" placeholder="ຊອກຫາບົດ ເຊັ່ນ: ສັງຄະນິດ" aria-label="ຊອກຫາບົດ">
+    <nav id="nav"></nav>
+  </aside>
+  <main class="main"><div class="wrap" id="view"></div></main>
+</div>
+
+<script>
+window.MathJax={tex:{inlineMath:[['$','$']],displayMath:[['$$','$$']]},svg:{fontCache:'global'},startup:{typeset:false}};
+window.M7={ch:[],parts:[
+ "ສົມຜົນລີເນແອດີໂອຟັງທາຍ",
+ "ການພິສູດແບບຂັ້ນຂັ້ນ, ອະສະເໝີຜົນ ແລະ ການນຳໃຊ້",
+ "ອັນດັບຈຳນວນ",
+ "ຈຳນວນສົນ",
+ "ຕຳລາປີ້ນ ແລະ ຕຳລາປີ້ນຂອງຕຳລາໄຕມຸມມິຕິ",
+ "ວິເຄາະຄະນິດ",
+ "ການນຳໃຊ້ຜົນຕຳລາ, ຈຸນລະຄະນິດ ແລະ ສັງຄະນິດ",
+ "ສະຖິຕິ"]};
+window.R=String.raw;
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js" defer></script>
+<script src="p1.js"></script>
+<script src="p2.js"></script>
+<script src="p3.js"></script>
+<script src="p4.js"></script>
+<script src="p5.js"></script>
+<script src="p6.js"></script>
+<script src="p7.js"></script>
+<script src="p7b.js"></script>
+<script src="p8.js"></script>
+<script src="p9.js"></script>
+<script>
+(function(){
+const $=s=>document.querySelector(s);
+const view=$('#view'), nav=$('#nav'), side=$('#side');
+const TABS=[['slides','ສະໄລ້ສອນ'],['ex','ບົດເຝິກຫັດ'],['hw','ວຽກບ້ານ'],['quiz','ບົດກວດກາທ້າຍບົດ']];
+const chs=M7.ch.slice().sort((a,b)=>a.n-b.n);
+let cur=null, tab='slides', si=0;
+const store={get(k){try{return JSON.parse(localStorage.getItem('m7:'+k))}catch(e){return null}},set(k,v){try{localStorage.setItem('m7:'+k,JSON.stringify(v))}catch(e){}}};
+
+let mjq=Promise.resolve();
+function typeset(el){
+  if(!el) return;
+  const go=()=>{ if(window.MathJax&&MathJax.typesetPromise){ mjq=mjq.then(()=>MathJax.typesetPromise([el])).catch(()=>{}); } else setTimeout(go,150); };
+  go();
+}
+function esc(s){return String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}
+
+function buildNav(filter=''){
+  const f=filter.trim();
+  let h='';
+  M7.parts.forEach((p,i)=>{
+    const list=chs.filter(c=>c.part===i+1&&(!f||c.title.includes(f)||String(c.n)===f||p.includes(f)));
+    if(!list.length) return;
+    h+=`<div class="part"><button type="button" tabindex="-1">ພາກທີ ${i+1} · ${esc(p)}</button><ul>`;
+    list.forEach(c=>{
+      const best=store.get('q'+c.n);
+      h+=`<li><button class="chlink${cur&&cur.n===c.n?' on':''}" data-n="${c.n}"><span class="no">${c.n}</span><span>${esc(c.title)}</span><span class="tick">${best!=null?best+'/'+c.quiz.length:''}</span></button></li>`;
+    });
+    h+='</ul></div>';
+  });
+  nav.innerHTML=h||'<p class="hint">ບໍ່ພົບບົດທີ່ຊອກຫາ</p>';
+}
+nav.addEventListener('click',e=>{const b=e.target.closest('.chlink'); if(b){openCh(+b.dataset.n); closeSide();}});
+$('#search').addEventListener('input',e=>buildNav(e.target.value));
+$('#homeBtn').addEventListener('click',()=>{home();closeSide();});
+$('#menuBtn').addEventListener('click',()=>{side.classList.add('open');const s=document.createElement('div');s.className='scrim';s.id='scrim';s.onclick=closeSide;document.body.appendChild(s);});
+function closeSide(){side.classList.remove('open');const s=$('#scrim');s&&s.remove();}
+
+function home(){
+  cur=null; try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}
+  buildNav($('#search').value);
+  let h=`<section class="hero"><div class="eyebrow">ກະຊວງສຶກສາທິການ ແລະ ກິລາ · ຫຼັກສູດປັບປຸງ 2025</div>
+  <h1>ຫ້ອງຮຽນຄະນິດສາດ ມັດທະຍົມ ປີທີ 7</h1>
+  <p>ສື່ການສອນຕາມແບບຮຽນ ມ.7 ຄົບທັງ 8 ພາກ 45 ບົດ. ແຕ່ລະບົດມີ 4 ພາກສ່ວນ ເລືອກບົດຈາກລາຍການ ແລ້ວກົດປຸ່ມລູກສອນ ← → ເພື່ອປ່ຽນສະໄລ້.</p>
+  <div class="legend"><span class="chip"><i style="background:var(--blue)"></i>ສະໄລ້ສອນ</span><span class="chip"><i style="background:var(--amber)"></i>ບົດເຝິກຫັດ ພ້ອມບົດແກ້</span><span class="chip"><i style="background:var(--green)"></i>ວຽກບ້ານ ພ້ອມຄຳຕອບສຳລັບຄູ</span><span class="chip"><i style="background:var(--red)"></i>ບົດກວດກາທ້າຍບົດ + ພາກປາລະໄນຈາກສະຫຼຸບບົດຮຽນ (239 ຂໍ້) ກວດຄະແນນອັດຕະໂນມັດ</span></div></section>
+  <div class="parts">`;
+  M7.parts.forEach((p,i)=>{
+    h+=`<div class="pcard"><div class="pn">ພາກທີ ${i+1}</div><h2>${esc(p)}</h2><ol>`;
+    chs.filter(c=>c.part===i+1).forEach(c=>h+=`<li><button data-n="${c.n}"><b>${c.n}</b><span>${esc(c.title)}</span></button></li>`);
+    h+='</ol></div>';
+  });
+  h+=`</div><div class="footer">ເນື້ອຫາສະຫຼຸບ ແລະ ຮຽບຮຽງຄືນຈາກແບບຮຽນຄະນິດສາດ ມ.7 (ສະຖາບັນຄົ້ນຄວ້າວິທະຍາສາດການສຶກສາ, 2025). ຄູສາມາດໃຊ້ສະໄລ້ສອນໃນຫ້ອງ ແລະ ມອບວຽກບ້ານໃຫ້ນັກຮຽນ.</div>`;
+  view.innerHTML=h;
+  view.querySelectorAll('.pcard button').forEach(b=>b.onclick=()=>openCh(+b.dataset.n));
+  window.scrollTo(0,0);
+}
+
+function openCh(n,t){
+  cur=chs.find(c=>c.n===n); if(!cur) return home();
+  tab=t||'slides'; si=0; try{history.replaceState(null,'','#ch'+n)}catch(e){}
+  buildNav($('#search').value); renderCh(); window.scrollTo(0,0);
+}
+function renderCh(){
+  const c=cur, idx=chs.indexOf(c), prev=chs[idx-1], next=chs[idx+1];
+  const counts={slides:c.slides.length,ex:c.ex.length,hw:c.hw.length,quiz:c.quiz.length+((M7.rev&&M7.rev[c.n]||[]).length)};
+  view.innerHTML=`<div class="chhead"><div><div class="eyebrow">ພາກທີ ${c.part} · ${esc(M7.parts[c.part-1])}</div><h1>ບົດທີ ${c.n}: ${esc(c.title)}</h1></div>
+   <div class="navbtns"><button class="btn" id="pv" ${prev?'':'disabled'}>← ບົດທີ ${prev?prev.n:''}</button><button class="btn" id="nx" ${next?'':'disabled'}>ບົດທີ ${next?next.n:''} →</button></div></div>
+   <div class="goal"><b>ຈຸດປະສົງ:</b> ${c.goal}</div>
+   <div class="tabs" role="tablist">${TABS.map(([k,l])=>`<button class="tab" role="tab" data-t="${k}" aria-selected="${tab===k}">${l}<span class="n">${counts[k]}</span></button>`).join('')}</div>
+   <div id="pane"></div>`;
+  $('#pv').onclick=()=>prev&&openCh(prev.n,tab);
+  $('#nx').onclick=()=>next&&openCh(next.n,tab);
+  view.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{tab=b.dataset.t;renderCh();});
+  typeset(view.querySelector('.goal'));
+  ({slides:renderSlides,ex:renderEx,hw:renderHw,quiz:renderQuiz})[tab]();
+}
+
+function renderSlides(){
+  const c=cur, pane=$('#pane'), s=c.slides[si];
+  pane.innerHTML=`<div class="stage" id="stage"><div class="sbar"><span class="ch">ບົດທີ ${c.n} · ${esc(c.title)}</span><span class="cnt">ສະໄລ້ ${si+1} / ${c.slides.length}</span></div>
+   <div class="scontent"><h2 class="stitle">${s[0]}</h2><div class="sbody">${s[1]}</div></div></div>
+   <div class="scontrols"><button class="btn" id="sp" ${si?'':'disabled'}>← ກ່ອນໜ້າ</button>
+   <div class="dots">${c.slides.map((_,i)=>`<button class="dot${i===si?' on':''}" data-i="${i}" aria-label="ສະໄລ້ ${i+1}"></button>`).join('')}</div>
+   <div style="display:flex;gap:8px"><button class="btn" id="fs">⛶ ເຕັມຈໍ</button><button class="btn primary" id="sn">${si<c.slides.length-1?'ຕໍ່ໄປ →':'ໄປເຮັດບົດເຝິກຫັດ →'}</button></div></div>
+   <p class="hint">ໃຊ້ປຸ່ມລູກສອນ ← → ເທິງແປ້ນພິມເພື່ອປ່ຽນສະໄລ້</p>`;
+  $('#sp').onclick=()=>go(-1); $('#sn').onclick=()=>{ if(si<c.slides.length-1) go(1); else {tab='ex';renderCh();} };
+  pane.querySelectorAll('.dot').forEach(d=>d.onclick=()=>{si=+d.dataset.i;renderSlides();});
+  $('#fs').onclick=()=>{const st=$('#stage'); if(document.fullscreenElement) document.exitFullscreen().catch(()=>{}); else if(st.requestFullscreen) st.requestFullscreen().catch(()=>{});};
+  typeset(pane);
+}
+function go(d){const L=cur.slides.length; si=Math.max(0,Math.min(L-1,si+d)); const fs=document.fullscreenElement; if(fs){ // update in place to keep fullscreen
+    const s=cur.slides[si]; fs.querySelector('.stitle').innerHTML=s[0]; fs.querySelector('.sbody').innerHTML=s[1]; fs.querySelector('.cnt').textContent=`ສະໄລ້ ${si+1} / ${L}`; typeset(fs);
+    document.querySelectorAll('.dot').forEach((x,i)=>x.classList.toggle('on',i===si)); $('#sp').disabled=!si; } else renderSlides();}
+document.addEventListener('keydown',e=>{ if(!cur||tab!=='slides') return; if(/INPUT|TEXTAREA/.test(document.activeElement.tagName)) return;
+  if(e.key==='ArrowRight'||e.key==='PageDown'){go(1);e.preventDefault();} if(e.key==='ArrowLeft'||e.key==='PageUp'){go(-1);e.preventDefault();} });
+
+function renderEx(){
+  const pane=$('#pane');
+  pane.innerHTML=`<p class="hint" style="margin-top:0">ໃຫ້ນັກຮຽນລອງເຮັດກ່ອນ ແລ້ວຈຶ່ງກົດເບິ່ງບົດແກ້ລະອຽດ.</p><ol class="qlist">${cur.ex.map(([q,a])=>`<li class="qitem"><div class="qt">${q}</div><details><summary>ເບິ່ງບົດແກ້</summary><div class="ans"><span class="lbl">ບົດແກ້</span>${a}</div></details></li>`).join('')}</ol>`;
+  typeset(pane);
+}
+function renderHw(){
+  const pane=$('#pane');
+  pane.innerHTML=`<div class="hwhead"><p><b>ວຽກບ້ານບົດທີ ${cur.n}</b> · ໃຫ້ນັກຮຽນເຮັດໃສ່ປຶ້ມຂຽນ ແລະ ສົ່ງໃນຊົ່ວໂມງຕໍ່ໄປ.</p><label class="toggle"><input type="checkbox" id="showA"><span>ສະແດງຄຳຕອບ (ສຳລັບຄູ)</span></label></div>
+   <ol class="qlist">${cur.hw.map(([q,a])=>`<li class="qitem"><div class="qt">${q}</div><div class="ans" hidden><span class="lbl">ຄຳຕອບ</span>${a}</div></li>`).join('')}</ol>`;
+  $('#showA').onchange=e=>pane.querySelectorAll('.ans').forEach(x=>x.hidden=!e.target.checked);
+  typeset(pane);
+}
+function quizForm(id,items,label){
+  const K='ກຂຄງ';
+  return `<form id="${id}"><ol class="qlist">${items.map((it,i)=>`<li class="qitem" data-i="${i}"><div class="qt">${label?`<span class="qnum">ຂໍ້ ${label(it)} ໃນແບບຮຽນ</span>`:''}${it.q}</div><div class="opts">${it.o.map((t,j)=>`<label class="opt"><input type="radio" name="${id}q${i}" value="${j}"><span><span class="k">${K[j]}.</span> ${t}</span></label>`).join('')}</div><div class="fbx"></div></li>`).join('')}</ol>
+  <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap"><button class="btn primary" type="submit">ກວດຄະແນນ</button><button class="btn" type="button" data-reset>ເລີ່ມໃໝ່</button></div><div class="res"></div></form>`;
+}
+function wireQuiz(id,items,storeKey){
+  const K='ກຂຄງ', f=$('#'+id);
+  f.addEventListener('change',e=>{ if(e.target.type==='radio'){ e.target.closest('.opts').querySelectorAll('.opt').forEach(l=>l.classList.toggle('sel',l.contains(e.target))); } });
+  f.querySelector('[data-reset]').onclick=()=>{ f.reset(); f.querySelectorAll('.opt').forEach(l=>l.classList.remove('right','wrong','sel')); f.querySelectorAll('.fbx').forEach(x=>x.innerHTML=''); f.querySelector('.res').innerHTML=''; };
+  f.addEventListener('submit',e=>{ e.preventDefault(); let sc=0, miss=0;
+    items.forEach((it,i)=>{ const c=it.c, li=f.querySelector(`[data-i="${i}"]`), ch=f.querySelector(`input[name="${id}q${i}"]:checked`), v=ch?+ch.value:-1;
+      li.querySelectorAll('.opt').forEach((l,j)=>{l.classList.remove('right','wrong','sel'); if(j===c) l.classList.add('right'); else if(j===v) l.classList.add('wrong');});
+      if(v<0) miss++; if(v===c) sc++;
+      li.querySelector('.fbx').innerHTML=`<div class="fb ${v===c?'ok':'no'}"><b>${v===c?'ຖືກຕ້ອງ':(v<0?'ຍັງບໍ່ໄດ້ຕອບ':'ຍັງບໍ່ຖືກ')}</b> · ຄຳຕອບແມ່ນ ${K[c]}. <span>${it.e||''}</span></div>`; });
+    const pct=Math.round(sc/items.length*100), b=store.get(storeKey); if(b==null||sc>b) store.set(storeKey,sc);
+    const msg=pct>=80?'ດີຫຼາຍ! ເຂົ້າໃຈບົດນີ້ດີແລ້ວ.':pct>=50?'ຜ່ານ. ທົບທວນຂໍ້ທີ່ຜິດອີກຄັ້ງ.':'ຄວນກັບໄປທົບທວນສະໄລ້ ແລະ ບົດເຝິກຫັດຂອງບົດນີ້.';
+    const res=f.querySelector('.res');
+    res.innerHTML=`<div class="score"><div class="big">${sc}/${items.length}</div><p><b>${pct}%</b> · ${msg}${miss?` (ຍັງບໍ່ໄດ້ຕອບ ${miss} ຂໍ້)`:''}</p></div>`;
+    typeset(f); buildNav($('#search').value); res.scrollIntoView({behavior:'smooth',block:'nearest'}); });
+}
+function renderQuiz(){
+  const pane=$('#pane');
+  const qa=cur.quiz.map(([q,o,c,e])=>({q,o,c,e}));
+  const rv=(M7.rev&&M7.rev[cur.n]||[]).slice().sort((a,b)=>a[0]-b[0]).map(([n,q,o,c,e])=>({n,q,o,c,e}));
+  const best=store.get('q'+cur.n), bestR=store.get('r'+cur.n);
+  let h=`<section class="qsec"><div class="secttl"><span class="tag">ພາກ ກ</span><h2>ບົດກວດກາທ້າຍບົດ</h2><span class="hint">${qa.length} ຂໍ້${best!=null?` · ຄະແນນສູງສຸດ ${best}/${qa.length}`:''}</span></div>
+   <p class="hint" style="margin-top:0">ເລືອກຄຳຕອບທີ່ຖືກຕ້ອງທີ່ສຸດ ແລ້ວກົດ “ກວດຄະແນນ”.</p>${quizForm('qa',qa)}</section>`;
+  if(rv.length) h+=`<section class="qsec"><div class="secttl"><span class="tag red">ພາກ ຂ</span><h2>ພາກປາລະໄນ: ສະຫຼຸບບົດຮຽນ ມ.7</h2><span class="hint">${rv.length} ຂໍ້ (ຂໍ້ ${rv.map(x=>x.n).join(', ')})${bestR!=null?` · ຄະແນນສູງສຸດ ${bestR}/${rv.length}`:''}</span></div>
+   <p class="hint" style="margin-top:0">ຄຳຖາມຈາກພາກ “ສະຫຼຸບບົດຮຽນ ມັດທະຍົມສຶກສາ ປີທີ 7” ໃນທ້າຍແບບຮຽນ ທີ່ກົງກັບເນື້ອຫາບົດນີ້. ຄຳຕອບໄດ້ກວດຄິດໄລ່ຄືນທຸກຂໍ້; ບ່ອນທີ່ຕ່າງຈາກຕາຕະລາງຄຳຕອບໃນແບບຮຽນ ມີໝາຍເຫດບອກໄວ້.</p>${quizForm('qr',rv,it=>it.n)}</section>`;
+  pane.innerHTML=h;
+  wireQuiz('qa',qa,'q'+cur.n);
+  if(rv.length) wireQuiz('qr',rv,'r'+cur.n);
+  typeset(pane);
+}
+function fromHash(){const h=(location.hash.match(/^#ch(\d+)$/)||[])[1]; if(h){ if(!cur||cur.n!==+h) openCh(+h);} else if(cur) home();}
+window.addEventListener('hashchange',fromHash);
+if(/^#ch\d+$/.test(location.hash)) fromHash(); else home();
+})();
+</script>
+
+</body>
+</html>
