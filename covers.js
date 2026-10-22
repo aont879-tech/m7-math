@@ -132,7 +132,21 @@ const A={
   return h+`<ellipse class="f1" cx="${f1(s.X(x))}" cy="${f1(s.Y(0))}" rx="11" ry="${f1(s.Y(0)-s.Y(f(x)))}"/><ellipse class="f0s" cx="${f1(s.X(x))}" cy="${f1(s.Y(0))}" rx="5" ry="${f1(s.Y(0)-s.Y(g(x)))}"/>`
   +tx(120,24,'V = π∫ (f² − g²) dx','txb')},
 45(){const s=sys(-3.6,3.6,-0.03,0.47),f=x=>Math.exp(-x*x/2)/Math.sqrt(2*PI);return s.ax+area(f,-1,1.4,s)+plot(f,-3.6,3.6,s)
-  +tx(s.X(-1),s.Y(0)+15,'a','txs')+tx(s.X(1.4),s.Y(0)+15,'b','txs')+tx(120,24,'P(a ≤ X ≤ b) = ∫ₐᵇ f(x) dx','txb')}
+  +tx(s.X(-1),s.Y(0)+15,'a','txs')+tx(s.X(1.4),s.Y(0)+15,'b','txs')+tx(120,24,'P(a ≤ X ≤ b) = ∫ₐᵇ f(x) dx','txb')},
+// supplementary matrix part (2016 textbook)
+101(){const v=[[1,0,2],[-3,5,3],[4,-1,0]];let h=path('M52 30 Q38 90 52 150','c1')+path('M188 30 Q202 90 188 150','c1');
+  v.forEach((r,i)=>r.forEach((x,j)=>{h+=(i===j?rc(60+j*44,38+i*40,32,30,'f1b',4):'')+tx(76+j*44,59+i*40,x,i===1&&j===2?'txr':'txb')}));
+  return h+tx(120,172,'A = (aᵢⱼ)₃ₓ₃','txb')+tx(208,80,'a₂₃','txr','start')},
+102(){return ln(58,40,58,130,'c1')+ln(182,40,182,130,'c1')+tx(90,75,'a','txb')+tx(150,75,'b','txb')+tx(90,115,'c','txb')+tx(150,115,'d','txb')
+  +ln(98,68,142,110,'c2')+ln(142,68,98,110,'c3')+tx(120,160,'ad − bc','txb')+tx(204,95,'≠ 0 ⇒ A⁻¹','txr','start')},
+103(){const s=sys(-1,5,-1,5);return s.ax+plot(x=>(7-2*x)/3*1.5,-1,5,s)+plot(x=>x-0.5,-0.5,5,s,'c2')+plot(x=>4-0.5*x,-1,5,s,'c3')
+  +dot(s.X(2.5),s.Y(2),'rd',6)+tx(s.X(2.5)+8,s.Y(2)+18,'(x, y, z)','txr','start')+tx(120,24,'AX = B','txb')},
+104(){const s=sys(-1,5,-1,5),T=[[1,3],[2,4.2],[3,3]],P=p=>p.map(([x,y])=>f1(s.X(x))+','+f1(s.Y(y))).join(' ');
+  return s.ax+plot(x=>x,-1,5,s,'dash')+`<polygon class="f1b" points="${P(T)}"/><polygon class="f2b" points="${P(T.map(([x,y])=>[y,x]))}"/>`
+  +tx(s.X(4.6),s.Y(4.6)+16,'y = x','txs','end')+tx(70,170,'(x′, y′) = A(x, y)','txb','start')},
+105(){const s=sys(-0.5,8,-0.5,7.5),V=[[0,0],[7,0],[6,2],[3,5],[0,6]];
+  return s.ax+`<polygon class="f1" points="${V.map(([x,y])=>f1(s.X(x))+','+f1(s.Y(y))).join(' ')}"/>`+plot(x=>14-2*x,0.5,7,s)+plot(x=>8-x,0,8,s,'c3')+plot(x=>(18-x)/3,0,8,s,'c1')
+  +plot(x=>2-5/3*(x-6),3.6,7.5,s,'dashr')+dot(s.X(6),s.Y(2),'rd',6)+tx(s.X(6)+8,s.Y(2)-6,'max','txr','start')+tx(150,30,'P = 50x₁ + 30x₂','txb')}
 };
 M7.cover=n=>A[n]?`<svg class="cvart" viewBox="0 0 240 180" role="img" aria-hidden="true">${A[n]()}</svg>`:'';
 })();

@@ -268,7 +268,8 @@ window.M7={ch:[],parts:[
  "ຕຳລາປີ້ນ ແລະ ຕຳລາປີ້ນຂອງຕຳລາໄຕມຸມມິຕິ",
  "ວິເຄາະຄະນິດ",
  "ການນຳໃຊ້ຜົນຕຳລາ, ຈຸນລະຄະນິດ ແລະ ສັງຄະນິດ",
- "ສະຖິຕິ"]};
+ "ສະຖິຕິ",
+ "ມາຕຣິດ, ເດແຕກມີນັງ ແລະ ລະບົບສົມຜົນລີເນແອ"]};
 window.R=String.raw;
 </script>
 <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js" defer></script>
@@ -282,6 +283,7 @@ window.R=String.raw;
 <script src="p7b.js"></script>
 <script src="p8.js"></script>
 <script src="p9.js"></script>
+<script src="pm.js"></script>
 <script src="covers.js"></script>
 <script>
 (function(){
@@ -291,7 +293,11 @@ const TABS=[['slides','ສະໄລ້ສອນ'],['ex','ບົດເຝິກ�
 // first PDF page of each chapter in the textbook (printed page = PDF page − 6); last entry = start of the review section
 const BOOK=[7,13,20,23,26,28,33,38,42,47,51,56,59,64,70,74,76,79,84,89,95,100,105,108,111,117,122,131,134,139,143,147,151,153,159,164,169,175,180,186,193,201,205,208,211,222];
 let book=null;
-const chs=M7.ch.slice().sort((a,b)=>a.n-b.n);
+// part 9 is the supplementary matrix part from the 2016 textbook, taught right after complex numbers (part 4)
+const PART_ORDER=[1,2,3,4,9,5,6,7,8];
+const partNo=p=>p===9?'ພາກເສີມ ກ':`ພາກທີ ${p}`;
+const chNo=c=>c.label?`ບົດເສີມ ${c.label}`:`ບົດທີ ${c.n}`;
+const chs=M7.ch.slice().sort((a,b)=>PART_ORDER.indexOf(a.part)-PART_ORDER.indexOf(b.part)||a.n-b.n);
 let cur=null, tab='slides', si=0;
 const store={get(k){try{return JSON.parse(localStorage.getItem('m7:'+k))}catch(e){return null}},set(k,v){try{localStorage.setItem('m7:'+k,JSON.stringify(v))}catch(e){}}};
 
@@ -303,20 +309,21 @@ function typeset(el){
 }
 function esc(s){return String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}
 // every chapter opens on a cover slide: chapter number, title, aim and an illustration
-chs.forEach(c=>c.slides.unshift(['',`<div class="cover"><div><div class="cvpart">ພາກທີ ${c.part} · ${esc(M7.parts[c.part-1])}</div>
- <div class="cvno">ບົດທີ <span>${c.n}</span></div><h3 class="cvtitle">${esc(c.title)}</h3><div class="cvgoal"><b>ຈຸດປະສົງ:</b> ${c.goal}</div></div>
+chs.forEach(c=>c.slides.unshift(['',`<div class="cover"><div><div class="cvpart">${partNo(c.part)} · ${esc(M7.parts[c.part-1])}</div>
+ <div class="cvno">${c.label?'ບົດເສີມ':'ບົດທີ'} <span>${c.label||c.n}</span></div><h3 class="cvtitle">${esc(c.title)}</h3><div class="cvgoal"><b>ຈຸດປະສົງ:</b> ${c.goal}</div></div>
  <div class="cvfig">${M7.cover?M7.cover(c.n):''}</div></div>`]));
 
 function buildNav(filter=''){
   const f=filter.trim();
   let h='';
-  M7.parts.forEach((p,i)=>{
-    const list=chs.filter(c=>c.part===i+1&&(!f||c.title.includes(f)||String(c.n)===f||p.includes(f)));
+  PART_ORDER.forEach(pn=>{
+    const p=M7.parts[pn-1];
+    const list=chs.filter(c=>c.part===pn&&(!f||c.title.includes(f)||String(c.n)===f||c.label===f||p.includes(f)));
     if(!list.length) return;
-    h+=`<div class="part"><button type="button" tabindex="-1">ພາກທີ ${i+1} · ${esc(p)}</button><ul>`;
+    h+=`<div class="part"><button type="button" tabindex="-1">${partNo(pn)} · ${esc(p)}</button><ul>`;
     list.forEach(c=>{
       const best=store.get('q'+c.n);
-      h+=`<li><button class="chlink${cur&&cur.n===c.n?' on':''}" data-n="${c.n}"><span class="no">${c.n}</span><span>${esc(c.title)}</span><span class="tick">${best!=null?best+'/'+c.quiz.length:''}</span></button></li>`;
+      h+=`<li><button class="chlink${cur&&cur.n===c.n?' on':''}" data-n="${c.n}"><span class="no">${c.label||c.n}</span><span>${esc(c.title)}</span><span class="tick">${best!=null?best+'/'+c.quiz.length:''}</span></button></li>`;
     });
     h+='</ul></div>';
   });
@@ -333,12 +340,12 @@ function home(){
   buildNav($('#search').value);
   let h=`<section class="hero"><div class="eyebrow">ກະຊວງສຶກສາທິການ ແລະ ກິລາ · ຫຼັກສູດປັບປຸງ 2025</div>
   <div class="herohead"><img class="herologo" src="logo.svg" alt="ໂລໂກ້ ຄະນິດສາດ ມັດທະຍົມ ປີທີ 7"><h1>ຫ້ອງຮຽນຄະນິດສາດ ມັດທະຍົມ ປີທີ 7</h1></div>
-  <p>ສື່ການສອນຕາມແບບຮຽນ ມ.7 ຄົບທັງ 8 ພາກ 45 ບົດ. ແຕ່ລະບົດມີ 4 ພາກສ່ວນ ເລືອກບົດຈາກລາຍການ ແລ້ວກົດປຸ່ມລູກສອນ ← → ເພື່ອປ່ຽນສະໄລ້.</p>
+  <p>ສື່ການສອນຕາມແບບຮຽນ ມ.7 ຄົບທັງ 8 ພາກ 45 ບົດ ແລະ ພາກເສີມ ມາຕຣິດ 5 ບົດ ຈາກແບບຮຽນເກົ່າ (2016). ແຕ່ລະບົດມີ 4 ພາກສ່ວນ ເລືອກບົດຈາກລາຍການ ແລ້ວກົດປຸ່ມລູກສອນ ← → ເພື່ອປ່ຽນສະໄລ້.</p>
   <div class="legend"><span class="chip"><i style="background:var(--blue)"></i>ສະໄລ້ສອນ</span><span class="chip"><i style="background:var(--amber)"></i>ບົດເຝິກຫັດ ພ້ອມບົດແກ້</span><span class="chip"><i style="background:var(--green)"></i>ວຽກບ້ານ ພ້ອມຄຳຕອບສຳລັບຄູ</span><span class="chip"><i style="background:var(--red)"></i>ບົດກວດກາທ້າຍບົດ + ພາກປາລະໄນຈາກສະຫຼຸບບົດຮຽນ (239 ຂໍ້) ກວດຄະແນນອັດຕະໂນມັດ</span></div></section>
   <div class="parts">`;
-  M7.parts.forEach((p,i)=>{
-    h+=`<div class="pcard"><div class="pn">ພາກທີ ${i+1}</div><h2>${esc(p)}</h2><ol>`;
-    chs.filter(c=>c.part===i+1).forEach(c=>h+=`<li><button data-n="${c.n}"><b>${c.n}</b><span>${esc(c.title)}</span></button></li>`);
+  PART_ORDER.forEach(pn=>{
+    h+=`<div class="pcard"><div class="pn">${partNo(pn)}${pn===9?' · ຈາກແບບຮຽນເກົ່າ (2016)':''}</div><h2>${esc(M7.parts[pn-1])}</h2><ol>`;
+    chs.filter(c=>c.part===pn).forEach(c=>h+=`<li><button data-n="${c.n}"><b>${c.label||c.n}</b><span>${esc(c.title)}</span></button></li>`);
     h+='</ol></div>';
   });
   h+=`</div><div class="footer"><img src="logo.svg" alt=""><span>ເນື້ອຫາສະຫຼຸບ ແລະ ຮຽບຮຽງຄືນຈາກແບບຮຽນຄະນິດສາດ ມ.7 (ສະຖາບັນຄົ້ນຄວ້າວິທະຍາສາດການສຶກສາ, 2025). ຄູສາມາດໃຊ້ສະໄລ້ສອນໃນຫ້ອງ ແລະ ມອບວຽກບ້ານໃຫ້ນັກຮຽນ.</span></div>`;
@@ -355,9 +362,9 @@ function openCh(n,t){
 function renderCh(){
   const c=cur, idx=chs.indexOf(c), prev=chs[idx-1], next=chs[idx+1];
   if(book){try{book.destroy()}catch(e){} book=null;}
-  const counts={slides:c.slides.length,ex:c.ex.length,hw:c.hw.length,quiz:c.quiz.length+((M7.rev&&M7.rev[c.n]||[]).length),book:BOOK[c.n]-BOOK[c.n-1]};
-  view.innerHTML=`<div class="chhead"><div><div class="eyebrow">ພາກທີ ${c.part} · ${esc(M7.parts[c.part-1])}</div><h1>ບົດທີ ${c.n}: ${esc(c.title)}</h1></div>
-   <div class="navbtns"><button class="btn" id="pv" ${prev?'':'disabled'}>← ບົດທີ ${prev?prev.n:''}</button><button class="btn" id="nx" ${next?'':'disabled'}>ບົດທີ ${next?next.n:''} →</button></div></div>
+  const counts={slides:c.slides.length,ex:c.ex.length,hw:c.hw.length,quiz:c.quiz.length+((M7.rev&&M7.rev[c.n]||[]).length),book:bookInfo(c).N};
+  view.innerHTML=`<div class="chhead"><div><div class="eyebrow">${partNo(c.part)} · ${esc(M7.parts[c.part-1])}</div><h1>${chNo(c)}: ${esc(c.title)}</h1></div>
+   <div class="navbtns"><button class="btn" id="pv" ${prev?'':'disabled'}>← ${prev?chNo(prev):'ບົດທີ'}</button><button class="btn" id="nx" ${next?'':'disabled'}>${next?chNo(next):'ບົດທີ'} →</button></div></div>
    <div class="goal"><b>ຈຸດປະສົງ:</b> ${c.goal}</div>
    <div class="tabs" role="tablist">${TABS.map(([k,l])=>`<button class="tab" role="tab" data-t="${k}" aria-selected="${tab===k}">${l}<span class="n">${counts[k]}</span></button>`).join('')}</div>
    <div id="pane"></div>`;
@@ -370,7 +377,7 @@ function renderCh(){
 
 function renderSlides(){
   const c=cur, pane=$('#pane'), s=c.slides[si];
-  pane.innerHTML=`<div class="stage" id="stage"><div class="sbar"><span class="left"><img class="slogo" src="logo.svg" alt=""><span class="ch">ບົດທີ ${c.n} · ${esc(c.title)}</span></span><span class="cnt">ສະໄລ້ ${si+1} / ${c.slides.length}</span></div>
+  pane.innerHTML=`<div class="stage" id="stage"><div class="sbar"><span class="left"><img class="slogo" src="logo.svg" alt=""><span class="ch">${chNo(c)} · ${esc(c.title)}</span></span><span class="cnt">ສະໄລ້ ${si+1} / ${c.slides.length}</span></div>
    <div class="scontent"><h2 class="stitle">${s[0]}</h2><div class="sbody">${s[1]}</div></div></div>
    <div class="scontrols"><button class="btn" id="sp" ${si?'':'disabled'}>← ກ່ອນໜ້າ</button>
    <div class="dots">${c.slides.map((_,i)=>`<button class="dot${i===si?' on':''}" data-i="${i}" aria-label="ສະໄລ້ ${i+1}"></button>`).join('')}</div>
@@ -397,14 +404,20 @@ function loadFlip(){
 let bi=0; // page index for the plain fallback viewer
 function bookGo(d){ if(book){d>0?book.flipNext():book.flipPrev();} else { const N=document.querySelectorAll('#flip .bpage').length; bi=Math.max(0,Math.min(N-1,bi+d)); showPlain(); } }
 function showPlain(){ const pages=document.querySelectorAll('#flip .bpage'); pages.forEach((p,i)=>p.hidden=i!==bi); bookPos(bi,1,pages.length); }
-function bookPos(i,span,N){ const c=cur, p1=BOOK[c.n-1]-6+i, el=$('#bpos'); if(!el) return;
+// which textbook pages belong to a chapter: the 2025 book for chapters 1–45, the 2016 book for the supplementary part
+const OLD={101:[47,20],102:[67,14],103:[81,15],104:[96,14],105:[110,10]}; // [first printed page, page count]
+function bookInfo(c){
+  if(OLD[c.n]){ const [p1,N]=OLD[c.n], id='old'+String(c.n-94).padStart(2,'0'); return {id,N,p1,book:'ແບບຮຽນ ມ.7 ສະບັບເກົ່າ (2016)',file:null}; } // source PDF is locked: pages only, no PDF
+  const from=BOOK[c.n-1]; return {id:'ch'+String(c.n).padStart(2,'0'),N:BOOK[c.n]-from,p1:from-6,book:'ແບບຮຽນ ມ.7 (2025)',file:`ມ7-ບົດທີ${c.n}.pdf`};
+}
+function bookPos(i,span,N){ const p1=bookInfo(cur).p1+i, el=$('#bpos'); if(!el) return;
   el.textContent=span>1&&i+1<N?`ໜ້າ ${p1}–${p1+1}`:`ໜ້າ ${p1}`; el.textContent+=` · ${i+span>=N?N:i+span} / ${N}`;
   $('#bp').disabled=i<=0; $('#bn').disabled=i+span>=N; }
 function renderBook(){
-  const c=cur, pane=$('#pane'), id=String(c.n).padStart(2,'0'), from=BOOK[c.n-1], N=BOOK[c.n]-from, p1=from-6, pdf=`book/ch${id}.pdf`;
-  pane.innerHTML=`<div class="bookbar"><div><b>ປຶ້ມແບບຮຽນ · ບົດທີ ${c.n}</b><span class="hint"> · ໜ້າ ${p1}–${p1+N-1} ໃນປຶ້ມ (${N} ໜ້າ)</span></div>
-   <div class="bkbtns"><a class="btn" href="${pdf}" target="_blank" rel="noopener">ເປີດ PDF</a><a class="btn" href="${pdf}" download="ມ7-ບົດທີ${c.n}.pdf">⬇ ດາວໂຫຼດ PDF</a></div></div>
-   <div class="bookstage" id="bookstage"><div class="flip" id="flip">${Array.from({length:N},(_,i)=>`<div class="bpage"><img src="book/ch${id}-${i+1}.webp" alt="ໜ້າ ${p1+i}" draggable="false"></div>`).join('')}</div></div>
+  const c=cur, pane=$('#pane'), {id,N,p1,book:bname,file}=bookInfo(c), pdf=`book/${id}.pdf`;
+  pane.innerHTML=`<div class="bookbar"><div><b>${bname}</b><span class="hint"> · ${chNo(c)} · ໜ້າ ${p1}–${p1+N-1} ໃນປຶ້ມ (${N} ໜ້າ)</span></div>
+   ${file?`<div class="bkbtns"><a class="btn" href="${pdf}" target="_blank" rel="noopener">ເປີດ PDF</a><a class="btn" href="${pdf}" download="${file}">⬇ ດາວໂຫຼດ PDF</a></div>`:''}</div>
+   <div class="bookstage" id="bookstage"><div class="flip" id="flip">${Array.from({length:N},(_,i)=>`<div class="bpage"><img src="book/${id}-${i+1}.webp" alt="ໜ້າ ${p1+i}" draggable="false"></div>`).join('')}</div></div>
    <div class="scontrols"><button class="btn" id="bp">← ໜ້າກ່ອນ</button><span class="hint" id="bpos"></span>
    <div style="display:flex;gap:8px"><button class="btn" id="bfs">⛶ ເຕັມຈໍ</button><button class="btn primary" id="bn">ໜ້າຕໍ່ໄປ →</button></div></div>
    <p class="hint">ກົດ ຫຼື ລາກມຸມໜ້າເຈ້ຍເພື່ອພິກໜ້າ, ຫຼື ໃຊ້ປຸ່ມລູກສອນ ← → ເທິງແປ້ນພິມ</p>`;
@@ -428,7 +441,7 @@ function renderEx(){
 }
 function renderHw(){
   const pane=$('#pane');
-  pane.innerHTML=`<div class="hwhead"><p><b>ວຽກບ້ານບົດທີ ${cur.n}</b> · ໃຫ້ນັກຮຽນເຮັດໃສ່ປຶ້ມຂຽນ ແລະ ສົ່ງໃນຊົ່ວໂມງຕໍ່ໄປ.</p><label class="toggle"><input type="checkbox" id="showA"><span>ສະແດງຄຳຕອບ (ສຳລັບຄູ)</span></label></div>
+  pane.innerHTML=`<div class="hwhead"><p><b>ວຽກບ້ານ${chNo(cur)}</b> · ໃຫ້ນັກຮຽນເຮັດໃສ່ປຶ້ມຂຽນ ແລະ ສົ່ງໃນຊົ່ວໂມງຕໍ່ໄປ.</p><label class="toggle"><input type="checkbox" id="showA"><span>ສະແດງຄຳຕອບ (ສຳລັບຄູ)</span></label></div>
    <ol class="qlist">${cur.hw.map(([q,a])=>`<li class="qitem"><div class="qt">${q}</div><div class="ans" hidden><span class="lbl">ຄຳຕອບ</span>${a}</div></li>`).join('')}</ol>`;
   $('#showA').onchange=e=>pane.querySelectorAll('.ans').forEach(x=>x.hidden=!e.target.checked);
   typeset(pane);
