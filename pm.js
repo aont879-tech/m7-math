@@ -1,5 +1,8 @@
 /* ພາກເສີມ ກ: ມາຕຣິດ, ເດແຕກມີນັງ ແລະ ລະບົບສົມຜົນລີເນແອ — ຈາກແບບຮຽນ ມ.7 ສະບັບປີ 2016 (ພາກທີ 3, ບົດ 7–11).
    n 101–105 keep these chapters apart from the 2025 book's 1–45; `label` is what the page shows. */
+// credit line for the "fried chicken" intuition slides, linking to the video at second t
+const M7_CHK=t=>`<p class="hint" style="margin-top:.8em">🎬 ແນວຄິດຈາກວິດີໂອ: <a href="https://youtu.be/yhBOk5JuyW0?t=${t}" target="_blank" rel="noopener">ເຂົ້າໃຈເມທຣິກຊ໌ງ່າຍໆດ້ວຍໄກ່ທອດ — ຊ່ອງ ແມທເລົ່າໃຫ້ຟັງ (MLHF)</a></p>`;
+const M7_MENU=(title,rows,cols)=>`<div class="tbl"><table><tr><th>${title}</th>${cols.map(c=>`<th>${c}</th>`).join('')}</tr>${rows.map(([n,...v])=>`<tr><td>${n}</td>${v.map(x=>`<td>${x}</td>`).join('')}</tr>`).join('')}</table></div>`;
 M7.ch.push({
 n:101, label:"ກ1", part:9, title:"ມາຕຣິດ ແລະ ຄຸນລັກສະນະຂອງມາຕຣິດ",
 goal:R`ຮູ້ຈັກມາຕຣິດ ແລະ ຊະນິດຕ່າງໆ, ຄິດໄລ່ການບວກ, ການລົບ, ການຄູນມາຕຣິດ ແລະ ນຳໃຊ້ຄຸນລັກສະນະ $A^2-(a+d)A+(ad-bc)I=O$ ເພື່ອຊອກກຳລັງຂອງມາຕຣິດ.`,
@@ -18,6 +21,13 @@ $$A=\begin{pmatrix}a_{11}&a_{12}&a_{13}\\a_{21}&a_{22}&a_{23}\end{pmatrix}=(a_{i
 <div class="ex"><span class="lbl">ຕົວຢ່າງ</span>ຖ້າ $3X+2B=X+4A$ ແລ້ວ $2X=4A-2B\Rightarrow X=2A-B$</div>`],
 [R`ການຄູນມາຕຣິດກັບມາຕຣິດ`, R`<div class="box"><span class="lbl">ເງື່ອນໄຂ</span>$A_{m\times n}\cdot B_{n\times p}=C_{m\times p}$ — ຈຳນວນ <b>ຖັນຂອງ $A$</b> ຕ້ອງເທົ່າ ຈຳນວນ <b>ແຖວຂອງ $B$</b>.<br>$c_{ij}=a_{i1}b_{1j}+a_{i2}b_{2j}+\dots+a_{in}b_{nj}$ (ແຖວທີ $i$ ຄູນຖັນທີ $j$)</div>
 <div class="ex"><span class="lbl">ຕົວຢ່າງ</span>$(2\ \ 3)\begin{pmatrix}2\\-1\end{pmatrix}=(4-3)=(1)$ · $\ \begin{pmatrix}2\\-1\end{pmatrix}(2\ \ 3)=\begin{pmatrix}4&6\\-2&-3\end{pmatrix}$<br>$\begin{pmatrix}a&b\\c&d\end{pmatrix}\begin{pmatrix}p&q\\r&s\end{pmatrix}=\begin{pmatrix}ap+br&aq+bs\\cp+dr&cq+ds\end{pmatrix}$</div>`],
+[R`🍗 ເຂົ້າໃຈການຄູນມາຕຣິດດ້ວຍໄກ່ທອດ`, `<div class="cols"><div>`+M7_MENU('ເມນູຮ້ານ',[['ໄກ່ທອດ (ຕ່ອນ)',2,1],['ນັກເກັດ (ຕ່ອນ)',0,2]],['ຊຸດ 1','ຊຸດ 2'])+R`<p>ລູກຄ້າສັ່ງ: <b>ຊຸດ 1</b> ຈຳນວນ 1 ຊຸດ, <b>ຊຸດ 2</b> ຈຳນວນ 3 ຊຸດ</p></div>
+<div><p>ພະນັກງານຄິດວ່າຕ້ອງຫຍິບໄກ່ຈັກຕ່ອນ:</p><p>ໄກ່ທອດ: $2\times1+1\times3=5$<br>ນັກເກັດ: $0\times1+2\times3=6$</p></div></div>
+<div class="box"><span class="lbl">ນີ້ຄືການຄູນມາຕຣິດ</span>$$\begin{pmatrix}2&1\\0&2\end{pmatrix}\begin{pmatrix}1\\3\end{pmatrix}=\begin{pmatrix}5\\6\end{pmatrix}$$<p style="text-align:center;margin-top:-.4em"><b>ເມນູ</b> × <b>ລາຍການສັ່ງ</b> = <b>ຈຳນວນໄກ່</b></p>ແຖວຂອງເມນູ (ຊະນິດໄກ່) × ຖັນຂອງລາຍການສັ່ງ (ຈຳນວນຊຸດ) — ນີ້ຄືເຫດຜົນທີ່ຕ້ອງເອົາ <b>ແຖວ × ຖັນ</b>.</div>`+M7_CHK(129)],
+[R`🍗 ເປັນຫຍັງຂະໜາດຕ້ອງກົງກັນ?`, R`<p>ຖ້າມີລູກຄ້າ 2 ຄົນ: ຄົນທີ 1 ສັ່ງ (ຊຸດ 1: 1, ຊຸດ 2: 3), ຄົນທີ 2 ສັ່ງ (ຊຸດ 1: 2, ຊຸດ 2: 0) — ລາຍການສັ່ງກາຍເປັນມາຕຣິດ, ແຕ່ລະຖັນແມ່ນລູກຄ້າໜຶ່ງຄົນ:</p>
+$$\begin{pmatrix}2&1\\0&2\end{pmatrix}\begin{pmatrix}1&2\\3&0\end{pmatrix}=\begin{pmatrix}5&4\\6&0\end{pmatrix}$$
+<p>ຄົນທີ 1 ໄດ້ໄກ່ທອດ 5 ນັກເກັດ 6; ຄົນທີ 2 ໄດ້ໄກ່ທອດ 4 ນັກເກັດ 0.</p>
+<div class="box"><span class="lbl">ຂະໜາດ</span>(ຊະນິດໄກ່ × <b>ຈຳນວນຊຸດ</b>) · (<b>ຈຳນວນຊຸດ</b> × ຈຳນວນຄົນ) = (ຊະນິດໄກ່ × ຈຳນວນຄົນ)<br>ເລກທີ່ຢູ່ກາງ (ຈຳນວນຊຸດ) ຕ້ອງເທົ່າກັນ — ຖ້າບໍ່ດັ່ງນັ້ນ ລາຍການສັ່ງກັບເມນູກໍບໍ່ກົງກັນ ຄູນບໍ່ໄດ້.</div>`+M7_CHK(318)],
 [R`ການຄູນມາຕຣິດບໍ່ສະຫຼັບບ່ອນ`, R`<div class="ex"><span class="lbl">ຕົວຢ່າງ</span>$A=\begin{pmatrix}2&2\\1&0\end{pmatrix},\ B=\begin{pmatrix}-1&-2\\3&2\end{pmatrix}$<br>$AB=\begin{pmatrix}4&0\\-1&-2\end{pmatrix}$ ແຕ່ $BA=\begin{pmatrix}-4&-2\\8&6\end{pmatrix}$</div>
 <div class="box red"><span class="lbl">ຈື່ໄວ້</span>ໂດຍທົ່ວໄປ $AB\ne BA$. ຈາກ $AB=O$ ບໍ່ໄດ້ໝາຍຄວາມວ່າ $A=O$ ຫຼື $B=O$.</div>
 <div class="box"><span class="lbl">ຄຸນລັກສະນະ</span>$(AB)C=A(BC)$ · $A(B+C)=AB+AC$ · $(A+B)C=AC+BC$<br>$k(AB)=(kA)B=A(kB)$ · $AI=IA=A$ · $A^n=AA^{n-1}$</div>`],
@@ -61,6 +71,10 @@ goal:R`ຄິດໄລ່ເດແຕກມີນັງຂອງມາຕຣິ�
 slides:[
 [R`ເດແຕກມີນັງ 2×2`, R`<div class="box"><span class="lbl">ນິຍາມ</span>ເດແຕກມີນັງເປັນຈຳນວນທີ່ຄິດໄລ່ໄດ້ຈາກ <b>ມາຕຣິດຈະຕຸລັດ</b>, ຂຽນ $\det A$ ຫຼື $|A|$.<br>$$\begin{vmatrix}a&b\\c&d\end{vmatrix}=ad-bc$$</div>
 <div class="ex"><span class="lbl">ຕົວຢ່າງ</span>$A=\begin{pmatrix}2&3\\4&5\end{pmatrix},\ B=\begin{pmatrix}-1&3\\-4&2\end{pmatrix}$<br>$\det A=10-12=-2$, $\ \det B=-2+12=10$<br>$\det(AB)=-20=\det A\cdot\det B$; ແຕ່ $\det(A+B)=7\ne\det A+\det B=8$</div>`],
+[R`🍗 ເດແຕກມີນັງດ້ວຍໄກ່ທອດ`, `<div class="cols"><div>`+M7_MENU('ຮ້ານ A',[['ໄກ່ທອດ',2,1],['ນັກເກັດ',0,2]],['ຊຸດ 1','ຊຸດ 2'])+R`<p>$\det=4\ne0$: ຢາກໄດ້ໄກ່ແບບໃດກໍສັ່ງໄດ້ສະເໝີ<br>(ໄກ່ທອດ 3, ນັກເກັດ 1) → ຊຸດ 1: 1.25, ຊຸດ 2: 0.5<br>(ໄກ່ທອດ 0, ນັກເກັດ 4) → ຊຸດ 1: −1, ຊຸດ 2: 2</p></div>
+<div>`+M7_MENU('ຮ້ານ B',[['ໄກ່ທອດ',2,1],['ນັກເກັດ',4,2]],['ຊຸດ 1','ຊຸດ 2'])+R`<p>ທຸກຊຸດມີນັກເກັດ <b>2 ເທົ່າ</b>ຂອງໄກ່ທອດສະເໝີ → ສັ່ງແບບໃດກໍໄດ້ນັກເກັດ 2 ເທົ່າ<br>ຢາກໄດ້ (ໄກ່ທອດ 1, ນັກເກັດ 1) <b>ເປັນໄປບໍ່ໄດ້</b></p></div></div>
+<div class="box"><span class="lbl">ຄວາມໝາຍຂອງ det</span>ສັ່ງຕາມໃຈບໍ່ໄດ້ ເມື່ອອັດຕາສ່ວນຂອງທຸກຊຸດເທົ່າກັນ: $\dfrac{a}{c}=\dfrac{b}{d}\iff ad-bc=0$<br>$\det A\ne0$ ⇒ ລະບົບ $AX=B$ <b>ມີໃຈຜົນ ແລະ ມີໃຈຜົນດຽວ</b> ສະເໝີ</div>
+<p class="hint">ປະຫວັດ: Seki (ຍີ່ປຸ່ນ) ແລະ Leibniz (ເຢຍລະມັນ) ຄິດເດແຕກມີນັງ ປະມານປີ 1683 — ກ່ອນມີຄຳວ່າ "ມາຕຣິດ" (1850) ເກືອບ 200 ປີ.</p>`+M7_CHK(545)],
 [R`ເດແຕກມີນັງ 3×3 (ວິທີຊາຣຸສ)`, R`<p>ຂຽນຖັນທີ 1 ແລະ 2 ຕື່ມທາງຂວາ, ບວກຜົນຄູນຕາມເສັ້ນສະຫຼຽງລົງ ແລ້ວລົບຜົນຄູນຕາມເສັ້ນສະຫຼຽງຂຶ້ນ:</p>
 $$\det A=a_{11}a_{22}a_{33}+a_{12}a_{23}a_{31}+a_{13}a_{21}a_{32}-(a_{31}a_{22}a_{13}+a_{32}a_{23}a_{11}+a_{33}a_{21}a_{12})$$
 <div class="ex"><span class="lbl">ຕົວຢ່າງ</span>$\begin{vmatrix}1&2&3\\1&3&5\\1&5&11\end{vmatrix}=(33+10+15)-(9+25+22)=58-56=2$</div>
@@ -127,6 +141,10 @@ $$\begin{cases}a_{11}x_1+\dots+a_{1n}x_n=b_1\\ \quad\vdots\\ a_{n1}x_1+\dots+a_{
 [R`ມາຕຣິດຂະຫຍາຍ ແລະ ຮູບແບບຂັ້ນໄດ`, R`<p><b>ມາຕຣິດຂະຫຍາຍ</b> $[A|B]$: $\begin{cases}x-y+2z=9\\-2x+3y-z=-11\\3x+y+z=4\end{cases}\to\left[\begin{array}{ccc|c}1&-1&2&9\\-2&3&-1&-11\\3&1&1&4\end{array}\right]$</p>
 <div class="box"><span class="lbl">ການດຳເນີນການເບື້ອງຕົ້ນກ່ຽວກັບແຖວ</span>① ສັບປ່ຽນ 2 ແຖວ ② ຄູນແຖວດ້ວຍ $k\ne0$ ③ ບວກແຖວໜຶ່ງດ້ວຍ $k$ ເທົ່າຂອງອີກແຖວໜຶ່ງ</div>
 <p><b>ມາຕຣິດເອຊີລອນແບບແຖວ</b>: ແຖວສູນຢູ່ລຸ່ມສຸດ, ເລກທີ່ບໍ່ແມ່ນ 0 ຕົວທຳອິດຂອງແຕ່ລະແຖວເປັນ 1 ແລະ ເລື່ອນໄປທາງຂວາເທື່ອລະແຖວ. ຖ້າຖັນຂອງເລກ 1 ນຳໜ້ານັ້ນເປັນ 0 ໝົດ (ນອກຈາກ 1) ເອີ້ນວ່າ <b>ຣີດິວເອຊີລອນ</b>.</p>`],
+[R`🍗 ການດຳເນີນການແຖວດ້ວຍໄກ່ທອດ`, `<div class="cols"><div>`+M7_MENU('ຮ້ານຊ້າຍ',[['ໄກ່ທອດ',2,1],['ນັກເກັດ',2,3]],['ຊຸດ 1','ຊຸດ 2'])+`</div><div>`+M7_MENU('ຮ້ານຂວາ',[['ຄອມໂບ (ໄກ່ທອດ+ນັກເກັດ)',2,1],['ນັກເກັດ',0,2]],['ຊຸດ 1','ຊຸດ 2'])+`</div></div>`+R`
+<p>ສັ່ງຊຸດ 1 ແລະ ຊຸດ 2 ຢ່າງລະຊຸດ: ຮ້ານຊ້າຍ ໄດ້ໄກ່ທອດ 3, ນັກເກັດ 5. ຮ້ານຂວາ ໄດ້ຄອມໂບ 3 + ນັກເກັດ 2 = ໄກ່ທອດ 3, ນັກເກັດ 5 — <b>ເທົ່າກັນ</b>!</p>
+<div class="box"><span class="lbl">ຄວາມໝາຍ</span>ຮ້ານຂວາ = ຮ້ານຊ້າຍ ທີ່ເຮັດ $R_2-R_1$ (ຂຽນເມນູແບບໃໝ່ ແຕ່ຄວາມໝາຍຄືເກົ່າ)<br>① ສັບປ່ຽນແຖວ = ສະລັບບ່ອນໄກ່ທອດກັບນັກເກັດ ② ຄູນແຖວດ້ວຍ $k\ne0$ = ປ່ຽນໜ່ວຍ (ເຊັ່ນ ນັກເກັດເຄິ່ງຕ່ອນ) ③ ບວກ/ລົບແຖວ = ຈັດເປັນຄອມໂບ</div>
+<p>ສະນັ້ນ ການດຳເນີນການແຖວ ບໍ່ປ່ຽນໃຈຜົນຂອງລະບົບສົມຜົນ.</p>`+M7_CHK(1198)],
 [R`ວິທີທີ 3: ກາວ-ຈໍແດນ`, R`<div class="ex"><span class="lbl">ຕົວຢ່າງ</span>$\begin{cases}x+y+2z=3\\2x-y+z=6\\-x+3y=-5\end{cases}$<br>
 $\left[\begin{array}{ccc|c}1&1&2&3\\2&-1&1&6\\-1&3&0&-5\end{array}\right]\xrightarrow[R_3+R_1]{R_2-2R_1}\left[\begin{array}{ccc|c}1&1&2&3\\0&-3&-3&0\\0&4&2&-2\end{array}\right]$<br>
 $\xrightarrow{-\frac13R_2}\left[\begin{array}{ccc|c}1&1&2&3\\0&1&1&0\\0&4&2&-2\end{array}\right]\xrightarrow[R_3-4R_2]{R_1-R_2}\left[\begin{array}{ccc|c}1&0&1&3\\0&1&1&0\\0&0&-2&-2\end{array}\right]$<br>
@@ -186,6 +204,9 @@ slides:[
 <div class="ex"><span class="lbl">ຕົວຢ່າງ</span>ສະທ້ອນໃສ່ $y=\frac13x$: $\tan\theta=\frac13\Rightarrow\cos2\theta=\frac{1-\frac19}{1+\frac19}=\frac45,\ \sin2\theta=\frac{\frac23}{1+\frac19}=\frac35$<br>$A=\frac15\begin{pmatrix}4&3\\3&-4\end{pmatrix}$</div>`],
 [R`ຄ່າສະເພາະ ແລະ ເວັກເຕີສະເພາະ`, R`<div class="box"><span class="lbl">ນິຍາມ</span>ຈຳນວນ $\lambda$ ທີ່ $Ax=\lambda x$ ມີໃຈຜົນ $x\ne0$ ແມ່ນ <b>ຄ່າສະເພາະ</b>; $x$ ແມ່ນ <b>ເວັກເຕີສະເພາະ</b>. ຊອກ $\lambda$ ຈາກ $$\det(A-\lambda E)=0$$</div>
 <div class="ex"><span class="lbl">ຕົວຢ່າງ</span>$A=\begin{pmatrix}-5&2\\2&-2\end{pmatrix}$: $(-5-\lambda)(-2-\lambda)-4=\lambda^2+7\lambda+6=0$<br>$\lambda=-1$: $-4x_1+2x_2=0\Rightarrow x=\begin{pmatrix}1\\2\end{pmatrix}$ · $\ \lambda=-6$: $x_1+2x_2=0\Rightarrow x=\begin{pmatrix}2\\-1\end{pmatrix}$</div>`],
+[R`🍗 ຄ່າສະເພາະດ້ວຍໄກ່ທອດ`, `<div class="cols"><div>`+M7_MENU('ເມນູ',[['ໄກ່ທອດ',2,1],['ນັກເກັດ',2,3]],['ຊຸດ 1','ຊຸດ 2'])+R`<p>ໝູ່ 3 ຄົນ: 1 ຄົນກິນແຕ່ໄກ່ທອດ, 2 ຄົນກິນແຕ່ນັກເກັດ. ສັ່ງ <b>ຊຸດ 1: 1 ຊຸດ, ຊຸດ 2: 2 ຊຸດ</b></p></div>
+<div><p>ໄດ້ 3 ກ່ອງ: ໄກ່ທອດ $2+1+1=4$, ນັກເກັດ $2+3+3=8$<br>ຈັດກ່ອງໃໝ່: ກ່ອງໄກ່ທອດ 4 ຕ່ອນ 1 ກ່ອງ, ກ່ອງນັກເກັດ 4 ຕ່ອນ 2 ກ່ອງ<br>→ ທຸກຄົນໄດ້ <b>4 ຕ່ອນ</b> ເທົ່າກັນ ພໍດີ!</p></div></div>
+<div class="box"><span class="lbl">ຄວາມໝາຍ</span>$$\begin{pmatrix}2&1\\2&3\end{pmatrix}\begin{pmatrix}1\\2\end{pmatrix}=\begin{pmatrix}4\\8\end{pmatrix}=4\begin{pmatrix}1\\2\end{pmatrix}$$ ລາຍການສັ່ງພິເສດ $(1,2)$ = <b>ເວັກເຕີສະເພາະ</b> ("Chicken Order"), ເລກ 4 = <b>ຄ່າສະເພາະ</b> ("Chicken Value")<br>ຄ່າສະເພາະອີກຄ່າໜຶ່ງ: $\lambda^2-5\lambda+4=0\Rightarrow\lambda=1$, ເວັກເຕີ $(1,-1)$</div>`+M7_CHK(985)],
 [R`ນຳໃຊ້ກັບເສັ້ນຂັ້ນສອງ`, R`<p>$17x^2-30xy+17y^2=128\iff(x\ \ y)\begin{pmatrix}17&-15\\-15&17\end{pmatrix}\begin{pmatrix}x\\y\end{pmatrix}=128$</p>
 <p>ຄ່າສະເພາະ $\lambda=2$ (ເວັກເຕີ $\frac1{\sqrt2}(1,1)$) ແລະ $\lambda=32$ (ເວັກເຕີ $\frac1{\sqrt2}(-1,1)$). ໃຫ້ $X$ ມີຖັນເປັນເວັກເຕີເຫຼົ່ານີ້: $\,{}^tXAX=\begin{pmatrix}2&0\\0&32\end{pmatrix}$</p>
 <div class="box"><span class="lbl">ຜົນ</span>ໃນລະບົບແກນໃໝ່ (ປິ່ນ $45^\circ$): $2x'^2+32y'^2=128\iff\dfrac{x'^2}{64}+\dfrac{y'^2}{4}=1$ — ເປັນ <b>ແອັບລິບ</b></div>
