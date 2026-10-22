@@ -153,6 +153,9 @@ mjx-container[display="true"]{overflow-x:auto;overflow-y:hidden;max-width:100%;p
 .dot{width:10px;height:10px;border-radius:50%;border:0;background:var(--line);padding:0}
 .dot.on{background:var(--blue)}
 .hint{font-size:12.5px;color:var(--ink-2)}
+details.hook>summary{cursor:pointer;display:inline-block;font-weight:700;color:var(--green);border:1.5px solid var(--green);border-radius:999px;padding:4px 16px;margin-bottom:.6em;list-style:none}
+details.hook>summary::-webkit-details-marker{display:none}
+details.hook[open]>summary{display:none}
 /* fullscreen on-screen controls */
 .stage,.bookstage{position:relative}
 .fsnav,.fsexit{display:none}
@@ -298,6 +301,7 @@ window.R=String.raw;
 <script src="p9.js"></script>
 <script src="pm.js"></script>
 <script src="covers.js"></script>
+<script src="hooks.js"></script>
 <script>
 (function(){
 const $=s=>document.querySelector(s);
@@ -325,6 +329,14 @@ function esc(s){return String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>
 chs.forEach(c=>c.slides.unshift(['',`<div class="cover"><div><div class="cvpart">${partNo(c.part)} · ${esc(M7.parts[c.part-1])}</div>
  <div class="cvno">${c.label?'ບົດເສີມ':'ບົດທີ'} <span>${c.label||c.n}</span></div><h3 class="cvtitle">${esc(c.title)}</h3><div class="cvgoal"><b>ຈຸດປະສົງ:</b> ${c.goal}</div></div>
  <div class="cvfig">${M7.cover?M7.cover(c.n):''}</div></div>`]));
+// a motivating problem right after the cover, solved again on the last slide
+chs.forEach(c=>{
+  const h=M7.hook&&M7.hook[c.n]; if(!h) return;
+  c.slides.splice(1,0,['🤔 ບັນຫາຊວນຄິດ',`<div class="box red"><span class="lbl">ບັນຫາ</span>${h.q}</div>
+   <p class="hint" style="font-size:.7em">ໃຫ້ນັກຮຽນລອງຄິດ ແລະ ສະເໜີແນວຄິດກ່ອນ — ພວກເຮົາຈະກັບມາແກ້ບັນຫານີ້ໃນທ້າຍບົດ.</p>
+   <details class="hook"><summary>ກ້ຽວເຂົ້າສູ່ບົດຮຽນ ▸</summary><div class="box green"><span class="lbl">ກ້ຽວເຂົ້າສູ່ບົດຮຽນ</span>${h.link}<br>ດັ່ງນັ້ນ ບັນຫານີ້ກ່ຽວຂ້ອງກັບບົດຮຽນຂອງເຮົາໃນມື້ນີ້ ນັ້ນກໍຄື <b>${chNo(c)}: ${esc(c.title)}</b></div></details>`]);
+  c.slides.push(['✅ ກັບມາແກ້ບັນຫາຊວນຄິດ',`<div class="box red"><span class="lbl">ບັນຫາຕົ້ນບົດ</span>${h.q}</div><div class="box green"><span class="lbl">ບົດແກ້ ດ້ວຍຄວາມຮູ້ຈາກບົດນີ້</span>${h.a}</div>`]);
+});
 
 function buildNav(filter=''){
   const f=filter.trim();
