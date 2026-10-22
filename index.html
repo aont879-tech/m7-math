@@ -153,6 +153,19 @@ mjx-container[display="true"]{overflow-x:auto;overflow-y:hidden;max-width:100%;p
 .dot{width:10px;height:10px;border-radius:50%;border:0;background:var(--line);padding:0}
 .dot.on{background:var(--blue)}
 .hint{font-size:12.5px;color:var(--ink-2)}
+/* fullscreen on-screen controls */
+.stage,.bookstage{position:relative}
+.fsnav,.fsexit{display:none}
+:fullscreen .fsnav{display:flex;position:absolute;left:50%;bottom:18px;transform:translateX(-50%);z-index:30;align-items:center;gap:14px;
+  background:rgba(20,28,48,.82);color:#fff;border-radius:999px;padding:8px 12px;box-shadow:0 4px 18px rgba(0,0,0,.35);opacity:.55;transition:opacity .2s}
+:fullscreen .fsexit{display:block;position:absolute;top:14px;right:16px;z-index:30;opacity:.55;transition:opacity .2s}
+:fullscreen .fsnav:hover,:fullscreen .fsexit:hover,:fullscreen .fsnav:focus-within{opacity:1}
+.fsbtn{border:0;background:rgba(255,255,255,.14);color:#fff;border-radius:999px;font-size:26px;line-height:1;min-width:56px;height:56px;padding:0 16px;cursor:pointer}
+.fsbtn:hover{background:rgba(255,255,255,.3)}
+.fsbtn:disabled{opacity:.3;cursor:default}
+.fsexit.fsbtn{background:rgba(20,28,48,.82);font-size:18px;height:46px}
+.fspos{font-size:18px;font-variant-numeric:tabular-nums;min-width:110px;text-align:center;white-space:nowrap}
+.stage:fullscreen .scontent{padding-bottom:100px}
 /* textbook flipbook */
 .bookbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
 .bkbtns{display:flex;gap:8px;flex-wrap:wrap}
@@ -378,7 +391,7 @@ function renderCh(){
 function renderSlides(){
   const c=cur, pane=$('#pane'), s=c.slides[si];
   pane.innerHTML=`<div class="stage" id="stage"><div class="sbar"><span class="left"><img class="slogo" src="logo.svg" alt=""><span class="ch">${chNo(c)} · ${esc(c.title)}</span></span><span class="cnt">ສະໄລ້ ${si+1} / ${c.slides.length}</span></div>
-   <div class="scontent"><h2 class="stitle">${s[0]}</h2><div class="sbody">${s[1]}</div></div></div>
+   <div class="scontent"><h2 class="stitle">${s[0]}</h2><div class="sbody">${s[1]}</div></div>${fsNav('ສະໄລ້')}</div>
    <div class="scontrols"><button class="btn" id="sp" ${si?'':'disabled'}>← ກ່ອນໜ້າ</button>
    <div class="dots">${c.slides.map((_,i)=>`<button class="dot${i===si?' on':''}" data-i="${i}" aria-label="ສະໄລ້ ${i+1}"></button>`).join('')}</div>
    <div style="display:flex;gap:8px"><button class="btn" id="fs">⛶ ເຕັມຈໍ</button><button class="btn primary" id="sn">${si<c.slides.length-1?'ຕໍ່ໄປ →':'ໄປເຮັດບົດເຝິກຫັດ →'}</button></div></div>
@@ -386,10 +399,22 @@ function renderSlides(){
   $('#sp').onclick=()=>go(-1); $('#sn').onclick=()=>{ if(si<c.slides.length-1) go(1); else {tab='ex';renderCh();} };
   pane.querySelectorAll('.dot').forEach(d=>d.onclick=()=>{si=+d.dataset.i;renderSlides();});
   $('#fs').onclick=()=>{const st=$('#stage'); if(document.fullscreenElement) document.exitFullscreen().catch(()=>{}); else if(st.requestFullscreen) st.requestFullscreen().catch(()=>{});};
+  wireFsNav($('#stage'),go,si+1,c.slides.length);
   typeset(pane);
 }
+// on-screen controls shown only in fullscreen: previous / next arrows, position, and an exit button
+function fsNav(unit){return `<div class="fsnav" data-unit="${unit}"><button class="fsbtn fsprev" aria-label="ກ່ອນໜ້າ">◀</button><span class="fspos"></span><button class="fsbtn fsnext" aria-label="ຕໍ່ໄປ">▶</button></div><button class="fsbtn fsexit" aria-label="ອອກຈາກເຕັມຈໍ">✕ ອອກຈາກເຕັມຈໍ</button>`;}
+function wireFsNav(root,step,pos,total){
+  root.querySelector('.fsprev').onclick=e=>{e.stopPropagation();step(-1);};
+  root.querySelector('.fsnext').onclick=e=>{e.stopPropagation();step(1);};
+  root.querySelector('.fsexit').onclick=e=>{e.stopPropagation();document.exitFullscreen().catch(()=>{});};
+  setFsPos(root,pos,total);
+}
+function setFsPos(root,pos,total){const n=root&&root.querySelector('.fsnav'); if(!n) return;
+  n.querySelector('.fspos').textContent=`${n.dataset.unit} ${pos} / ${total}`;
+  const [l,h]=String(pos).split('–').map(Number); n.querySelector('.fsprev').disabled=l<=1; n.querySelector('.fsnext').disabled=(h||l)>=total;}
 function go(d){const L=cur.slides.length; si=Math.max(0,Math.min(L-1,si+d)); const fs=document.fullscreenElement; if(fs){ // update in place to keep fullscreen
-    const s=cur.slides[si]; fs.querySelector('.stitle').innerHTML=s[0]; fs.querySelector('.sbody').innerHTML=s[1]; fs.querySelector('.cnt').textContent=`ສະໄລ້ ${si+1} / ${L}`; typeset(fs);
+    const s=cur.slides[si]; fs.querySelector('.stitle').innerHTML=s[0]; fs.querySelector('.sbody').innerHTML=s[1]; fs.querySelector('.cnt').textContent=`ສະໄລ້ ${si+1} / ${L}`; setFsPos(fs,si+1,L); fs.querySelector('.scontent').scrollTop=0; typeset(fs);
     document.querySelectorAll('.dot').forEach((x,i)=>x.classList.toggle('on',i===si)); $('#sp').disabled=!si; } else renderSlides();}
 document.addEventListener('keydown',e=>{ if(!cur||(tab!=='slides'&&tab!=='book')) return; if(/INPUT|TEXTAREA/.test(document.activeElement.tagName)) return;
   const d=(e.key==='ArrowRight'||e.key==='PageDown')?1:(e.key==='ArrowLeft'||e.key==='PageUp')?-1:0; if(!d) return;
@@ -412,17 +437,19 @@ function bookInfo(c){
 }
 function bookPos(i,span,N){ const p1=bookInfo(cur).p1+i, el=$('#bpos'); if(!el) return;
   el.textContent=span>1&&i+1<N?`ໜ້າ ${p1}–${p1+1}`:`ໜ້າ ${p1}`; el.textContent+=` · ${i+span>=N?N:i+span} / ${N}`;
-  $('#bp').disabled=i<=0; $('#bn').disabled=i+span>=N; }
+  $('#bp').disabled=i<=0; $('#bn').disabled=i+span>=N;
+  setFsPos($('#bookstage'),span>1&&i+1<N?`${i+1}–${i+2}`:`${i+1}`,N); }
 function renderBook(){
   const c=cur, pane=$('#pane'), {id,N,p1,book:bname,file}=bookInfo(c), pdf=`book/${id}.pdf`;
   pane.innerHTML=`<div class="bookbar"><div><b>${bname}</b><span class="hint"> · ${chNo(c)} · ໜ້າ ${p1}–${p1+N-1} ໃນປຶ້ມ (${N} ໜ້າ)</span></div>
    ${file?`<div class="bkbtns"><a class="btn" href="${pdf}" target="_blank" rel="noopener">ເປີດ PDF</a><a class="btn" href="${pdf}" download="${file}">⬇ ດາວໂຫຼດ PDF</a></div>`:''}</div>
-   <div class="bookstage" id="bookstage"><div class="flip" id="flip">${Array.from({length:N},(_,i)=>`<div class="bpage"><img src="book/${id}-${i+1}.webp" alt="ໜ້າ ${p1+i}" draggable="false"></div>`).join('')}</div></div>
+   <div class="bookstage" id="bookstage"><div class="flip" id="flip">${Array.from({length:N},(_,i)=>`<div class="bpage"><img src="book/${id}-${i+1}.webp" alt="ໜ້າ ${p1+i}" draggable="false"></div>`).join('')}</div>${fsNav('ໜ້າ')}</div>
    <div class="scontrols"><button class="btn" id="bp">← ໜ້າກ່ອນ</button><span class="hint" id="bpos"></span>
    <div style="display:flex;gap:8px"><button class="btn" id="bfs">⛶ ເຕັມຈໍ</button><button class="btn primary" id="bn">ໜ້າຕໍ່ໄປ →</button></div></div>
    <p class="hint">ກົດ ຫຼື ລາກມຸມໜ້າເຈ້ຍເພື່ອພິກໜ້າ, ຫຼື ໃຊ້ປຸ່ມລູກສອນ ← → ເທິງແປ້ນພິມ</p>`;
   $('#bp').onclick=()=>bookGo(-1); $('#bn').onclick=()=>bookGo(1);
   $('#bfs').onclick=()=>{const st=$('#bookstage'); if(document.fullscreenElement) document.exitFullscreen().catch(()=>{}); else if(st.requestFullscreen) st.requestFullscreen().catch(()=>{});};
+  wireFsNav($('#bookstage'),bookGo,1,N);
   bi=0; bookPos(0,1,N);
   loadFlip().then(()=>{
     if(tab!=='book'||cur!==c||!$('#flip')) return;
