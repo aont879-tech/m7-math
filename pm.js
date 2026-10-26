@@ -11,7 +11,7 @@ slides:[
 $$A=\begin{pmatrix}a_{11}&a_{12}&a_{13}\\a_{21}&a_{22}&a_{23}\end{pmatrix}=(a_{ij})_{2\times3}$$
 <p>ມາຕຣິດທີ່ມີ $m$ ແຖວ ແລະ $n$ ຖັນ ມີ <b>ຂະໜາດ $m\times n$</b>.</p>
 <div class="ex"><span class="lbl">ຕົວຢ່າງ</span>$A=\begin{pmatrix}1&0&2\\-3&0.5&3\end{pmatrix}$ ຂະໜາດ $2\times3$, $\ a_{13}=2,\ a_{21}=-3$</div>`],
-[R`ຊະນິດຂອງມາຕຣິດ`, R`<div class="cols"><div><ul><li><b>ມາຕຣິດແຖວ</b>: $(1\ \ 2\ \ 3)$</li><li><b>ມາຕຣິດຖັນ</b>: $\begin{pmatrix}0\\3\\1\end{pmatrix}$</li><li><b>ມາຕຣິດຈະຕຸລັດ</b> $n\times n$: ຈຳນວນແຖວ = ຈຳນວນຖັນ</li><li><b>ມາຕຣິດສູນ</b> $O$: ອົງປະກອບເປັນ 0 ໝົດ</li></ul></div>
+[R`ຊະນິດຂອງມາຕຣິດ`, R`<div class="cols"><div><ul><li><b>ມາຕຣິດແຖວ</b>: $(1\ \ 2\ \ 3)$</li><li><b>ມາຕຣິດຖັນ</b>: $\begin{pmatrix}0\\3\\1\end{pmatrix}$</li><li><b>ມາຕຣິດຈະຕຸລັດ</b> $n\times n$:<br><span style="white-space:nowrap">ຈຳນວນແຖວ = ຈຳນວນຖັນ</span></li><li><b>ມາຕຣິດສູນ</b> $O$: ອົງປະກອບເປັນ 0 ໝົດ</li></ul></div>
 <div><ul><li><b>ມາຕຣິດເບັ້ງຈອມ</b>: ນອກເສັ້ນເບັ້ງຈອມເປັນ 0 — $\begin{pmatrix}2&0\\0&5\end{pmatrix}$</li><li><b>ສາມແຈເທິງ / ລຸ່ມ</b>: ລຸ່ມ / ເທິງເສັ້ນເບັ້ງຈອມເປັນ 0</li><li><b>ມາຕຣິດຫົວໜ່ວຍ</b>: $I_2=\begin{pmatrix}1&0\\0&1\end{pmatrix}$, $I_3=\begin{pmatrix}1&0&0\\0&1&0\\0&0&1\end{pmatrix}$</li></ul></div></div>`],
 [R`ການເທົ່າກັນຂອງສອງມາຕຣິດ`, R`<div class="box"><span class="lbl">ນິຍາມ</span>$A=B$ ກໍຕໍ່ເມື່ອ ມີ <b>ຂະໜາດເທົ່າກັນ</b> ແລະ ອົງປະກອບທີ່ຢູ່ຕຳແໜ່ງດຽວກັນ <b>ເທົ່າກັນ</b>.</div>
 <div class="ex"><span class="lbl">ຕົວຢ່າງ</span>ຊອກ $x,y$: $(2x-4\ \ \ y-3)=(2\ \ \ 1)$<br>$2x-4=2\Rightarrow x=3$; $\ y-3=1\Rightarrow y=4$</div>
