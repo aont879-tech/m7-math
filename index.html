@@ -312,8 +312,8 @@ const BOOK=[7,13,20,23,26,28,33,38,42,47,51,56,59,64,70,74,76,79,84,89,95,100,10
 let book=null;
 // part 9 is the supplementary matrix part from the 2016 textbook, taught right after complex numbers (part 4)
 const PART_ORDER=[1,2,3,4,9,5,6,7,8];
-const partNo=p=>p===9?'ພາກເສີມ ກ':`ພາກທີ ${p}`;
-const chNo=c=>c.label?`ບົດເສີມ ${c.label}`:`ບົດທີ ${c.n}`;
+const partNo=p=>p===9?'ພາກເສີມ':`ພາກທີ ${p}`;
+const chNo=c=>c.label?`ບົດເສີມທີ ${c.label}`:`ບົດທີ ${c.n}`;
 const chs=M7.ch.slice().sort((a,b)=>PART_ORDER.indexOf(a.part)-PART_ORDER.indexOf(b.part)||a.n-b.n);
 let cur=null, tab='slides', si=0;
 const store={get(k){try{return JSON.parse(localStorage.getItem('m7:'+k))}catch(e){return null}},set(k,v){try{localStorage.setItem('m7:'+k,JSON.stringify(v))}catch(e){}}};
@@ -327,7 +327,7 @@ function typeset(el){
 function esc(s){return String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}
 // every chapter opens on a cover slide: chapter number, title, aim and an illustration
 chs.forEach(c=>c.slides.unshift(['',`<div class="cover"><div><div class="cvpart">${partNo(c.part)} · ${esc(M7.parts[c.part-1])}</div>
- <div class="cvno">${c.label?'ບົດເສີມ':'ບົດທີ'} <span>${c.label||c.n}</span></div><h3 class="cvtitle">${esc(c.title)}</h3><div class="cvgoal"><b>ຈຸດປະສົງ:</b> ${c.goal}</div></div>
+ <div class="cvno">${c.label?'ບົດເສີມທີ':'ບົດທີ'} <span>${c.label||c.n}</span></div><h3 class="cvtitle">${esc(c.title)}</h3><div class="cvgoal"><b>ຈຸດປະສົງ:</b> ${c.goal}</div></div>
  <div class="cvfig">${M7.cover?M7.cover(c.n):''}</div></div>`]));
 // a motivating problem right after the cover, solved again on the last slide
 chs.forEach(c=>{
