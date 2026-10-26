@@ -11,8 +11,8 @@ slides:[
 $$A=\begin{pmatrix}a_{11}&a_{12}&a_{13}\\a_{21}&a_{22}&a_{23}\end{pmatrix}=(a_{ij})_{2\times3}$$
 <p>ມາຕຣິດທີ່ມີ $m$ ແຖວ ແລະ $n$ ຖັນ ມີ <b>ຂະໜາດ $m\times n$</b>.</p>
 <div class="ex"><span class="lbl">ຕົວຢ່າງ</span>$A=\begin{pmatrix}1&0&2\\-3&0.5&3\end{pmatrix}$ ຂະໜາດ $2\times3$, $\ a_{13}=2,\ a_{21}=-3$</div>`],
-[R`ຊະນິດຂອງມາຕຣິດ`, R`<div class="cols"><div><ul><li><b>ມາຕຣິດແຖວ</b>: $(1\ \ 2\ \ 3)$</li><li><b>ມາຕຣິດຖັນ</b>: $\begin{pmatrix}0\\3\\1\end{pmatrix}$</li><li><b>ມາຕຣິດຈະຕຸລັດ</b> $n\times n$:<br><span style="white-space:nowrap">ຈຳນວນແຖວ = ຈຳນວນຖັນ</span></li><li><b>ມາຕຣິດສູນ</b> $O$: ອົງປະກອບເປັນ 0 ໝົດ</li></ul></div>
-<div><ul><li><b>ມາຕຣິດເບັ້ງຈອມ</b>: ນອກເສັ້ນເບັ້ງຈອມເປັນ 0 — $\begin{pmatrix}2&0\\0&5\end{pmatrix}$</li><li><b>ສາມແຈເທິງ / ລຸ່ມ</b>: ລຸ່ມ / ເທິງເສັ້ນເບັ້ງຈອມເປັນ 0</li><li><b>ມາຕຣິດຫົວໜ່ວຍ</b>: $I_2=\begin{pmatrix}1&0\\0&1\end{pmatrix}$, $I_3=\begin{pmatrix}1&0&0\\0&1&0\\0&0&1\end{pmatrix}$</li></ul></div></div>`],
+[R`ຊະນິດຂອງມາຕຣິດ`, R`<div class="cols"><div><ul><li><b>ມາຕຣິດແຖວ</b>: $(1\ \ 2\ \ 3)$</li><li><b>ມາຕຣິດຖັນ</b>: $\begin{pmatrix}0\\3\\1\end{pmatrix}$</li><li><b>ມາຕຣິດຈະຕຸລັດ</b> $n\times n$:<br><span style="white-space:nowrap">ຈຳນວນແຖວ = ຈຳນວນຖັນ</span><br>$\begin{pmatrix}1&2\\3&4\end{pmatrix}$</li><li><b>ມາຕຣິດສູນ</b> $O$: ອົງປະກອບເປັນ 0 ໝົດ<br>$\begin{pmatrix}0&0\\0&0\end{pmatrix}$</li></ul></div>
+<div><ul><li><b>ມາຕຣິດເນັ່ງຈອມ</b>: ນອກເສັ້ນເນັ່ງຈອມເປັນ 0<br>$\begin{pmatrix}2&0\\0&5\end{pmatrix}$</li><li><b>ມາຕຣິດສາມແຈເທິງ</b>: ລຸ່ມເສັ້ນເນັ່ງຈອມເປັນ 0<br>$\begin{pmatrix}1&2&3\\0&4&5\\0&0&6\end{pmatrix}$</li><li><b>ມາຕຣິດສາມແຈລຸ່ມ</b>: ເທິງເສັ້ນເນັ່ງຈອມເປັນ 0<br>$\begin{pmatrix}1&0&0\\2&3&0\\4&5&6\end{pmatrix}$</li><li><b>ມາຕຣິດຫົວໜ່ວຍ</b>: $I_2=\begin{pmatrix}1&0\\0&1\end{pmatrix}$, $I_3=\begin{pmatrix}1&0&0\\0&1&0\\0&0&1\end{pmatrix}$</li></ul></div></div>`],
 [R`ການເທົ່າກັນຂອງສອງມາຕຣິດ`, R`<div class="box"><span class="lbl">ນິຍາມ</span>$A=B$ ກໍຕໍ່ເມື່ອ ມີ <b>ຂະໜາດເທົ່າກັນ</b> ແລະ ອົງປະກອບທີ່ຢູ່ຕຳແໜ່ງດຽວກັນ <b>ເທົ່າກັນ</b>.</div>
 <div class="ex"><span class="lbl">ຕົວຢ່າງ</span>ຊອກ $x,y$: $(2x-4\ \ \ y-3)=(2\ \ \ 1)$<br>$2x-4=2\Rightarrow x=3$; $\ y-3=1\Rightarrow y=4$</div>
 <div class="ex"><span class="lbl">ຕົວຢ່າງ</span>$\begin{pmatrix}x+2y&a+2b\\3x+4y&3a+4b\end{pmatrix}=\begin{pmatrix}1&2\\3&4\end{pmatrix}$<br>$\begin{cases}x+2y=1\\3x+4y=3\end{cases}\Rightarrow x=1,y=0$; $\ \begin{cases}a+2b=2\\3a+4b=4\end{cases}\Rightarrow a=0,b=1$</div>`],
@@ -33,7 +33,7 @@ $$\begin{pmatrix}2&1\\0&2\end{pmatrix}\begin{pmatrix}1&2\\3&0\end{pmatrix}=\begi
 <div class="box"><span class="lbl">ຄຸນລັກສະນະ</span>$(AB)C=A(BC)$ · $A(B+C)=AB+AC$ · $(A+B)C=AC+BC$<br>$k(AB)=(kA)B=A(kB)$ · $AI=IA=A$ · $A^n=AA^{n-1}$</div>`],
 [R`ຫຼັກເກນສຳຄັນຂອງມາຕຣິດ 2×2`, R`<div class="box"><span class="lbl">ຫຼັກເກນ</span>ຖ້າ $A=\begin{pmatrix}a&b\\c&d\end{pmatrix}$ ແລ້ວ $$A^2-(a+d)A+(ad-bc)I=O$$</div>
 <div class="ex"><span class="lbl">ຕົວຢ່າງ</span>$A=\begin{pmatrix}1&2\\3&4\end{pmatrix}$: $A^2-5A-2I=O\Rightarrow A^2=5A+2I=\begin{pmatrix}7&10\\15&22\end{pmatrix}$<br>$A^3=5A^2+2A=27A+10I=\begin{pmatrix}37&54\\81&118\end{pmatrix}$</div>
-<p>ມາຕຣິດເບັ້ງຈອມ: $\begin{pmatrix}\alpha&0\\0&\beta\end{pmatrix}^n=\begin{pmatrix}\alpha^n&0\\0&\beta^n\end{pmatrix}$</p>`],
+<p>ມາຕຣິດເນັ່ງຈອມ: $\begin{pmatrix}\alpha&0\\0&\beta\end{pmatrix}^n=\begin{pmatrix}\alpha^n&0\\0&\beta^n\end{pmatrix}$</p>`],
 [R`ກຳລັງທີ່ວົນຄືນ`, R`<div class="ex"><span class="lbl">ຕົວຢ່າງ</span>$A=\begin{pmatrix}1&-2\\1&-1\end{pmatrix}$: $A^2-0\cdot A+1\cdot I=O\Rightarrow A^2=-I$<br>$A^4=I$, ສະນັ້ນ $I+A+A^2+A^3=I+A-I-A=O$<br>$I+A+\dots+A^{100}=A^{100}=(A^4)^{25}=I$</div>
 <div class="ex"><span class="lbl">ຕົວຢ່າງ</span>$A=\begin{pmatrix}1&3\\-1&-2\end{pmatrix}$: $A^2+A+I=O\Rightarrow A^3=I$<br>$A^n=I$ (ເມື່ອ $n=3k$), $A$ ($n=3k+1$), $-A-I$ ($n=3k+2$)</div>`],
 [R`ສະຫຼຸບບົດ`, R`<ul><li>ຂະໜາດ $m\times n$; $A=B$ ⇔ ຂະໜາດ ແລະ ອົງປະກອບເທົ່າກັນ</li><li>$A\pm B$ ຕ້ອງຂະໜາດດຽວກັນ; $kA$ ຄູນທຸກອົງປະກອບ</li><li>$A_{m\times n}B_{n\times p}$: ແຖວ × ຖັນ; ໂດຍທົ່ວໄປ $AB\ne BA$</li><li>2×2: $A^2-(a+d)A+(ad-bc)I=O$ ຊ່ວຍຊອກ $A^n$</li></ul>`]
@@ -99,7 +99,7 @@ $$\det A=a_{11}C_{11}+a_{12}C_{12}+a_{13}C_{13}=a_{11}M_{11}-a_{12}M_{12}+a_{13}
 ex:[
 [R`ໃຫ້ $A=\begin{pmatrix}2&5\\7&15\end{pmatrix}$. ຈົ່ງຊອກ $\det A$ ແລະ $A^{-1}$.`, R`$\det A=30-35=-5$, $\ A^{-1}=-\frac15\begin{pmatrix}15&-5\\-7&2\end{pmatrix}=\begin{pmatrix}-3&1\\ \frac75&-\frac25\end{pmatrix}$.`],
 [R`ຈົ່ງຄິດໄລ່ $\begin{vmatrix}1&2&3\\1&3&5\\1&5&11\end{vmatrix}$ ດ້ວຍການແຍກຕາມແຖວທີ 1.`, R`$1(33-25)-2(11-5)+3(5-3)=8-12+6=2$.`],
-[R`ຈົ່ງຄິດໄລ່ $\begin{vmatrix}2&5&1\\0&3&4\\0&0&-1\end{vmatrix}$.`, R`ມາຕຣິດສາມແຈເທິງ: ຜົນຄູນເສັ້ນເບັ້ງຈອມ $=2\cdot3\cdot(-1)=-6$.`],
+[R`ຈົ່ງຄິດໄລ່ $\begin{vmatrix}2&5&1\\0&3&4\\0&0&-1\end{vmatrix}$.`, R`ມາຕຣິດສາມແຈເທິງ: ຜົນຄູນເສັ້ນເນັ່ງຈອມ $=2\cdot3\cdot(-1)=-6$.`],
 [R`ເປັນຫຍັງ $\begin{vmatrix}1&-2&2\\3&2&-1\\1&-2&2\end{vmatrix}=0$?`, R`ແຖວທີ 1 ແລະ ແຖວທີ 3 ຄືກັນ ⇒ ເດແຕກມີນັງເທົ່າກັບ 0.`],
 [R`ໃຫ້ $A=\begin{pmatrix}-3&7\\-1&2\end{pmatrix},\ B=\begin{pmatrix}1&-1\\2&3\end{pmatrix}$. ຈົ່ງຊອກ $X$ ທີ່ $AX=B$.`, R`$\det A=1$, $A^{-1}=\begin{pmatrix}2&-7\\1&-3\end{pmatrix}$<br>$X=A^{-1}B=\begin{pmatrix}-12&-23\\-5&-10\end{pmatrix}$.`],
 [R`ໃຫ້ $A=\begin{pmatrix}x+1&4\\-2&y-3\end{pmatrix}$. ຈົ່ງຊອກ $x,y$ ທີ່ $A=A^{-1}$.`, R`$A=A^{-1}\iff A^2=I$. ໃຫ້ $a=x+1,\ d=y-3$: $A^2=\begin{pmatrix}a^2-8&4(a+d)\\-2(a+d)&d^2-8\end{pmatrix}=I$<br>$\Rightarrow a+d=0,\ a^2=9$: $x=2,y=0$ ຫຼື $x=-4,y=6$.`]
@@ -115,7 +115,7 @@ hw:[
 quiz:[
 [R`$\begin{vmatrix}2&3\\4&5\end{vmatrix}$ ເທົ່າກັບ:`, ["−2","2","22","−22"],0,"10 − 12"],
 [R`$\det(AB)$ ເທົ່າກັບ:`, [R`$\det A+\det B$`,R`$\det A\cdot\det B$`,R`$\det A-\det B$`,R`$\det(A+B)$`],1,""],
-[R`ມາຕຣິດຈະຕຸລັດ $A$ ມີມາຕຣິດປີ້ນກໍຕໍ່ເມື່ອ:`, [R`$\det A=0$`,R`$\det A\ne0$`,R`$\det A=1$`,R`$A$ ເປັນມາຕຣິດເບັ້ງຈອມ`],1,""],
+[R`ມາຕຣິດຈະຕຸລັດ $A$ ມີມາຕຣິດປີ້ນກໍຕໍ່ເມື່ອ:`, [R`$\det A=0$`,R`$\det A\ne0$`,R`$\det A=1$`,R`$A$ ເປັນມາຕຣິດເນັ່ງຈອມ`],1,""],
 [R`ມາຕຣິດປີ້ນຂອງ $\begin{pmatrix}2&1\\1&1\end{pmatrix}$ ແມ່ນ:`, [R`$\begin{pmatrix}1&-1\\-1&2\end{pmatrix}$`,R`$\begin{pmatrix}1&1\\1&2\end{pmatrix}$`,R`$\begin{pmatrix}2&-1\\-1&1\end{pmatrix}$`,R`$\begin{pmatrix}-1&1\\1&-2\end{pmatrix}$`],0,"det = 1"],
 [R`$(AB)^{-1}$ ເທົ່າກັບ:`, [R`$A^{-1}B^{-1}$`,R`$B^{-1}A^{-1}$`,R`$BA$`,R`$\frac1{AB}$`],1,""],
 [R`ມາຕຣິດທີ່ມີສອງແຖວຄືກັນ ມີເດແຕກມີນັງ:`, ["1","0","−1","ບໍ່ແນ່ນອນ"],1,""],
