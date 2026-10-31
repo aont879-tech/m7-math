@@ -292,7 +292,7 @@ a.btn{text-decoration:none;color:var(--ink);display:inline-block}
 </div>
 
 <script>
-window.MathJax={tex:{inlineMath:[['$','$']],displayMath:[['$$','$$']]},svg:{fontCache:'global'},startup:{typeset:false}};
+window.MathJax={loader:{load:['[tex]/html']},tex:{packages:{'[+]':['html']},inlineMath:[['$','$']],displayMath:[['$$','$$']]},svg:{fontCache:'global'},startup:{typeset:false}};
 window.M7={ch:[],parts:[
  "ສົມຜົນລີເນແອດີໂອຟັງທາຍ",
  "ການພິສູດແບບຂັ້ນຂັ້ນ, ອະສະເໝີຜົນ ແລະ ການນຳໃຊ້",
@@ -457,6 +457,7 @@ function stepify(root){
     if(groups.length<2) return;
     box.dataset.steps=groups.length; box.innerHTML='';
     groups.forEach((gr,i)=>{ const w=document.createElement(gr.inl?'span':'div'); w.className='stp'+(gr.inl?' inl':'')+(i?' stp-h':''); gr.nodes.forEach(n=>w.appendChild(n)); box.appendChild(w); });
+    autoMark([...box.querySelectorAll(':scope>.stp')]);
     // optional per-step guidance: <span class="sinfo" data-hl="a11:c1,b11:c1" data-note="…"> highlights the
     // elements marked \class{k-a11}{…} in the formulas and shows a note while that step is the newest one
     const steps=[...box.querySelectorAll(':scope>.stp')];
@@ -476,6 +477,49 @@ function stepify(root){
     bar.querySelector('.stpnext').onclick=e=>{ e.stopPropagation(); if(!stepNext(box)){ box.querySelectorAll(':scope>.stp').forEach((s,i)=>{ if(i) s.classList.add('stp-h'); }); upd(); } };
     bar.querySelector('.stpall').onclick=e=>{ e.stopPropagation(); while(stepNext(box)); };
     box._upd=upd; upd();
+  });
+}
+// automatic "what changed" colouring: the numbers, letters and + − = of each step's formulas are compared with the
+// previous step (longest common subsequence) and the new ones are wrapped in \class{mk}{…} before MathJax runs
+const ARGCMD=/^\\(frac|dfrac|tfrac|sqrt|binom|dbinom|overline|underline|vec|hat|bar|tilde|dot|ddot|mathbf|boldsymbol|overrightarrow|widehat|left|right|big|Big|bigl|bigr|Bigl|Bigr)$/;
+const TEXTCMD=/^\\(text|textbf|mathrm|operatorname|begin|end|mbox|hbox|class|color|bbox|label|tag|mathbb|mathcal|textrm|textit)$/;
+function texAtoms(s,off){ // atoms of one formula: {v,s,e,brace}
+  const out=[]; let i=0, prev='';
+  while(i<s.length){ const ch=s[i];
+    if(ch==='\\'){ let j=i+1; if(/[a-zA-Z]/.test(s[j]||'')){ while(/[a-zA-Z]/.test(s[j]||'')) j++; } else j++;
+      const cmd=s.slice(i,j); i=j;
+      if(TEXTCMD.test(cmd)){ while(s[i]===' ') i++; let n=0; // skip the braced argument(s) of text-like commands
+        for(let k=0;k<(cmd==='\\class'||cmd==='\\color'?2:1)&&s[i]==='{';k++){ let d=0; do{ if(s[i]==='{') d++; else if(s[i]==='}') d--; i++; }while(i<s.length&&d>0); n++; } }
+      prev=cmd; continue; }
+    if(/\d/.test(ch)){ let j=i; while(/[\d]/.test(s[j]||'')) j++; out.push({v:s.slice(i,j),s:off+i,e:off+j,brace:prev==='^'||prev==='_'||ARGCMD.test(prev)}); prev='#'; i=j; continue; }
+    if(/[a-zA-Z]/.test(ch)||/[+\-=<>]/.test(ch)){ out.push({v:ch,s:off+i,e:off+i+1,brace:prev==='^'||prev==='_'||ARGCMD.test(prev)}); prev=ch; i++; continue; }
+    if(ch!==' ') prev=ch; i++; }
+  return out;
+}
+function nodeAtoms(t){ // atoms of every $…$ / $$…$$ in a text node
+  const out=[]; let i=0;
+  while(i<t.length){ const a=t.indexOf('$',i); if(a<0) break; const dd=t[a+1]==='$', o=a+(dd?2:1), b=t.indexOf(dd?'$$':'$',o); if(b<0) break;
+    out.push(...texAtoms(t.slice(o,b),o)); i=b+(dd?2:1); }
+  return out;
+}
+function autoMark(steps){
+  const texts=st=>{ const w=document.createTreeWalker(st,NodeFilter.SHOW_TEXT,{acceptNode:n=>n.parentElement.closest('.sinfo')?2:1}); const r=[]; while(w.nextNode()) r.push(w.currentNode); return r; };
+  const atomsOf=st=>texts(st).flatMap(n=>nodeAtoms(n.textContent).map(a=>({...a,n})));
+  let prevAtoms=null;
+  steps.forEach(st=>{
+    const raw=st.textContent, atoms=atomsOf(st);
+    if(prevAtoms&&atoms.length&&prevAtoms.length&&!/\\class/.test(raw)){
+      const P=prevAtoms.map(a=>a.v), C=atoms.map(a=>a.v), m=P.length, n=C.length;
+      const L=Array.from({length:m+1},()=>new Uint16Array(n+1));
+      for(let i=m-1;i>=0;i--) for(let j=n-1;j>=0;j--) L[i][j]=P[i]===C[j]?L[i+1][j+1]+1:Math.max(L[i+1][j],L[i][j+1]);
+      const keep=new Set(); for(let i=0,j=0;i<m&&j<n;){ if(P[i]===C[j]){ keep.add(j); i++; j++; } else if(L[i+1][j]>=L[i][j+1]) i++; else j++; }
+      const ch=atoms.filter((a,j)=>!keep.has(j)&&!/^[=<>]$/.test(a.v));
+      if(ch.length&&ch.length/atoms.length<=0.6){
+        const byNode=new Map(); ch.forEach(a=>{ if(!byNode.has(a.n)) byNode.set(a.n,[]); byNode.get(a.n).push(a); });
+        byNode.forEach((list,node)=>{ let t=node.textContent; list.sort((x,y)=>y.s-x.s).forEach(a=>{ const w=`\\class{mk}{${a.v}}`; t=t.slice(0,a.s)+(a.brace?`{${w}}`:w)+t.slice(a.e); }); node.textContent=t; });
+      }
+    }
+    if(atoms.length) prevAtoms=atoms;
   });
 }
 function splitSteps(s){
