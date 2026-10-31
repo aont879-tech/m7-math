@@ -160,6 +160,16 @@ details.hook[open]>summary{display:none}
 .stp.stp-h{display:none}
 .stp-in{animation:stpIn .45s ease both}
 @keyframes stpIn{from{opacity:0;transform:translateY(8px);background:var(--amber-soft,rgba(255,200,0,.18))}to{opacity:1;transform:none;background:transparent}}
+.sinfo{display:none}
+.stp.past{opacity:.5;transition:opacity .35s}
+.stpnote{border-left:4px solid var(--blue);padding:4px 0 4px 12px;margin-top:.6em;font-size:.9em}
+.stpnote:not([hidden]){animation:stpIn .45s ease both}
+/* colours used inside formulas: \class{r1}/\class{r2} rows, \class{mk} the part that changed, hl* the current source */
+.sbody g.r1,.ans g.r1,.hlc1{color:#f76707}
+.sbody g.r2,.ans g.r2,.hlc2{color:#845ef7}
+g.mk{color:#e64980}
+.hlok{color:#37b24d}
+g.hlc1,g.hlc2,g.hlok,g.mk{stroke:currentColor;stroke-width:18}
 .stpbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:.6em;font-size:14px}
 .stpbar .btn{padding:4px 12px;font-size:14px}
 .exopts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:4px 18px;margin-top:.5em}
@@ -447,11 +457,22 @@ function stepify(root){
     if(groups.length<2) return;
     box.dataset.steps=groups.length; box.innerHTML='';
     groups.forEach((gr,i)=>{ const w=document.createElement(gr.inl?'span':'div'); w.className='stp'+(gr.inl?' inl':'')+(i?' stp-h':''); gr.nodes.forEach(n=>w.appendChild(n)); box.appendChild(w); });
+    // optional per-step guidance: <span class="sinfo" data-hl="a11:c1,b11:c1" data-note="…"> highlights the
+    // elements marked \class{k-a11}{…} in the formulas and shows a note while that step is the newest one
+    const steps=[...box.querySelectorAll(':scope>.stp')];
+    const info=steps.map(s=>{ const i=s.querySelector('.sinfo'); return i?{hl:i.dataset.hl||'',note:i.dataset.note||''}:null; });
+    let note=null; if(info.some(x=>x&&x.note)){ note=document.createElement('div'); note.className='stpnote'; box.appendChild(note); }
+    box._apply=()=>{ const shown=steps.filter(s=>!s.classList.contains('stp-h')), k=shown.length-1, done=k===steps.length-1;
+      steps.forEach((s,i)=>s.classList.toggle('past',s.classList.contains('inl')&&i<k&&!done));
+      const inf=info[k];
+      mjq.then(()=>{ box.querySelectorAll('.hlc1,.hlc2,.hlok').forEach(g=>g.classList.remove('hlc1','hlc2','hlok'));
+        if(inf&&inf.hl) inf.hl.split(',').forEach(p=>{ const [key,c]=p.split(':'); box.querySelectorAll('.k-'+key).forEach(g=>g.classList.add('hl'+c)); }); });
+      if(note){ note.innerHTML=inf&&inf.note||''; note.hidden=!note.innerHTML; if(inf&&inf.note) typeset(note); } };
     const bar=document.createElement('div'); bar.className='stpbar';
     bar.innerHTML=`<button class="btn stpnext">ຂັ້ນຕໍ່ໄປ ▸</button><button class="btn stpall">ສະແດງທັງໝົດ</button><span class="hint stpcnt"></span>`;
     box.appendChild(bar);
     const upd=()=>{ const all=box.querySelectorAll(':scope>.stp'), shown=box.querySelectorAll(':scope>.stp:not(.stp-h)').length; bar.querySelector('.stpcnt').textContent=`ຂັ້ນ ${shown} / ${all.length}`;
-      const done=shown===all.length; bar.querySelector('.stpnext').textContent=done?'↺ ເລີ່ມໃໝ່':'ຂັ້ນຕໍ່ໄປ ▸'; bar.querySelector('.stpall').hidden=done; };
+      const done=shown===all.length; bar.querySelector('.stpnext').textContent=done?'↺ ເລີ່ມໃໝ່':'ຂັ້ນຕໍ່ໄປ ▸'; bar.querySelector('.stpall').hidden=done; box._apply(); };
     bar.querySelector('.stpnext').onclick=e=>{ e.stopPropagation(); if(!stepNext(box)){ box.querySelectorAll(':scope>.stp').forEach((s,i)=>{ if(i) s.classList.add('stp-h'); }); upd(); } };
     bar.querySelector('.stpall').onclick=e=>{ e.stopPropagation(); while(stepNext(box)); };
     box._upd=upd; upd();
