@@ -156,6 +156,12 @@ mjx-container[display="true"]{overflow-x:auto;overflow-y:hidden;max-width:100%;p
 details.hook>summary{cursor:pointer;display:inline-block;font-weight:700;color:var(--green);border:1.5px solid var(--green);border-radius:999px;padding:4px 16px;margin-bottom:.6em;list-style:none}
 details.hook>summary::-webkit-details-marker{display:none}
 details.hook[open]>summary{display:none}
+.stp.inl{display:inline}
+.stp.stp-h{display:none}
+.stp-in{animation:stpIn .45s ease both}
+@keyframes stpIn{from{opacity:0;transform:translateY(8px);background:var(--amber-soft,rgba(255,200,0,.18))}to{opacity:1;transform:none;background:transparent}}
+.stpbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:.6em;font-size:14px}
+.stpbar .btn{padding:4px 12px;font-size:14px}
 .exopts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:4px 18px;margin-top:.5em}
 /* fullscreen on-screen controls */
 .stage,.bookstage{position:relative}
@@ -338,7 +344,7 @@ const exOpts=e=>`<div class="exopts">${e.o.map((t,j)=>`<span><b>${K4[j]}.</b> ${
 const exAns=e=>`<b>ຕອບ ${K4[e.k]}.</b> ${e.o[e.k]}<br>${e.a}`;
 chs.forEach(c=>{
   const list=(M7.exam||[]).filter(e=>e.ch===c.n); if(!list.length) return;
-  list.slice(0,2).forEach(e=>c.slides.push(['📝 ຕົວຢ່າງຈາກຂໍ້ສອບເສັງຈົບ ມ.7',`<div class="ex"><span class="lbl" style="display:block">${exLbl(e)}</span>${e.q}${exOpts(e)}</div>
+  list.slice(0,2).forEach(e=>c.slides.push(['📝 ຕົວຢ່າງຈາກຂໍ້ສອບເສັງຈົບ ມ.7',`<div class="ex nostep"><span class="lbl" style="display:block">${exLbl(e)}</span>${e.q}${exOpts(e)}</div>
    <details class="hook"><summary>ເບິ່ງບົດແກ້ ▸</summary><div class="box green"><span class="lbl">ບົດແກ້</span>${exAns(e)}</div></details>`]));
   list.slice(2).forEach(e=>c.ex.push([`<span class="qnum">${exLbl(e)}</span>${e.q}${exOpts(e)}`,exAns(e)]));
 });
@@ -413,6 +419,61 @@ function renderCh(){
   ({slides:renderSlides,ex:renderEx,hw:renderHw,quiz:renderQuiz,book:renderBook})[tab]();
 }
 
+// step-by-step solutions: a worked example or answer is split at <br>/block boundaries (and at inline <span class="istep">)
+// and revealed one step at a time; on slides, → reveals the next step before moving to the next slide
+const STEP_SEL='.sbody .ex:not(.nostep), .sbody .box.green, .ans';
+const BLOCK=/^(P|DIV|UL|OL|TABLE|DETAILS|H3|H4|SVG)$/i;
+function stepify(root){
+  root.querySelectorAll(STEP_SEL).forEach(box=>{
+    if(box.dataset.steps||(box.matches('.box.green')&&!/ບົດແກ້/.test((box.querySelector('.lbl')||{}).textContent||''))) return;
+    const groups=[]; let g=null;
+    const close=()=>{ if(g&&g.nodes.some(n=>n.nodeType===1||n.textContent.trim())) groups.push(g); g=null; };
+    [...box.childNodes].forEach(n=>{
+      if(n.nodeName==='BR'){ close(); return; }
+      if(n.nodeType===1&&n.classList.contains('istep')){ close(); groups.push({inl:true,nodes:[n]}); return; }
+      if(n.nodeType===1&&BLOCK.test(n.nodeName)){ close(); groups.push({nodes:[n]}); return; }
+      if(!g) g={nodes:[]};
+      g.nodes.push(n);
+    });
+    close();
+    // one-line answers ("… → … . …") become steps too: split their text at ". ", "; " and "→" outside $…$
+    const isEx=box.matches('.ex'); const fine=[];
+    groups.forEach((gr,gi)=>{ if(gr.inl||(isEx&&gi===0)||gr.nodes.length===1&&gr.nodes[0].nodeType===1&&BLOCK.test(gr.nodes[0].nodeName)){ fine.push(gr); return; }
+      let cur={nodes:[]}; const push=()=>{ if(cur.nodes.some(n=>n.nodeType===1||n.textContent.trim())) fine.push(cur); cur={nodes:[]}; };
+      gr.nodes.forEach(n=>{ if(n.nodeType!==3){ cur.nodes.push(n); return; }
+        splitSteps(n.textContent).forEach((p,k)=>{ if(k) push(); if(p) cur.nodes.push(document.createTextNode(p)); }); });
+      push(); });
+    groups.length=0; groups.push(...fine);
+    if(groups.length<2) return;
+    box.dataset.steps=groups.length; box.innerHTML='';
+    groups.forEach((gr,i)=>{ const w=document.createElement(gr.inl?'span':'div'); w.className='stp'+(gr.inl?' inl':'')+(i?' stp-h':''); gr.nodes.forEach(n=>w.appendChild(n)); box.appendChild(w); });
+    const bar=document.createElement('div'); bar.className='stpbar';
+    bar.innerHTML=`<button class="btn stpnext">ຂັ້ນຕໍ່ໄປ ▸</button><button class="btn stpall">ສະແດງທັງໝົດ</button><span class="hint stpcnt"></span>`;
+    box.appendChild(bar);
+    const upd=()=>{ const all=box.querySelectorAll(':scope>.stp'), shown=box.querySelectorAll(':scope>.stp:not(.stp-h)').length; bar.querySelector('.stpcnt').textContent=`ຂັ້ນ ${shown} / ${all.length}`;
+      const done=shown===all.length; bar.querySelector('.stpnext').textContent=done?'↺ ເລີ່ມໃໝ່':'ຂັ້ນຕໍ່ໄປ ▸'; bar.querySelector('.stpall').hidden=done; };
+    bar.querySelector('.stpnext').onclick=e=>{ e.stopPropagation(); if(!stepNext(box)){ box.querySelectorAll(':scope>.stp').forEach((s,i)=>{ if(i) s.classList.add('stp-h'); }); upd(); } };
+    bar.querySelector('.stpall').onclick=e=>{ e.stopPropagation(); while(stepNext(box)); };
+    box._upd=upd; upd();
+  });
+}
+function splitSteps(s){
+  const out=[]; let cur='', m=false;
+  for(let i=0;i<s.length;i++){ const ch=s[i];
+    if(ch==='$'){ if(s[i+1]==='$'){ cur+='$$'; i++; } else cur+='$'; m=!m; continue; }
+    if(!m&&(ch==='.'||ch===';')&&s[i+1]===' '&&!/\d/.test(s[i-1]||'')){ cur+=ch; out.push(cur); cur=''; i++; continue; }
+    if(!m&&ch==='→'&&cur.trim()){ out.push(cur); cur=''; }
+    cur+=ch; }
+  out.push(cur); return out.filter((p,i)=>p.trim()||i===0);
+}
+// reveals the next hidden step inside root (a solution box or a whole slide); false when nothing is left
+function stepNext(root){
+  const boxes=root.matches&&root.matches('[data-steps]')?[root]:[...root.querySelectorAll('[data-steps]')];
+  for(const b of boxes){ const h=b.querySelector(':scope>.stp.stp-h'); if(h&&!(b.closest('details')&&!b.closest('details').open)){ h.classList.remove('stp-h'); h.classList.add('stp-in'); b._upd&&b._upd(); h.scrollIntoView({block:'nearest',behavior:'smooth'}); return true; } }
+  return false;
+}
+function prep(el){ stepify(el); typeset(el); }
+M7.stepify=stepify;
 function renderSlides(){
   const c=cur, pane=$('#pane'), s=c.slides[si];
   pane.innerHTML=`<div class="stage" id="stage"><div class="sbar"><span class="left"><img class="slogo" src="logo.svg" alt=""><span class="ch">${chNo(c)} · ${esc(c.title)}</span></span><span class="cnt">ສະໄລ້ ${si+1} / ${c.slides.length}</span></div>
@@ -425,7 +486,7 @@ function renderSlides(){
   pane.querySelectorAll('.dot').forEach(d=>d.onclick=()=>{si=+d.dataset.i;renderSlides();});
   $('#fs').onclick=()=>{const st=$('#stage'); if(document.fullscreenElement) document.exitFullscreen().catch(()=>{}); else if(st.requestFullscreen) st.requestFullscreen().catch(()=>{});};
   wireFsNav($('#stage'),go,si+1,c.slides.length);
-  typeset(pane);
+  prep(pane);
 }
 // on-screen controls shown only in fullscreen: previous / next arrows, position, and an exit button
 function fsNav(unit){return `<div class="fsnav" data-unit="${unit}"><button class="fsbtn fsprev" aria-label="ກ່ອນໜ້າ">◀</button><span class="fspos"></span><button class="fsbtn fsnext" aria-label="ຕໍ່ໄປ">▶</button></div><button class="fsbtn fsexit" aria-label="ອອກຈາກເຕັມຈໍ">✕ ອອກຈາກເຕັມຈໍ</button>`;}
@@ -438,8 +499,9 @@ function wireFsNav(root,step,pos,total){
 function setFsPos(root,pos,total){const n=root&&root.querySelector('.fsnav'); if(!n) return;
   n.querySelector('.fspos').textContent=`${n.dataset.unit} ${pos} / ${total}`;
   const [l,h]=String(pos).split('–').map(Number); n.querySelector('.fsprev').disabled=l<=1; n.querySelector('.fsnext').disabled=(h||l)>=total;}
-function go(d){const L=cur.slides.length; si=Math.max(0,Math.min(L-1,si+d)); const fs=document.fullscreenElement; if(fs){ // update in place to keep fullscreen
-    const s=cur.slides[si]; fs.querySelector('.stitle').innerHTML=s[0]; fs.querySelector('.sbody').innerHTML=s[1]; fs.querySelector('.cnt').textContent=`ສະໄລ້ ${si+1} / ${L}`; setFsPos(fs,si+1,L); fs.querySelector('.scontent').scrollTop=0; typeset(fs);
+function go(d){const st=document.fullscreenElement||$('#stage'); if(d>0&&st&&stepNext(st)) return;
+  const L=cur.slides.length; si=Math.max(0,Math.min(L-1,si+d)); const fs=document.fullscreenElement; if(fs){ // update in place to keep fullscreen
+    const s=cur.slides[si]; fs.querySelector('.stitle').innerHTML=s[0]; fs.querySelector('.sbody').innerHTML=s[1]; fs.querySelector('.cnt').textContent=`ສະໄລ້ ${si+1} / ${L}`; setFsPos(fs,si+1,L); fs.querySelector('.scontent').scrollTop=0; prep(fs);
     document.querySelectorAll('.dot').forEach((x,i)=>x.classList.toggle('on',i===si)); $('#sp').disabled=!si; } else renderSlides();}
 document.addEventListener('keydown',e=>{ if(!cur||(tab!=='slides'&&tab!=='book')) return; if(/INPUT|TEXTAREA/.test(document.activeElement.tagName)) return;
   const d=(e.key==='ArrowRight'||e.key==='PageDown')?1:(e.key==='ArrowLeft'||e.key==='PageUp')?-1:0; if(!d) return;
@@ -489,14 +551,14 @@ function renderBook(){
 function renderEx(){
   const pane=$('#pane');
   pane.innerHTML=`<p class="hint" style="margin-top:0">ໃຫ້ນັກຮຽນລອງເຮັດກ່ອນ ແລ້ວຈຶ່ງກົດເບິ່ງບົດແກ້ລະອຽດ.</p><ol class="qlist">${cur.ex.map(([q,a])=>`<li class="qitem"><div class="qt">${q}</div><details><summary>ເບິ່ງບົດແກ້</summary><div class="ans"><span class="lbl">ບົດແກ້</span>${a}</div></details></li>`).join('')}</ol>`;
-  typeset(pane);
+  prep(pane);
 }
 function renderHw(){
   const pane=$('#pane');
   pane.innerHTML=`<div class="hwhead"><p><b>ວຽກບ້ານ${chNo(cur)}</b> · ໃຫ້ນັກຮຽນເຮັດໃສ່ປຶ້ມຂຽນ ແລະ ສົ່ງໃນຊົ່ວໂມງຕໍ່ໄປ.</p><label class="toggle"><input type="checkbox" id="showA"><span>ສະແດງຄຳຕອບ (ສຳລັບຄູ)</span></label></div>
    <ol class="qlist">${cur.hw.map(([q,a])=>`<li class="qitem"><div class="qt">${q}</div><div class="ans" hidden><span class="lbl">ຄຳຕອບ</span>${a}</div></li>`).join('')}</ol>`;
   $('#showA').onchange=e=>pane.querySelectorAll('.ans').forEach(x=>x.hidden=!e.target.checked);
-  typeset(pane);
+  prep(pane);
 }
 function quizForm(id,items,label){
   const K='ກຂຄງ';
