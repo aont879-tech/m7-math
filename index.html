@@ -156,6 +156,7 @@ mjx-container[display="true"]{overflow-x:auto;overflow-y:hidden;max-width:100%;p
 details.hook>summary{cursor:pointer;display:inline-block;font-weight:700;color:var(--green);border:1.5px solid var(--green);border-radius:999px;padding:4px 16px;margin-bottom:.6em;list-style:none}
 details.hook>summary::-webkit-details-marker{display:none}
 details.hook[open]>summary{display:none}
+.exopts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:4px 18px;margin-top:.5em}
 /* fullscreen on-screen controls */
 .stage,.bookstage{position:relative}
 .fsnav,.fsexit{display:none}
@@ -302,6 +303,7 @@ window.R=String.raw;
 <script src="pm.js"></script>
 <script src="covers.js"></script>
 <script src="hooks.js"></script>
+<script src="exams.js"></script>
 <script>
 (function(){
 const $=s=>document.querySelector(s);
@@ -329,6 +331,17 @@ function esc(s){return String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>
 chs.forEach(c=>c.slides.unshift(['',`<div class="cover"><div><div class="cvpart">${partNo(c.part)} · ${esc(M7.parts[c.part-1])}</div>
  <div class="cvno">${c.label?'ບົດເສີມທີ':'ບົດທີ'} <span>${c.label||c.n}</span></div><h3 class="cvtitle">${esc(c.title)}</h3><div class="cvgoal"><b>ຈຸດປະສົງ:</b> ${c.goal}</div></div>
  <div class="cvfig">${M7.cover?M7.cover(c.n):''}</div></div>`]));
+// national M7 exam questions: the first two of each chapter become worked-example slides, the rest join the exercises
+const K4=['ກ','ຂ','ຄ','ງ'];
+const exLbl=e=>`ຂໍ້ສອບເສັງຈົບ ມ.7 ສົກຮຽນ ${e.s}, ຂໍ້ ${e.no}`;
+const exOpts=e=>`<div class="exopts">${e.o.map((t,j)=>`<span><b>${K4[j]}.</b> ${t}</span>`).join('')}</div>`;
+const exAns=e=>`<b>ຕອບ ${K4[e.k]}.</b> ${e.o[e.k]}<br>${e.a}`;
+chs.forEach(c=>{
+  const list=(M7.exam||[]).filter(e=>e.ch===c.n); if(!list.length) return;
+  list.slice(0,2).forEach(e=>c.slides.push(['📝 ຕົວຢ່າງຈາກຂໍ້ສອບເສັງຈົບ ມ.7',`<div class="ex"><span class="lbl" style="display:block">${exLbl(e)}</span>${e.q}${exOpts(e)}</div>
+   <details class="hook"><summary>ເບິ່ງບົດແກ້ ▸</summary><div class="box green"><span class="lbl">ບົດແກ້</span>${exAns(e)}</div></details>`]));
+  list.slice(2).forEach(e=>c.ex.push([`<span class="qnum">${exLbl(e)}</span>${e.q}${exOpts(e)}`,exAns(e)]));
+});
 // a motivating problem right after the cover, solved again on the last slide
 chs.forEach(c=>{
   const h=M7.hook&&M7.hook[c.n]; if(!h) return;
