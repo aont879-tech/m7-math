@@ -3,6 +3,76 @@
 // credit line for the "fried chicken" intuition slides, linking to the video at second t
 const M7_CHK=t=>`<p class="hint" style="margin-top:.8em">🎬 ແນວຄິດຈາກວິດີໂອ: <a href="https://youtu.be/yhBOk5JuyW0?t=${t}" target="_blank" rel="noopener">ເຂົ້າໃຈເມທຣິກຊ໌ງ່າຍໆດ້ວຍໄກ່ທອດ — ຊ່ອງ ແມທເລົ່າໃຫ້ຟັງ (MLHF)</a></p>`;
 const M7_MENU=(title,rows,cols)=>`<div class="tbl"><table><tr><th>${title}</th>${cols.map(c=>`<th>${c}</th>`).join('')}</tr>${rows.map(([n,...v])=>`<tr><td>${n}</td>${v.map(x=>`<td>${x}</td>`).join('')}</tr>`).join('')}</table></div>`;
+// animated matrix product AB: for each entry, the numbers of row i of A and column j of B fly into "□×□+□×□",
+// then every entry collapses to its value. Plain HTML (not MathJax) so single numbers can move; ▶ / → drive it.
+const M7_MMUL=(A,B)=>{ const f=v=>v<0?'−'+(-v):''+v;
+  const mat=(M,c)=>`<span class="mm-mat ${c}" style="--c:${M[0].length}">${M.map((r,i)=>r.map((v,j)=>`<span class="mm-n" data-i="${i}" data-j="${j}">${f(v)}</span>`).join('')).join('')}</span>`;
+  const C=A.map((r,i)=>B[0].map((_,j)=>`<span class="mm-cell" data-i="${i}" data-j="${j}"><span class="mm-expr">${r.map((_,k)=>`${k?'<i class="op">+</i>':''}<span class="mm-s"></span><i class="op">×</i><span class="mm-s"></span>`).join('')}</span><span class="mm-val">${f(r.reduce((s,a,k)=>s+a*B[k][j],0))}</span></span>`).join('')).join('');
+  return `<div class="mmw"><div class="mm-row"><span class="mm-lbl">AB =</span>${mat(A,'mm-a')}${mat(B,'mm-b')}</div>
+<div class="mm-row"><span class="mm-lbl">=</span><span class="mm-mat mm-c" style="--c:${B[0].length}">${C}</span></div>
+<div class="mm-bar"><button class="btn primary" data-mm="play">▶ ຫຼິ້ນ</button><button class="btn" data-mm="next">ຂັ້ນຕໍ່ໄປ ▸</button><button class="btn" data-mm="reset">↺ ເລີ່ມໃໝ່</button><span class="hint mm-cnt"></span></div><p class="hint mm-note"></p></div>`; };
+(function(){
+  const css=document.createElement('style'); css.textContent=`
+.mmw{position:relative;margin:.3em 0}
+.mm-row{display:flex;align-items:center;gap:.5em;flex-wrap:wrap;margin:.3em 0}
+.mm-lbl{font-family:"Times New Roman",serif;font-style:italic;font-size:1.15em;min-width:2.6em;text-align:right}
+.mm-mat{display:inline-grid;grid-template-columns:repeat(var(--c),auto);gap:.2em 1em;padding:.25em .7em;border-left:2px solid var(--ink);border-right:2px solid var(--ink);border-radius:.9em/50%;font-size:1.1em}
+.mm-n{text-align:center;min-width:1.4em;transition:color .3s}
+.mm-n.hr{color:#f76707;font-weight:700}.mm-n.hc{color:#845ef7;font-weight:700}
+.mm-cell{position:relative;text-align:center;white-space:nowrap}
+.mm-expr{opacity:0;transition:opacity .3s}.mm-cell.on .mm-expr{opacity:1}.mm-cell.done .mm-expr{opacity:0}
+.mm-expr .op{font-style:normal;color:var(--ink-2);margin:0 .2em}
+.mm-s{display:inline-block;min-width:1.4em;text-align:center;font-weight:700}.mm-s.a{color:#f76707}.mm-s.b{color:#845ef7}
+.mm-val{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;transform:scale(.5);transition:opacity .4s,transform .4s;font-weight:700}
+.mm-cell.done .mm-val{opacity:1;transform:none}
+.mm-fly{position:absolute;z-index:5;pointer-events:none;font-weight:700;text-align:center;font-size:1.1em}
+.mm-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:.6em;font-size:14px}
+.mm-note{min-height:1.6em;margin:.3em 0 0}
+.mmw.fin .mm-expr{display:none}.mmw.fin .mm-val{position:static}`; document.head.appendChild(css);
+  const wait=ms=>new Promise(r=>setTimeout(r,ms));
+  const cellsOf=w=>[...w.querySelectorAll('.mm-cell')];
+  function ui(w){ const N=cellsOf(w).length+1, k=w._k||0, end=k>=N;
+    const p=w.querySelector('[data-mm=play]'), n=w.querySelector('[data-mm=next]');
+    p.textContent=end?'↺ ເບິ່ງອີກຄັ້ງ':k?'▶ ສືບຕໍ່':'▶ ຫຼິ້ນ'; p.disabled=n.disabled=!!w._busy; n.hidden=end;
+    w.querySelector('.mm-cnt').textContent=`ຂັ້ນ ${k} / ${N}`; }
+  function note(w,h){ w.querySelector('.mm-note').innerHTML=h; }
+  function reset(w){ w._gen=(w._gen||0)+1; w._k=0; w._busy=false; w.classList.remove('fin'); w.querySelectorAll('.mm-fly').forEach(x=>x.remove());
+    cellsOf(w).forEach(c=>{ c.classList.remove('on','done'); c.querySelectorAll('.mm-s').forEach(s=>{ s.textContent=''; s.className='mm-s'; }); });
+    w.querySelectorAll('.mm-n').forEach(x=>x.classList.remove('hr','hc')); note(w,''); ui(w); }
+  // a copy of src's number travels on a small arc into slot dst
+  function fly(w,src,dst,cls,gen){ const r=w.getBoundingClientRect(), a=src.getBoundingClientRect(), b=dst.getBoundingClientRect();
+    const c=document.createElement('span'); c.className='mm-fly mm-s '+cls; c.textContent=src.textContent;
+    Object.assign(c.style,{left:a.left-r.left+'px',top:a.top-r.top+'px',width:a.width+'px',height:a.height+'px'}); w.appendChild(c);
+    const dx=b.left+b.width/2-a.left-a.width/2, dy=b.top+b.height/2-a.top-a.height/2;
+    return c.animate([{transform:'translate(0,0) scale(1.25)'},{transform:`translate(${dx/2}px,${dy/2-30}px) scale(1.35)`},{transform:`translate(${dx}px,${dy}px) scale(1)`}],
+      {duration:900,easing:'ease-in-out'}).finished.catch(()=>{}).then(()=>{ c.remove(); if(gen!==w._gen) return;
+        const t=src.textContent; dst.textContent=t[0]==='−'?`(${t})`:t; dst.className='mm-s '+cls; }); }
+  async function entry(w,cell,gen){ const i=cell.dataset.i, j=cell.dataset.j;
+    w.querySelectorAll('.mm-n').forEach(x=>x.classList.remove('hr','hc'));
+    const row=[...w.querySelectorAll(`.mm-a .mm-n[data-i="${i}"]`)], col=[...w.querySelectorAll(`.mm-b .mm-n[data-j="${j}"]`)];
+    row.forEach(x=>x.classList.add('hr')); col.forEach(x=>x.classList.add('hc')); cell.classList.add('on');
+    note(w,`<b style="color:#f76707">ແຖວທີ ${+i+1} ຂອງ A</b> × <b style="color:#845ef7">ຖັນທີ ${+j+1} ຂອງ B</b> → ອົງປະກອບ ແຖວທີ ${+i+1} ຖັນທີ ${+j+1} ຂອງ AB`);
+    await wait(600); const s=cell.querySelectorAll('.mm-s');
+    for(let k=0;k<row.length&&gen===w._gen;k++){ await Promise.all([fly(w,row[k],s[2*k],'a',gen),fly(w,col[k],s[2*k+1],'b',gen)]); await wait(200); } }
+  async function finish(w,gen){ w.querySelectorAll('.mm-n').forEach(x=>x.classList.remove('hr','hc'));
+    note(w,'ຄິດໄລ່ແຕ່ລະອົງປະກອບ: ຄູນກ່ອນ ແລ້ວຈຶ່ງບວກ'); await wait(500);
+    for(const c of cellsOf(w)){ if(gen!==w._gen) return; c.classList.add('done'); await wait(350); }
+    await wait(300); if(gen===w._gen) w.classList.add('fin');
+    note(w,'ສຳເລັດ! ແຕ່ລະອົງປະກອບຂອງ AB ແມ່ນ <b>ແຖວ × ຖັນ</b>.'); }
+  async function run(w,all){ if(w._busy) return; const cells=cellsOf(w), gen=w._gen=(w._gen||0); w._k=w._k||0;
+    if(w._k>cells.length) return; w._busy=true; ui(w);
+    do{ if(w._k<cells.length) await entry(w,cells[w._k],gen); else await finish(w,gen); if(gen!==w._gen) return; w._k++; ui(w); if(all&&w._k<=cells.length) await wait(500); }
+    while(all&&w._k<=cells.length&&gen===w._gen);
+    w._busy=false; ui(w); }
+  document.addEventListener('click',e=>{ const b=e.target.closest('.mmw [data-mm]'); if(!b) return; e.stopPropagation();
+    const w=b.closest('.mmw'), a=b.dataset.mm;
+    if(a==='reset') reset(w); else if(a==='play'){ if((w._k||0)>cellsOf(w).length) reset(w); run(w,true); } else run(w,false); },true);
+  // → / PageDown on a slide with an unfinished animation plays its next step instead of changing slide
+  window.addEventListener('keydown',e=>{ if(e.key!=='ArrowRight'&&e.key!=='PageDown') return;
+    const w=(document.fullscreenElement||document).querySelector('.stage .mmw'); if(!w||(w._k||0)>cellsOf(w).length) return;
+    e.preventDefault(); e.stopImmediatePropagation(); if(!w._busy) run(w,false); },true);
+  new MutationObserver(()=>document.querySelectorAll('.mmw:not([data-ok])').forEach(w=>{ w.dataset.ok=1; ui(w); })).observe(document.documentElement,{childList:true,subtree:true});
+})();
 M7.ch.push({
 n:101, label:"1", part:9, title:"ມາຕຣິດ ແລະ ຄຸນລັກສະນະຂອງມາຕຣິດ",
 goal:R`ຮູ້ຈັກມາຕຣິດ ແລະ ຊະນິດຕ່າງໆ, ຄິດໄລ່ການບວກ, ການລົບ, ການຄູນມາຕຣິດ ແລະ ນຳໃຊ້ຄຸນລັກສະນະ $A^2-(a+d)A+(ad-bc)I=O$ ເພື່ອຊອກກຳລັງຂອງມາຕຣິດ.`,
@@ -25,6 +95,7 @@ $$A=\begin{pmatrix}a_{11}&a_{12}&a_{13}\\a_{21}&a_{22}&a_{23}\end{pmatrix}=(a_{i
 <div class="ex"><span class="lbl" style="display:block">ຕົວຢ່າງ</span>ໃຫ້ມາຕຣິດ $A=\begin{pmatrix}2&-1\\3&4\end{pmatrix}$ ແລະ $B=\begin{pmatrix}1&5\\-2&0\end{pmatrix}$ ຈົ່ງຊອກຫາມາຕຣິດ $2A+3B$.<br><b>ວິທີແກ້:</b> $2A+3B=2\begin{pmatrix}2&-1\\3&4\end{pmatrix}+3\begin{pmatrix}1&5\\-2&0\end{pmatrix}$<br>$=\begin{pmatrix}4&-2\\6&8\end{pmatrix}+\begin{pmatrix}3&15\\-6&0\end{pmatrix}$<br>$=\begin{pmatrix}4+3&-2+15\\6+(-6)&8+0\end{pmatrix}$<br>$=\begin{pmatrix}7&13\\0&8\end{pmatrix}$<br>ຕອບ: $2A+3B=\begin{pmatrix}7&13\\0&8\end{pmatrix}$</div>`],
 [R`ການຄູນມາຕຣິດກັບມາຕຣິດ`, R`<div class="box"><span class="lbl">ເງື່ອນໄຂ</span>$A_{m\times n}\cdot B_{n\times p}=C_{m\times p}$ — ຈຳນວນ <b>ຖັນຂອງ $A$</b> ຕ້ອງເທົ່າ ຈຳນວນ <b>ແຖວຂອງ $B$</b>.<br>$c_{ij}=a_{i1}b_{1j}+a_{i2}b_{2j}+\dots+a_{in}b_{nj}$ (ແຖວທີ $i$ ຄູນຖັນທີ $j$)</div>
 <div class="ex"><span class="lbl" style="display:block">ຕົວຢ່າງ</span>ໃຫ້ມາຕຣິດ $A=\begin{pmatrix}2&1\\-1&3\end{pmatrix}$ ແລະ $B=\begin{pmatrix}1&4\\2&-2\end{pmatrix}$ ຈົ່ງຊອກຫາມາຕຣິດ $AB$.<br><b>ວິທີແກ້:</b> $AB=\begin{pmatrix}2&1\\-1&3\end{pmatrix}\begin{pmatrix}1&4\\2&-2\end{pmatrix}$<br>$=\begin{pmatrix}2\times1+1\times2&2\times4+1\times(-2)\\(-1)\times1+3\times2&(-1)\times4+3\times(-2)\end{pmatrix}$<br>$=\begin{pmatrix}2+2&8-2\\-1+6&-4-6\end{pmatrix}$<br>$=\begin{pmatrix}4&6\\5&-10\end{pmatrix}$<br>ຕອບ: $AB=\begin{pmatrix}4&6\\5&-10\end{pmatrix}$</div>`],
+[R`🎬 ພາບເຄື່ອນໄຫວ: ການຄູນມາຕຣິດ`, R`<p>ກົດ <b>▶ ຫຼິ້ນ</b> (ຫຼື ປຸ່ມ → ເທື່ອລະຂັ້ນ) ເພື່ອເບິ່ງວ່າ ແຕ່ລະອົງປະກອບຂອງ $AB$ ໄດ້ມາຈາກ <b style="color:#f76707">ແຖວຂອງ $A$</b> ຄູນກັບ <b style="color:#845ef7">ຖັນຂອງ $B$</b> ແນວໃດ.</p>`+M7_MMUL([[2,1],[-1,3]],[[1,4],[2,-2]])],
 [R`🍗 ເຂົ້າໃຈການຄູນມາຕຣິດດ້ວຍໄກ່ທອດ`, `<div class="cols"><div>`+M7_MENU('ເມນູຮ້ານ',[['ໄກ່ທອດ (ຕ່ອນ)',2,1],['ນັກເກັດ (ຕ່ອນ)',0,2]],['ຊຸດ 1','ຊຸດ 2'])+R`<p>ລູກຄ້າສັ່ງ: <b>ຊຸດ 1</b> ຈຳນວນ 1 ຊຸດ, <b>ຊຸດ 2</b> ຈຳນວນ 3 ຊຸດ</p></div>
 <div><p>ພະນັກງານຄິດວ່າຕ້ອງຫຍິບໄກ່ຈັກຕ່ອນ:</p><p>ໄກ່ທອດ: $2\times1+1\times3=5$<br>ນັກເກັດ: $0\times1+2\times3=6$</p></div></div>
 <div class="box"><span class="lbl">ນີ້ຄືການຄູນມາຕຣິດ</span>$$\begin{pmatrix}2&1\\0&2\end{pmatrix}\begin{pmatrix}1\\3\end{pmatrix}=\begin{pmatrix}5\\6\end{pmatrix}$$<p style="text-align:center;margin-top:-.4em"><b>ເມນູ</b> × <b>ລາຍການສັ່ງ</b> = <b>ຈຳນວນໄກ່</b></p>ແຖວຂອງເມນູ (ຊະນິດໄກ່) × ຖັນຂອງລາຍການສັ່ງ (ຈຳນວນຊຸດ) — ນີ້ຄືເຫດຜົນທີ່ຕ້ອງເອົາ <b>ແຖວ × ຖັນ</b>.</div>`+M7_CHK(129)],
