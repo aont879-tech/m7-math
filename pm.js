@@ -14,6 +14,10 @@ const M7_MMUL=(A,B)=>{ const f=v=>v<0?'−'+(-v):''+v;
 <div class="mm-bar"><button class="btn primary" data-mm="play">▶ ຫຼິ້ນ</button><button class="btn" data-mm="next">ຂັ້ນຕໍ່ໄປ ▸</button><button class="btn" data-mm="reset">↺ ເລີ່ມໃໝ່</button><span class="hint mm-cnt"></span></div><p class="hint mm-note"></p></div>`; };
 (function(){
   const css=document.createElement('style'); css.textContent=`
+g.cp{color:#cc5de8}g.co{color:#f76707}
+.m7-li{padding-left:1.4em}.m7-li::before{content:"▪";color:#cc5de8;margin-right:.6em}
+.m7-in{padding-left:.6em}
+.m7-al{display:grid;grid-template-columns:8.5em auto;column-gap:.3em;align-items:center;padding-left:.6em}.m7-al>:first-child{text-align:right}
 .mmw{position:relative;margin:.3em 0}
 .mm-row{display:flex;align-items:center;gap:.5em;flex-wrap:wrap;margin:.3em 0}
 .mm-lbl{font-family:"Times New Roman",serif;font-style:italic;font-size:1.15em;min-width:2.6em;text-align:right}
@@ -114,7 +118,7 @@ $$A=\begin{pmatrix}a_{11}&a_{12}&a_{13}\\a_{21}&a_{22}&a_{23}\end{pmatrix}=(a_{i
 <div class="box red"><span class="lbl">ຈື່ໄວ້</span>ໂດຍທົ່ວໄປ $AB\ne BA$. ຈາກ $AB=O$ ບໍ່ໄດ້ໝາຍຄວາມວ່າ $A=O$ ຫຼື $B=O$.</div>
 <div class="box"><span class="lbl">ຄຸນລັກສະນະ</span>$(AB)C=A(BC)$ · $A(B+C)=AB+AC$ · $(A+B)C=AC+BC$<br>$k(AB)=(kA)B=A(kB)$ · $AI=IA=A$ · $A^n=AA^{n-1}$</div>`],
 [R`ຫຼັກເກນສຳຄັນຂອງມາຕຣິດ 2×2`, R`<div class="box"><span class="lbl">ຫຼັກເກນ</span>ຖ້າ $A=\begin{pmatrix}a&b\\c&d\end{pmatrix}$ ແລ້ວ $$A^2-(a+d)A+(ad-bc)I=O$$</div>
-<div class="ex"><span class="lbl" style="display:block">ຕົວຢ່າງ 1: ຊອກຫາ $A^2$ ໂດຍໃຊ້ຫຼັກເກນ</span>ໃຫ້ $A=\begin{pmatrix}1&2\\3&4\end{pmatrix}$ ຈົ່ງຊອກຫາ $A^2$<br><b>ວິທີແກ້:</b> ຈາກ $A=\begin{pmatrix}a&b\\c&d\end{pmatrix}=\begin{pmatrix}1&2\\3&4\end{pmatrix}$ ຈະໄດ້ $a=1,\ b=2,\ c=3,\ d=4$<br>ດັ່ງນັ້ນ $a+d=1+4=5$ ແລະ $ad-bc=1(4)-2(3)=-2$<br>ແທນໃສ່ຫຼັກເກນ $A^2-(a+d)A+(ad-bc)I=O$ ຈະໄດ້ $A^2-5A-2I=O\ \Rightarrow\ A^2=5A+2I$<br>$A^2=5\begin{pmatrix}1&2\\3&4\end{pmatrix}+2\begin{pmatrix}1&0\\0&1\end{pmatrix}$<br>$=\begin{pmatrix}5&10\\15&20\end{pmatrix}+\begin{pmatrix}2&0\\0&2\end{pmatrix}$<br>$=\begin{pmatrix}7&10\\15&22\end{pmatrix}$<br>ຄຳຕອບ: $A^2=\begin{pmatrix}7&10\\15&22\end{pmatrix}$</div>
+<div class="ex"><span class="lbl" style="display:block">ຕົວຢ່າງ 1: ຊອກຫາ $A^2$ ໂດຍໃຊ້ຫຼັກເກນ</span>ໃຫ້ $A=\begin{pmatrix}1&2\\3&4\end{pmatrix}$ ຈົ່ງຊອກຫາ $A^2$<br><b>ວິທີແກ້:</b> ຈາກ $A=\begin{pmatrix}a&b\\c&d\end{pmatrix}=\begin{pmatrix}1&2\\3&4\end{pmatrix}$ ຈະໄດ້ $a=1,\ b=2,\ c=3,\ d=4$<br>ດັ່ງນັ້ນ:<div class="m7-li">$\class{cp}{a+d=1+4=5}$</div><div class="m7-li">$\class{co}{ad-bc=1(4)-2(3)=-2}$</div>ແທນໃສ່ຫຼັກເກນ:<div class="m7-in">$A^2-\class{cp}{(a+d)}A+\class{co}{(ad-bc)}I=O$</div>ຈະໄດ້:<div class="m7-al"><span>$A^2-\class{cp}{5}A-\class{co}{2}I$</span><span>$=O$</span></div><div class="m7-al"><span>$A^2$</span><span>$=5A+2I$</span></div><div class="m7-al"><span>$A^2$</span><span>$=5\begin{pmatrix}1&2\\3&4\end{pmatrix}+2\begin{pmatrix}1&0\\0&1\end{pmatrix}$</span></div><div class="m7-al"><span></span><span>$=\begin{pmatrix}5&10\\15&20\end{pmatrix}+\begin{pmatrix}2&0\\0&2\end{pmatrix}$</span></div><div class="m7-al"><span></span><span>$=\begin{pmatrix}7&10\\15&22\end{pmatrix}$</span></div>ຄຳຕອບ: $A^2=\begin{pmatrix}7&10\\15&22\end{pmatrix}$</div>
 <p>ມາຕຣິດເນັ່ງຈອມ: $\begin{pmatrix}\alpha&0\\0&\beta\end{pmatrix}^n=\begin{pmatrix}\alpha^n&0\\0&\beta^n\end{pmatrix}$</p>`],
 [R`ກຳລັງທີ່ວົນຄືນ`, R`<div class="ex"><span class="lbl">ຕົວຢ່າງ</span>$A=\begin{pmatrix}1&-2\\1&-1\end{pmatrix}$: $A^2-0\cdot A+1\cdot I=O\Rightarrow A^2=-I$<br>$A^4=I$, ສະນັ້ນ $I+A+A^2+A^3=I+A-I-A=O$<br>$I+A+\dots+A^{100}=A^{100}=(A^4)^{25}=I$</div>
 <div class="ex"><span class="lbl">ຕົວຢ່າງ</span>$A=\begin{pmatrix}1&3\\-1&-2\end{pmatrix}$: $A^2+A+I=O\Rightarrow A^3=I$<br>$A^n=I$ (ເມື່ອ $n=3k$), $A$ ($n=3k+1$), $-A-I$ ($n=3k+2$)</div>`],
