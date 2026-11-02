@@ -359,11 +359,13 @@ chs.forEach(c=>{
   list.slice(2).forEach(e=>c.ex.push([`<span class="qnum">${exLbl(e)}</span>${e.q}${exOpts(e)}`,exAns(e)]));
 });
 // a motivating problem right after the cover, solved again on the last slide
+// (summaryEnd: no solution slide; the chapter's summary slide closes the chapter instead)
 chs.forEach(c=>{
   const h=M7.hook&&M7.hook[c.n]; if(!h) return;
   c.slides.splice(1,0,['🤔 ບັນຫາຊວນຄິດ',`<div class="box red"><span class="lbl">ບັນຫາ</span>${h.q}</div>
-   <p class="hint" style="font-size:.7em">ໃຫ້ນັກຮຽນລອງຄິດ ແລະ ສະເໜີແນວຄິດກ່ອນ — ພວກເຮົາຈະກັບມາແກ້ບັນຫານີ້ໃນທ້າຍບົດ.</p>
+   <p class="hint" style="font-size:.7em">ໃຫ້ນັກຮຽນລອງຄິດ ແລະ ສະເໜີແນວຄິດກ່ອນ${c.summaryEnd?'.':' — ພວກເຮົາຈະກັບມາແກ້ບັນຫານີ້ໃນທ້າຍບົດ.'}</p>
    <details class="hook"><summary>ກ້ຽວເຂົ້າສູ່ບົດຮຽນ ▸</summary><div class="box green"><span class="lbl">ກ້ຽວເຂົ້າສູ່ບົດຮຽນ</span>${h.link}<br>ດັ່ງນັ້ນ ບັນຫານີ້ກ່ຽວຂ້ອງກັບບົດຮຽນຂອງເຮົາໃນມື້ນີ້ ນັ້ນກໍຄື <b>${chNo(c)}: ${esc(c.title)}</b></div></details>`]);
+  if(c.summaryEnd){ const i=c.slides.findIndex(s=>s[0]==='ສະຫຼຸບບົດ'); if(i>0) c.slides.push(c.slides.splice(i,1)[0]); return; }
   c.slides.push(['✅ ກັບມາແກ້ບັນຫາຊວນຄິດ',`<div class="box red"><span class="lbl">ບັນຫາຕົ້ນບົດ</span>${h.q}</div><div class="box green"><span class="lbl">ບົດແກ້ ດ້ວຍຄວາມຮູ້ຈາກບົດນີ້</span>${h.a}</div>`]);
 });
 

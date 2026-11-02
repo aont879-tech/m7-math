@@ -89,7 +89,7 @@ g.cp{color:#cc5de8}g.co{color:#f76707}
   new MutationObserver(()=>document.querySelectorAll('.mmw:not([data-ok])').forEach(w=>{ w.dataset.ok=1; ui(w); fit(w); })).observe(document.documentElement,{childList:true,subtree:true});
 })();
 M7.ch.push({
-n:101, label:"1", part:9, title:"ມາຕຣິດ ແລະ ຄຸນລັກສະນະຂອງມາຕຣິດ",
+n:101, label:"1", part:9, title:"ມາຕຣິດ ແລະ ຄຸນລັກສະນະຂອງມາຕຣິດ", summaryEnd:true,
 goal:R`ຮູ້ຈັກມາຕຣິດ ແລະ ຊະນິດຕ່າງໆ, ຄິດໄລ່ການບວກ, ການລົບ, ການຄູນມາຕຣິດ ແລະ ນຳໃຊ້ຄຸນລັກສະນະ $A^2-(a+d)A+(ad-bc)I=O$ ເພື່ອຊອກກຳລັງຂອງມາຕຣິດ.`,
 slides:[
 [R`ມາຕຣິດແມ່ນຫຍັງ?`, R`<div class="box"><span class="lbl">ນິຍາມ</span>ມາຕຣິດແມ່ນຕາຕະລາງຈຳນວນທີ່ຈັດເປັນ <b>ແຖວ</b> (ນອນ) ແລະ <b>ຖັນ</b> (ຕັ້ງ). ອົງປະກອບ $a_{ij}$ ຢູ່ແຖວທີ $i$ ຖັນທີ $j$.</div>
