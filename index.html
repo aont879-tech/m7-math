@@ -158,6 +158,7 @@ details.hook>summary::-webkit-details-marker{display:none}
 details.hook[open]>summary{display:none}
 .stp.inl{display:inline}
 .stp.stp-h{display:none}
+.stp:not(.inl)+.stp:not(.inl){margin-top:.55em}
 .stp-in{animation:stpIn .45s ease both}
 @keyframes stpIn{from{opacity:0;transform:translateY(8px);background:var(--amber-soft,rgba(255,200,0,.18))}to{opacity:1;transform:none;background:transparent}}
 .sinfo{display:none}
