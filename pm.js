@@ -95,7 +95,8 @@ slides:[
 [R`ມາຕຣິດແມ່ນຫຍັງ?`, R`<div class="box"><span class="lbl">ນິຍາມ</span>ມາຕຣິດແມ່ນຕາຕະລາງຈຳນວນທີ່ຈັດເປັນ <b>ແຖວ</b> (ນອນ) ແລະ <b>ຖັນ</b> (ຕັ້ງ). ອົງປະກອບ $a_{ij}$ ຢູ່ແຖວທີ $i$ ຖັນທີ $j$.</div>
 $$A=\begin{pmatrix}a_{11}&a_{12}&a_{13}\\a_{21}&a_{22}&a_{23}\end{pmatrix}=(a_{ij})_{2\times3}$$
 <p>ມາຕຣິດທີ່ມີ $m$ ແຖວ ແລະ $n$ ຖັນ ມີ <b>ຂະໜາດ $m\times n$</b>.</p>
-<div class="ex"><span class="lbl">ຕົວຢ່າງ</span>$A=\begin{pmatrix}1&0&2\\-3&0.5&3\end{pmatrix}$ ຂະໜາດ $2\times3$, $\ a_{13}=2,\ a_{21}=-3$</div>`],
+<div class="ex"><span class="lbl">ຕົວຢ່າງ</span>$A=\begin{pmatrix}1&0&2\\-3&0.5&3\end{pmatrix}$ ຂະໜາດ $2\times3$, $\ a_{13}=2,\ a_{21}=-3$</div>
+<div class="ex"><span class="lbl" style="display:block">ບົດເຝິກຫັດ ຂໍ້ 1</span>ຈົ່ງບອກຂະໜາດຂອງ $A=\begin{pmatrix}4&3\\1&2\end{pmatrix}$, $\ B=\begin{pmatrix}-1&5\\-1&4\\3&1\end{pmatrix}$, $\ C=\begin{pmatrix}1&-2&3\\0&4&1\\-2&-1&3\end{pmatrix}$<br>$A$ ມີ 2 ແຖວ 2 ຖັນ: ຂະໜາດ $2\times2$<br>$B$ ມີ 3 ແຖວ 2 ຖັນ: ຂະໜາດ $3\times2$<br>$C$ ມີ 3 ແຖວ 3 ຖັນ: ຂະໜາດ $3\times3$</div>`],
 [R`ຊະນິດຂອງມາຕຣິດ (1)`, R`<div class="cols"><div><ul><li><b>ມາຕຣິດແຖວ</b>: ມີແຖວດຽວ<br>$(1\ \ 2\ \ 3)$</li><li><b>ມາຕຣິດຖັນ</b>: ມີຖັນດຽວ<br>$\begin{pmatrix}0\\3\\1\end{pmatrix}$</li></ul></div>
 <div><ul><li><b>ມາຕຣິດຈະຕຸລັດ</b> $n\times n$:<br><span style="white-space:nowrap">ຈຳນວນແຖວ = ຈຳນວນຖັນ</span><br>$\begin{pmatrix}1&2\\3&4\end{pmatrix}$</li><li><b>ມາຕຣິດສູນ</b> $O$: ອົງປະກອບເປັນ 0 ໝົດ<br>$\begin{pmatrix}0&0\\0&0\end{pmatrix}$</li></ul></div></div>`],
 [R`ຊະນິດຂອງມາຕຣິດ (2)`, R`<div class="cols"><div><ul><li><b>ມາຕຣິດເນັ່ງຈອມ</b>: ນອກເສັ້ນເນັ່ງຈອມເປັນ 0<br>$\begin{pmatrix}2&0\\0&5\end{pmatrix}$</li><li><b>ມາຕຣິດຫົວໜ່ວຍ</b>: ເສັ້ນເນັ່ງຈອມເປັນ 1, ນອກນັ້ນເປັນ 0<br>$I_2=\begin{pmatrix}1&0\\0&1\end{pmatrix}$, $I_3=\begin{pmatrix}1&0&0\\0&1&0\\0&0&1\end{pmatrix}$</li></ul></div>
