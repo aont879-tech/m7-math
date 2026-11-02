@@ -17,7 +17,7 @@ const M7_MMUL=(A,B)=>{ const f=v=>v<0?'−'+(-v):''+v;
 g.cp{color:#cc5de8}g.co{color:#f76707}
 .m7-li{padding-left:1.4em}.m7-li::before{content:"▪";color:#cc5de8;margin-right:.6em}
 .m7-in{padding-left:.6em}
-.m7-al{display:grid;grid-template-columns:8.5em auto;column-gap:.3em;align-items:center;padding-left:.6em}.m7-al>:first-child{text-align:right}
+.m7-al{display:grid;grid-template-columns:9.5em auto;column-gap:.3em;align-items:center;padding-left:.6em}.m7-al>:first-child{text-align:right}
 .mmw{position:relative;margin:.3em 0}
 .mm-row{display:flex;align-items:center;gap:.5em;flex-wrap:wrap;margin:.3em 0}
 .mm-lbl{font-family:"Times New Roman",serif;font-style:italic;font-size:1.15em;min-width:2.6em;text-align:right}
