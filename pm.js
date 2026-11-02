@@ -9,7 +9,7 @@ const M7_MMUL=(A,B)=>{ const f=v=>v<0?'−'+(-v):''+v;
   const mat=(M,c)=>`<span class="mm-mat ${c}" style="--c:${M[0].length}">${M.map((r,i)=>r.map((v,j)=>`<span class="mm-n" data-i="${i}" data-j="${j}">${f(v)}</span>`).join('')).join('')}</span>`;
   const C=A.map((r,i)=>B[0].map((_,j)=>`<span class="mm-cell" data-i="${i}" data-j="${j}"><span class="mm-expr">${r.map((_,k)=>`${k?'<i class="op">+</i>':''}<span class="mm-s"></span><i class="op">×</i><span class="mm-s"></span>`).join('')}</span><span class="mm-val">${f(r.reduce((s,a,k)=>s+a*B[k][j],0))}</span></span>`).join('')).join('');
   return `<div class="mmw"><div class="mm-row"><span class="mm-lbl">AB =</span>${mat(A,'mm-a')}${mat(B,'mm-b')}</div>
-<div class="mm-row"><span class="mm-lbl">=</span><span class="mm-mat mm-c" style="--c:${B[0].length}">${C}</span></div>
+<div class="mm-row mm-res"><span class="mm-lbl">=</span><span class="mm-mat mm-c" style="--c:${B[0].length}">${C}</span></div>
 <div class="mm-bar"><button class="btn primary" data-mm="play">▶ ຫຼິ້ນ</button><button class="btn" data-mm="next">ຂັ້ນຕໍ່ໄປ ▸</button><button class="btn" data-mm="reset">↺ ເລີ່ມໃໝ່</button><span class="hint mm-cnt"></span></div><p class="hint mm-note"></p></div>`; };
 (function(){
   const css=document.createElement('style'); css.textContent=`
@@ -21,8 +21,9 @@ const M7_MMUL=(A,B)=>{ const f=v=>v<0?'−'+(-v):''+v;
 .mm-n.hr{color:#f76707;font-weight:700}.mm-n.hc{color:#845ef7;font-weight:700}
 .mm-cell{position:relative;text-align:center;white-space:nowrap}
 .mm-expr{opacity:0;transition:opacity .3s}.mm-cell.on .mm-expr{opacity:1}.mm-cell.done .mm-expr{opacity:0}
-.mm-expr .op{font-style:normal;color:var(--ink-2);margin:0 .2em}
-.mm-s{display:inline-block;min-width:1.4em;text-align:center;font-weight:700}.mm-s.a{color:#f76707}.mm-s.b{color:#845ef7}
+.mm-expr .op{font-style:normal;color:var(--ink-2);margin:0 .1em}
+.mm-res{flex-wrap:nowrap}.mm-c{gap:.2em .8em}
+.mm-s{display:inline-block;min-width:1em;text-align:center;font-weight:700}.mm-s.a{color:#f76707}.mm-s.b{color:#845ef7}
 .mm-val{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;transform:scale(.5);transition:opacity .4s,transform .4s;font-weight:700}
 .mm-cell.done .mm-val{opacity:1;transform:none}
 .mm-fly{position:absolute;z-index:5;pointer-events:none;font-weight:700;text-align:center;font-size:1.1em}
@@ -36,7 +37,7 @@ const M7_MMUL=(A,B)=>{ const f=v=>v<0?'−'+(-v):''+v;
     p.textContent=end?'↺ ເບິ່ງອີກຄັ້ງ':k?'▶ ສືບຕໍ່':'▶ ຫຼິ້ນ'; p.disabled=n.disabled=!!w._busy; n.hidden=end;
     w.querySelector('.mm-cnt').textContent=`ຂັ້ນ ${k} / ${N}`; }
   function note(w,h){ w.querySelector('.mm-note').innerHTML=h; }
-  function reset(w){ w._gen=(w._gen||0)+1; w._k=0; w._busy=false; w.classList.remove('fin'); w.querySelectorAll('.mm-fly').forEach(x=>x.remove());
+  function reset(w){ w._gen=(w._gen||0)+1; w._k=0; w._busy=false; w.classList.remove('fin'); fit(w); w.querySelectorAll('.mm-fly').forEach(x=>x.remove());
     cellsOf(w).forEach(c=>{ c.classList.remove('on','done'); c.querySelectorAll('.mm-s').forEach(s=>{ s.textContent=''; s.className='mm-s'; }); });
     w.querySelectorAll('.mm-n').forEach(x=>x.classList.remove('hr','hc')); note(w,''); ui(w); }
   // a copy of src's number travels on a small arc into slot dst
@@ -57,7 +58,7 @@ const M7_MMUL=(A,B)=>{ const f=v=>v<0?'−'+(-v):''+v;
   async function finish(w,gen){ w.querySelectorAll('.mm-n').forEach(x=>x.classList.remove('hr','hc'));
     note(w,'ຄິດໄລ່ແຕ່ລະອົງປະກອບ: ຄູນກ່ອນ ແລ້ວຈຶ່ງບວກ'); await wait(500);
     for(const c of cellsOf(w)){ if(gen!==w._gen) return; c.classList.add('done'); await wait(350); }
-    await wait(300); if(gen===w._gen) w.classList.add('fin');
+    await wait(300); if(gen===w._gen){ w.classList.add('fin'); fit(w); }
     note(w,'ສຳເລັດ! ແຕ່ລະອົງປະກອບຂອງ AB ແມ່ນ <b>ແຖວ × ຖັນ</b>.'); }
   async function run(w,all){ if(w._busy) return; const cells=cellsOf(w), gen=w._gen=(w._gen||0); w._k=w._k||0;
     if(w._k>cells.length) return; w._busy=true; ui(w);
@@ -71,7 +72,13 @@ const M7_MMUL=(A,B)=>{ const f=v=>v<0?'−'+(-v):''+v;
   window.addEventListener('keydown',e=>{ if(e.key!=='ArrowRight'&&e.key!=='PageDown') return;
     const w=(document.fullscreenElement||document).querySelector('.stage .mmw'); if(!w||(w._k||0)>cellsOf(w).length) return;
     e.preventDefault(); e.stopImmediatePropagation(); if(!w._busy) run(w,false); },true);
-  new MutationObserver(()=>document.querySelectorAll('.mmw:not([data-ok])').forEach(w=>{ w.dataset.ok=1; ui(w); })).observe(document.documentElement,{childList:true,subtree:true});
+  // a wide result (e.g. 1×3 with three-term sums) is shrunk until it fits the slide width
+  function fit(w){ const row=w.querySelector('.mm-res'), m=row.querySelector('.mm-c'); m.style.fontSize='';
+    const avail=row.clientWidth-row.querySelector('.mm-lbl').offsetWidth-12, need=m.scrollWidth;
+    if(need>avail&&avail>0) m.style.fontSize=(1.1*Math.max(.55,avail/need)).toFixed(3)+'em'; }
+  const fitAll=()=>document.querySelectorAll('.mmw').forEach(fit);
+  window.addEventListener('resize',fitAll); document.addEventListener('fullscreenchange',()=>setTimeout(fitAll,50));
+  new MutationObserver(()=>document.querySelectorAll('.mmw:not([data-ok])').forEach(w=>{ w.dataset.ok=1; ui(w); fit(w); })).observe(document.documentElement,{childList:true,subtree:true});
 })();
 M7.ch.push({
 n:101, label:"1", part:9, title:"ມາຕຣິດ ແລະ ຄຸນລັກສະນະຂອງມາຕຣິດ",
@@ -94,7 +101,8 @@ $$A=\begin{pmatrix}a_{11}&a_{12}&a_{13}\\a_{21}&a_{22}&a_{23}\end{pmatrix}=(a_{i
 <div class="ex"><span class="lbl" style="display:block">ຕົວຢ່າງ</span>$A=\begin{pmatrix}1&-2\\3&-4\end{pmatrix}$<br>$2A=\begin{pmatrix}2\cdot1&2\cdot(-2)\\2\cdot3&2\cdot(-4)\end{pmatrix}=\begin{pmatrix}2&-4\\6&-8\end{pmatrix}$</div>
 <div class="ex"><span class="lbl" style="display:block">ຕົວຢ່າງ</span>ໃຫ້ມາຕຣິດ $A=\begin{pmatrix}2&-1\\3&4\end{pmatrix}$ ແລະ $B=\begin{pmatrix}1&5\\-2&0\end{pmatrix}$ ຈົ່ງຊອກຫາມາຕຣິດ $2A+3B$.<br><b>ວິທີແກ້:</b> $2A+3B=2\begin{pmatrix}2&-1\\3&4\end{pmatrix}+3\begin{pmatrix}1&5\\-2&0\end{pmatrix}$<br>$=\begin{pmatrix}4&-2\\6&8\end{pmatrix}+\begin{pmatrix}3&15\\-6&0\end{pmatrix}$<br>$=\begin{pmatrix}4+3&-2+15\\6+(-6)&8+0\end{pmatrix}$<br>$=\begin{pmatrix}7&13\\0&8\end{pmatrix}$<br>ຕອບ: $2A+3B=\begin{pmatrix}7&13\\0&8\end{pmatrix}$</div>`],
 [R`ການຄູນມາຕຣິດກັບມາຕຣິດ`, R`<div class="box"><span class="lbl">ເງື່ອນໄຂ</span>$A_{m\times n}\cdot B_{n\times p}=C_{m\times p}$ — ຈຳນວນ <b>ຖັນຂອງ $A$</b> ຕ້ອງເທົ່າ ຈຳນວນ <b>ແຖວຂອງ $B$</b>.<br>$c_{ij}=a_{i1}b_{1j}+a_{i2}b_{2j}+\dots+a_{in}b_{nj}$ (ແຖວທີ $i$ ຄູນຖັນທີ $j$)</div>`],
-[R`🎬 ພາບເຄື່ອນໄຫວ: ການຄູນມາຕຣິດ`, R`<p>ກົດ <b>▶ ຫຼິ້ນ</b> (ຫຼື ປຸ່ມ → ເທື່ອລະຂັ້ນ) ເພື່ອເບິ່ງວ່າ ແຕ່ລະອົງປະກອບຂອງ $AB$ ໄດ້ມາຈາກ <b style="color:#f76707">ແຖວຂອງ $A$</b> ຄູນກັບ <b style="color:#845ef7">ຖັນຂອງ $B$</b> ແນວໃດ.</p>`+M7_MMUL([[2,1],[-1,3]],[[1,4],[2,-2]])],
+[R`ຕົວຢ່າງ 1: ການຄູນມາຕຣິດ`, R`<p>ກົດ <b>▶ ຫຼິ້ນ</b> (ຫຼື ປຸ່ມ → ເທື່ອລະຂັ້ນ) ເພື່ອເບິ່ງວ່າ ແຕ່ລະອົງປະກອບຂອງ $AB$ ໄດ້ມາຈາກ <b style="color:#f76707">ແຖວຂອງ $A$</b> ຄູນກັບ <b style="color:#845ef7">ຖັນຂອງ $B$</b> ແນວໃດ.</p>`+M7_MMUL([[2,1],[-1,3]],[[1,4],[2,-2]])],
+[R`ຕົວຢ່າງ 2: ການຄູນມາຕຣິດ`, R`<p>ໃຫ້ມາຕຣິດ $A=(1\ \ 2\ \ -1)$ ແລະ $B=\begin{pmatrix}2&0&1\\1&3&-2\\3&-1&2\end{pmatrix}$ ຈົ່ງຊອກຫາມາຕຣິດ $AB$. ກົດ <b>▶ ຫຼິ້ນ</b> (ຫຼື ປຸ່ມ →).</p>`+M7_MMUL([[1,2,-1]],[[2,0,1],[1,3,-2],[3,-1,2]])],
 [R`🍗 ເຂົ້າໃຈການຄູນມາຕຣິດດ້ວຍໄກ່ທອດ`, `<div class="cols"><div>`+M7_MENU('ເມນູຮ້ານ',[['ໄກ່ທອດ (ຕ່ອນ)',2,1],['ນັກເກັດ (ຕ່ອນ)',0,2]],['ຊຸດ 1','ຊຸດ 2'])+R`<p>ລູກຄ້າສັ່ງ: <b>ຊຸດ 1</b> ຈຳນວນ 1 ຊຸດ, <b>ຊຸດ 2</b> ຈຳນວນ 3 ຊຸດ</p></div>
 <div><p>ພະນັກງານຄິດວ່າຕ້ອງຫຍິບໄກ່ຈັກຕ່ອນ:</p><p>ໄກ່ທອດ: $2\times1+1\times3=5$<br>ນັກເກັດ: $0\times1+2\times3=6$</p></div></div>
 <div class="box"><span class="lbl">ນີ້ຄືການຄູນມາຕຣິດ</span>$$\begin{pmatrix}2&1\\0&2\end{pmatrix}\begin{pmatrix}1\\3\end{pmatrix}=\begin{pmatrix}5\\6\end{pmatrix}$$<p style="text-align:center;margin-top:-.4em"><b>ເມນູ</b> × <b>ລາຍການສັ່ງ</b> = <b>ຈຳນວນໄກ່</b></p>ແຖວຂອງເມນູ (ຊະນິດໄກ່) × ຖັນຂອງລາຍການສັ່ງ (ຈຳນວນຊຸດ) — ນີ້ຄືເຫດຜົນທີ່ຕ້ອງເອົາ <b>ແຖວ × ຖັນ</b>.</div>`+M7_CHK(129)],
