@@ -351,7 +351,8 @@ chs.forEach(c=>c.slides.unshift(['',`<div class="cover"><div><div class="cvpart"
 const K4=['ກ','ຂ','ຄ','ງ'];
 const exLbl=e=>`ຂໍ້ສອບເສັງຈົບ ມ.7 ສົກຮຽນ ${e.s}, ຂໍ້ ${e.no}`;
 const exOpts=e=>`<div class="exopts">${e.o.map((t,j)=>`<span><b>${K4[j]}.</b> ${t}</span>`).join('')}</div>`;
-const exAns=e=>`<b>ຕອບ ${K4[e.k]}.</b> ${e.o[e.k]}<br>${e.a}`;
+// a worked solution that ends with its own "ຄຳຕອບ:" line is shown as is, without the answer on top
+const exAns=e=>/ຄຳຕອບ:/.test(e.a)?e.a:`<b>ຕອບ ${K4[e.k]}.</b> ${e.o[e.k]}<br>${e.a}`;
 chs.forEach(c=>{
   const list=(M7.exam||[]).filter(e=>e.ch===c.n); if(!list.length) return;
   list.slice(0,2).forEach(e=>c.slides.push(['📝 ຕົວຢ່າງຈາກຂໍ້ສອບເສັງຈົບ ມ.7',`<div class="ex nostep"><span class="lbl" style="display:block">${exLbl(e)}</span>${e.q}${exOpts(e)}</div>
