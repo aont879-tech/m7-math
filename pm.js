@@ -7,7 +7,8 @@ const M7_MENU=(title,rows,cols)=>`<div class="tbl"><table><tr><th>${title}</th>$
 // then every entry collapses to its value. Plain HTML (not MathJax) so single numbers can move; ▶ / → drive it.
 const M7_MMUL=(A,B)=>{ const f=v=>v<0?'−'+(-v):''+v;
   const mat=(M,c)=>`<span class="mm-mat ${c}" style="--c:${M[0].length}">${M.map((r,i)=>r.map((v,j)=>`<span class="mm-n" data-i="${i}" data-j="${j}">${f(v)}</span>`).join('')).join('')}</span>`;
-  const C=A.map((r,i)=>B[0].map((_,j)=>`<span class="mm-cell" data-i="${i}" data-j="${j}"><span class="mm-expr">${r.map((_,k)=>`${k?'<i class="op">+</i>':''}<span class="mm-s"></span><i class="op">×</i><span class="mm-s"></span>`).join('')}</span><span class="mm-val">${f(r.reduce((s,a,k)=>s+a*B[k][j],0))}</span></span>`).join('')).join('');
+  const p=v=>v<0?`(${f(v)})`:f(v); // data-v: what each slot will hold, so the width can be fitted before anything flies
+  const C=A.map((r,i)=>B[0].map((_,j)=>`<span class="mm-cell" data-i="${i}" data-j="${j}"><span class="mm-expr">${r.map((a,k)=>`${k?'<i class="op">+</i>':''}<span class="mm-s" data-v="${p(a)}"></span><i class="op">×</i><span class="mm-s" data-v="${p(B[k][j])}"></span>`).join('')}</span><span class="mm-val">${f(r.reduce((s,a,k)=>s+a*B[k][j],0))}</span></span>`).join('')).join('');
   return `<div class="mmw"><div class="mm-row"><span class="mm-lbl">AB =</span>${mat(A,'mm-a')}${mat(B,'mm-b')}</div>
 <div class="mm-row mm-res"><span class="mm-lbl">=</span><span class="mm-mat mm-c" style="--c:${B[0].length}">${C}</span></div>
 <div class="mm-bar"><button class="btn primary" data-mm="play">▶ ຫຼິ້ນ</button><button class="btn" data-mm="next">ຂັ້ນຕໍ່ໄປ ▸</button><button class="btn" data-mm="reset">↺ ເລີ່ມໃໝ່</button><span class="hint mm-cnt"></span></div><p class="hint mm-note"></p></div>`; };
@@ -45,7 +46,8 @@ const M7_MMUL=(A,B)=>{ const f=v=>v<0?'−'+(-v):''+v;
     const c=document.createElement('span'); c.className='mm-fly mm-s '+cls; c.textContent=src.textContent;
     Object.assign(c.style,{left:a.left-r.left+'px',top:a.top-r.top+'px',width:a.width+'px',height:a.height+'px'}); w.appendChild(c);
     const dx=b.left+b.width/2-a.left-a.width/2, dy=b.top+b.height/2-a.top-a.height/2;
-    return c.animate([{transform:'translate(0,0) scale(1.25)'},{transform:`translate(${dx/2}px,${dy/2-30}px) scale(1.35)`},{transform:`translate(${dx}px,${dy}px) scale(1)`}],
+    const end=parseFloat(getComputedStyle(dst).fontSize)/parseFloat(getComputedStyle(c).fontSize); // land at the slot's (possibly fitted) size
+    return c.animate([{transform:'translate(0,0) scale(1.25)'},{transform:`translate(${dx/2}px,${dy/2-30}px) scale(1.35)`},{transform:`translate(${dx}px,${dy}px) scale(${end.toFixed(3)})`}],
       {duration:900,easing:'ease-in-out'}).finished.catch(()=>{}).then(()=>{ c.remove(); if(gen!==w._gen) return;
         const t=src.textContent; dst.textContent=t[0]==='−'?`(${t})`:t; dst.className='mm-s '+cls; }); }
   async function entry(w,cell,gen){ const i=cell.dataset.i, j=cell.dataset.j;
@@ -74,7 +76,9 @@ const M7_MMUL=(A,B)=>{ const f=v=>v<0?'−'+(-v):''+v;
     e.preventDefault(); e.stopImmediatePropagation(); if(!w._busy) run(w,false); },true);
   // a wide result (e.g. 1×3 with three-term sums) is shrunk until it fits the slide width
   function fit(w){ const row=w.querySelector('.mm-res'), m=row.querySelector('.mm-c'); m.style.fontSize='';
+    const sl=[...m.querySelectorAll('.mm-s')], old=sl.map(s=>s.textContent); sl.forEach(s=>s.textContent=s.dataset.v);
     const avail=row.clientWidth-row.querySelector('.mm-lbl').offsetWidth-12, need=m.scrollWidth;
+    sl.forEach((s,k)=>s.textContent=old[k]);
     if(need>avail&&avail>0) m.style.fontSize=(1.1*Math.max(.55,avail/need)).toFixed(3)+'em'; }
   const fitAll=()=>document.querySelectorAll('.mmw').forEach(fit);
   window.addEventListener('resize',fitAll); document.addEventListener('fullscreenchange',()=>setTimeout(fitAll,50));
@@ -105,6 +109,7 @@ $$A=\begin{pmatrix}a_{11}&a_{12}&a_{13}\\a_{21}&a_{22}&a_{23}\end{pmatrix}=(a_{i
 [R`ຕົວຢ່າງ 2: ການຄູນມາຕຣິດ`, R`<p>ໃຫ້ມາຕຣິດ $A=(1\ \ 2\ \ -1)$ ແລະ $B=\begin{pmatrix}2&0&1\\1&3&-2\\3&-1&2\end{pmatrix}$ ຈົ່ງຊອກຫາມາຕຣິດ $AB$. ກົດ <b>▶ ຫຼິ້ນ</b> (ຫຼື ປຸ່ມ →).</p>`+M7_MMUL([[1,2,-1]],[[2,0,1],[1,3,-2],[3,-1,2]])],
 [R`ຕົວຢ່າງ 3: ການຄູນມາຕຣິດ`, R`<p>ໃຫ້ມາຕຣິດ $A=(3\ \ -2)$ ແລະ $B=\begin{pmatrix}4\\5\end{pmatrix}$ ຈົ່ງຊອກຫາມາຕຣິດ $AB$. ກົດ <b>▶ ຫຼິ້ນ</b> (ຫຼື ປຸ່ມ →).</p>`+M7_MMUL([[3,-2]],[[4],[5]])],
 [R`ຕົວຢ່າງ 4: ການຄູນມາຕຣິດ`, R`<p>ໃຫ້ມາຕຣິດ $A=\begin{pmatrix}2\\-1\\3\end{pmatrix}$ ແລະ $B=(1\ \ 4\ \ -2)$ ຈົ່ງຊອກຫາມາຕຣິດ $AB$. ກົດ <b>▶ ຫຼິ້ນ</b> (ຫຼື ປຸ່ມ →).</p>`+M7_MMUL([[2],[-1],[3]],[[1,4,-2]])],
+[R`ຕົວຢ່າງ 5: ການຄູນມາຕຣິດ`, R`<p>ໃຫ້ມາຕຣິດ $A=\begin{pmatrix}1&2&0\\-1&3&1\\2&0&1\end{pmatrix}$ ແລະ $B=\begin{pmatrix}2&1&-1\\0&1&2\\1&-2&3\end{pmatrix}$ ຈົ່ງຊອກຫາມາຕຣິດ $AB$. ກົດ <b>▶ ຫຼິ້ນ</b> (ຫຼື ປຸ່ມ →).</p>`+M7_MMUL([[1,2,0],[-1,3,1],[2,0,1]],[[2,1,-1],[0,1,2],[1,-2,3]])],
 [R`🍗 ເຂົ້າໃຈການຄູນມາຕຣິດດ້ວຍໄກ່ທອດ`, `<div class="cols"><div>`+M7_MENU('ເມນູຮ້ານ',[['ໄກ່ທອດ (ຕ່ອນ)',2,1],['ນັກເກັດ (ຕ່ອນ)',0,2]],['ຊຸດ 1','ຊຸດ 2'])+R`<p>ລູກຄ້າສັ່ງ: <b>ຊຸດ 1</b> ຈຳນວນ 1 ຊຸດ, <b>ຊຸດ 2</b> ຈຳນວນ 3 ຊຸດ</p></div>
 <div><p>ພະນັກງານຄິດວ່າຕ້ອງຫຍິບໄກ່ຈັກຕ່ອນ:</p><p>ໄກ່ທອດ: $2\times1+1\times3=5$<br>ນັກເກັດ: $0\times1+2\times3=6$</p></div></div>
 <div class="box"><span class="lbl">ນີ້ຄືການຄູນມາຕຣິດ</span>$$\begin{pmatrix}2&1\\0&2\end{pmatrix}\begin{pmatrix}1\\3\end{pmatrix}=\begin{pmatrix}5\\6\end{pmatrix}$$<p style="text-align:center;margin-top:-.4em"><b>ເມນູ</b> × <b>ລາຍການສັ່ງ</b> = <b>ຈຳນວນໄກ່</b></p>ແຖວຂອງເມນູ (ຊະນິດໄກ່) × ຖັນຂອງລາຍການສັ່ງ (ຈຳນວນຊຸດ) — ນີ້ຄືເຫດຜົນທີ່ຕ້ອງເອົາ <b>ແຖວ × ຖັນ</b>.</div>`+M7_CHK(129)],
