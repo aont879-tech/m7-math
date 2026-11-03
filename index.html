@@ -11,6 +11,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="description" content="ສື່ການສອນຄະນິດສາດ ມັດທະຍົມສຶກສາ ປີທີ 7 ຄົບ 45 ບົດ: ສະໄລ້ສອນ, ບົດເຝິກຫັດ, ວຽກບ້ານ, ບົດກວດກາທ້າຍບົດ">
 <meta name="theme-color" content="#1b2a4a">
+<script>try{const t=localStorage.getItem('m7-theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
 <meta property="og:type" content="website">
 <meta property="og:title" content="ຫ້ອງຮຽນຄະນິດ ມ.7">
 <meta property="og:description" content="ສື່ການສອນຄະນິດສາດ ມ.7 ຄົບ 45 ບົດ: ສະໄລ້ສອນ, ບົດເຝິກຫັດ, ວຽກບ້ານ, ບົດກວດກາທ້າຍບົດ">
@@ -69,6 +70,9 @@ mjx-container[display="true"]{overflow-x:auto;overflow-y:hidden;max-width:100%;p
 .footer img{width:36px;height:auto;border-radius:6px;flex:none}
 .brand b{display:block;font-family:var(--display);font-size:18px;line-height:1.3}
 .brand small{color:var(--ink-2);font-size:12.5px}
+.theme{display:flex;gap:3px;padding:3px;margin-bottom:12px;border:1px solid var(--line);border-radius:8px;background:var(--paper)}
+.theme button{flex:1;border:0;background:none;color:var(--ink-2);font:inherit;font-size:12.5px;padding:5px 2px;border-radius:6px;cursor:pointer;white-space:nowrap}
+.theme button[aria-pressed="true"]{background:var(--sheet);color:var(--ink);font-weight:700;box-shadow:var(--shadow)}
 .search{width:100%;padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);font:inherit;font-size:14px;margin-bottom:10px}
 .part{margin-top:10px}
 .part > button{width:100%;text-align:left;background:none;border:0;padding:6px 4px;font-size:12px;letter-spacing:.06em;color:var(--red);font-weight:700;text-transform:uppercase;display:flex;justify-content:space-between}
@@ -287,6 +291,7 @@ a.btn{text-decoration:none;color:var(--ink);display:inline-block}
   <aside class="side" id="side">
     <button class="brand" id="homeBtn"><img class="mark" src="logo.svg" alt="ໂລໂກ້ ຄະນິດສາດ ມ.7"><span><b>ຫ້ອງຮຽນຄະນິດ ມ.7</b><small>ແບບຮຽນຄະນິດສາດ ມັດທະຍົມ ປີທີ 7 · 45 ບົດ</small></span></button>
     <input class="search" id="search" type="search" placeholder="ຊອກຫາບົດ ເຊັ່ນ: ສັງຄະນິດ" aria-label="ຊອກຫາບົດ">
+    <div class="theme" role="group" aria-label="ຮູບແບບສີ"><button data-t="auto">🖥 ອັດຕະໂນມັດ</button><button data-t="light">☀ ສະຫວ່າງ</button><button data-t="dark">🌙 ມືດ</button></div>
     <nav id="nav"></nav>
   </aside>
   <main class="main"><div class="wrap" id="view"></div></main>
@@ -389,6 +394,15 @@ function buildNav(filter=''){
 }
 nav.addEventListener('click',e=>{const b=e.target.closest('.chlink'); if(b){openCh(+b.dataset.n); closeSide();}});
 $('#search').addEventListener('input',e=>buildNav(e.target.value));
+// colour theme: follow the device (auto) or force light/dark, remembered on this device
+const themeBtns=[...document.querySelectorAll('.theme button')];
+function setTheme(t){
+  if(t==='auto') delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme=t;
+  try{ if(t==='auto') localStorage.removeItem('m7-theme'); else localStorage.setItem('m7-theme',t); }catch(e){}
+  themeBtns.forEach(b=>b.setAttribute('aria-pressed',b.dataset.t===t));
+}
+themeBtns.forEach(b=>b.addEventListener('click',()=>setTheme(b.dataset.t)));
+setTheme(document.documentElement.dataset.theme||'auto');
 $('#homeBtn').addEventListener('click',()=>{home();closeSide();});
 $('#menuBtn').addEventListener('click',()=>{side.classList.add('open');const s=document.createElement('div');s.className='scrim';s.id='scrim';s.onclick=closeSide;document.body.appendChild(s);});
 function closeSide(){side.classList.remove('open');const s=$('#scrim');s&&s.remove();}
