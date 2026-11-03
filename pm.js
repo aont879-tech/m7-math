@@ -4,11 +4,11 @@
 const M7_CHK=t=>`<p class="hint" style="margin-top:.8em">🎬 ແນວຄິດຈາກວິດີໂອ: <a href="https://youtu.be/yhBOk5JuyW0?t=${t}" target="_blank" rel="noopener">ເຂົ້າໃຈເມທຣິກຊ໌ງ່າຍໆດ້ວຍໄກ່ທອດ — ຊ່ອງ ແມທເລົ່າໃຫ້ຟັງ (MLHF)</a></p>`;
 const M7_MENU=(title,rows,cols)=>`<div class="tbl"><table><tr><th>${title}</th>${cols.map(c=>`<th>${c}</th>`).join('')}</tr>${rows.map(([n,...v])=>`<tr><td>${n}</td>${v.map(x=>`<td>${x}</td>`).join('')}</tr>`).join('')}</table></div>`;
 // animated matrix product AB: for each entry, the numbers of row i of A and column j of B fly into "□×□+□×□",
-// then every entry collapses to its value. Plain HTML (not MathJax) so single numbers can move; ▶ / → drive it.
+// then every entry shows its products "□+□", then collapses to its value. Plain HTML (not MathJax) so single numbers can move; ▶ / → drive it.
 const M7_MMUL=(A,B)=>{ const f=v=>v<0?'−'+(-v):''+v;
   const mat=(M,c)=>`<span class="mm-mat ${c}" style="--c:${M[0].length}">${M.map((r,i)=>r.map((v,j)=>`<span class="mm-n" data-i="${i}" data-j="${j}">${f(v)}</span>`).join('')).join('')}</span>`;
   const p=v=>v<0?`(${f(v)})`:f(v); // data-v: what each slot will hold, so the width can be fitted before anything flies
-  const C=A.map((r,i)=>B[0].map((_,j)=>`<span class="mm-cell" data-i="${i}" data-j="${j}"><span class="mm-expr">${r.map((a,k)=>`${k?'<i class="op">+</i>':''}<span class="mm-s" data-v="${p(a)}"></span><i class="op">×</i><span class="mm-s" data-v="${p(B[k][j])}"></span>`).join('')}</span><span class="mm-val">${f(r.reduce((s,a,k)=>s+a*B[k][j],0))}</span></span>`).join('')).join('');
+  const C=A.map((r,i)=>B[0].map((_,j)=>`<span class="mm-cell" data-i="${i}" data-j="${j}"><span class="mm-expr">${r.map((a,k)=>`${k?'<i class="op">+</i>':''}<span class="mm-s" data-v="${p(a)}"></span><i class="op">×</i><span class="mm-s" data-v="${p(B[k][j])}"></span>`).join('')}</span><span class="mm-prod">${r.map((a,k)=>p(a*B[k][j]||0)).join('<i class="op">+</i>')}</span><span class="mm-val">${f(r.reduce((s,a,k)=>s+a*B[k][j],0))}</span></span>`).join('')).join('');
   return `<div class="mmw"><div class="mm-row"><span class="mm-lbl">AB =</span>${mat(A,'mm-a')}${mat(B,'mm-b')}</div>
 <div class="mm-row mm-res"><span class="mm-lbl">=</span><span class="mm-mat mm-c" style="--c:${B[0].length}">${C}</span></div>
 <div class="mm-bar"><button class="btn primary" data-mm="play">▶ ຫຼິ້ນ</button><button class="btn" data-mm="next">ຂັ້ນຕໍ່ໄປ ▸</button><button class="btn" data-mm="reset">↺ ເລີ່ມໃໝ່</button><span class="hint mm-cnt"></span></div><p class="hint mm-note"></p></div>`; };
@@ -31,19 +31,22 @@ g.cp{color:#cc5de8}g.co{color:#f76707}
 .mm-s{display:inline-block;min-width:1em;text-align:center;font-weight:700}.mm-s.a{color:#f76707}.mm-s.b{color:#845ef7}
 .mm-val{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;transform:scale(.5);transition:opacity .4s,transform .4s;font-weight:700}
 .mm-cell.done .mm-val{opacity:1;transform:none}
+.mm-prod{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;transform:scale(.7);transition:opacity .4s,transform .4s;font-weight:700}
+.mm-prod .op{font-style:normal;font-weight:400;color:var(--ink-2);margin:0 .25em}
+.mm-cell.prod .mm-expr{opacity:0}.mm-cell.prod .mm-prod{opacity:1;transform:none}.mm-cell.done .mm-prod{opacity:0}
 .mm-fly{position:absolute;z-index:5;pointer-events:none;font-weight:700;text-align:center;font-size:1.1em}
 .mm-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:.6em;font-size:14px}
 .mm-note{min-height:1.6em;margin:.3em 0 0}
-.mmw.fin .mm-expr{display:none}.mmw.fin .mm-val{position:static}`; document.head.appendChild(css);
+.mmw.fin .mm-expr,.mmw.fin .mm-prod{display:none}.mmw.fin .mm-val{position:static}`; document.head.appendChild(css);
   const wait=ms=>new Promise(r=>setTimeout(r,ms));
   const cellsOf=w=>[...w.querySelectorAll('.mm-cell')];
-  function ui(w){ const N=cellsOf(w).length+1, k=w._k||0, end=k>=N;
+  function ui(w){ const N=cellsOf(w).length+2, k=w._k||0, end=k>=N;
     const p=w.querySelector('[data-mm=play]'), n=w.querySelector('[data-mm=next]');
     p.textContent=end?'↺ ເບິ່ງອີກຄັ້ງ':k?'▶ ສືບຕໍ່':'▶ ຫຼິ້ນ'; p.disabled=n.disabled=!!w._busy; n.hidden=end;
     w.querySelector('.mm-cnt').textContent=`ຂັ້ນ ${k} / ${N}`; }
   function note(w,h){ w.querySelector('.mm-note').innerHTML=h; }
   function reset(w){ w._gen=(w._gen||0)+1; w._k=0; w._busy=false; w.classList.remove('fin'); fit(w); w.querySelectorAll('.mm-fly').forEach(x=>x.remove());
-    cellsOf(w).forEach(c=>{ c.classList.remove('on','done'); c.querySelectorAll('.mm-s').forEach(s=>{ s.textContent=''; s.className='mm-s'; }); });
+    cellsOf(w).forEach(c=>{ c.classList.remove('on','prod','done'); c.querySelectorAll('.mm-s').forEach(s=>{ s.textContent=''; s.className='mm-s'; }); });
     w.querySelectorAll('.mm-n').forEach(x=>x.classList.remove('hr','hc')); note(w,''); ui(w); }
   // a copy of src's number travels on a small arc into slot dst
   function fly(w,src,dst,cls,gen){ const r=w.getBoundingClientRect(), a=src.getBoundingClientRect(), b=dst.getBoundingClientRect();
@@ -61,22 +64,26 @@ g.cp{color:#cc5de8}g.co{color:#f76707}
     note(w,`<b style="color:#f76707">ແຖວທີ ${+i+1} ຂອງ A</b> × <b style="color:#845ef7">ຖັນທີ ${+j+1} ຂອງ B</b> → ອົງປະກອບ ແຖວທີ ${+i+1} ຖັນທີ ${+j+1} ຂອງ AB`);
     await wait(600); const s=cell.querySelectorAll('.mm-s');
     for(let k=0;k<row.length&&gen===w._gen;k++){ await Promise.all([fly(w,row[k],s[2*k],'a',gen),fly(w,col[k],s[2*k+1],'b',gen)]); await wait(200); } }
-  async function finish(w,gen){ w.querySelectorAll('.mm-n').forEach(x=>x.classList.remove('hr','hc'));
-    note(w,'ຄິດໄລ່ແຕ່ລະອົງປະກອບ: ຄູນກ່ອນ ແລ້ວຈຶ່ງບວກ'); await wait(500);
+  async function products(w,gen){ w.querySelectorAll('.mm-n').forEach(x=>x.classList.remove('hr','hc'));
+    note(w,'ຂັ້ນທີ 1: <b>ຄູນ</b>ແຕ່ລະຄູ່ກ່ອນ'); await wait(500);
+    for(const c of cellsOf(w)){ if(gen!==w._gen) return; c.classList.add('prod'); await wait(350); } }
+  async function finish(w,gen){
+    note(w,'ຂັ້ນທີ 2: ເອົາຜົນຄູນມາ<b>ບວກ</b>ກັນ'); await wait(500);
     for(const c of cellsOf(w)){ if(gen!==w._gen) return; c.classList.add('done'); await wait(350); }
     await wait(300); if(gen===w._gen){ w.classList.add('fin'); fit(w); }
     note(w,'ສຳເລັດ! ແຕ່ລະອົງປະກອບຂອງ AB ແມ່ນ <b>ແຖວ × ຖັນ</b>.'); }
   async function run(w,all){ if(w._busy) return; const cells=cellsOf(w), gen=w._gen=(w._gen||0); w._k=w._k||0;
-    if(w._k>cells.length) return; w._busy=true; ui(w);
-    do{ if(w._k<cells.length) await entry(w,cells[w._k],gen); else await finish(w,gen); if(gen!==w._gen) return; w._k++; ui(w); if(all&&w._k<=cells.length) await wait(500); }
-    while(all&&w._k<=cells.length&&gen===w._gen);
+    const last=cells.length+1; if(w._k>last) return; w._busy=true; ui(w);
+    do{ if(w._k<cells.length) await entry(w,cells[w._k],gen); else if(w._k===cells.length) await products(w,gen); else await finish(w,gen);
+      if(gen!==w._gen) return; w._k++; ui(w); if(all&&w._k<=last) await wait(w._k>cells.length?1200:500); }
+    while(all&&w._k<=last&&gen===w._gen);
     w._busy=false; ui(w); }
   document.addEventListener('click',e=>{ const b=e.target.closest('.mmw [data-mm]'); if(!b) return; e.stopPropagation();
     const w=b.closest('.mmw'), a=b.dataset.mm;
-    if(a==='reset') reset(w); else if(a==='play'){ if((w._k||0)>cellsOf(w).length) reset(w); run(w,true); } else run(w,false); },true);
+    if(a==='reset') reset(w); else if(a==='play'){ if((w._k||0)>cellsOf(w).length+1) reset(w); run(w,true); } else run(w,false); },true);
   // → / PageDown on a slide with an unfinished animation plays its next step instead of changing slide
   window.addEventListener('keydown',e=>{ if(e.key!=='ArrowRight'&&e.key!=='PageDown') return;
-    const w=(document.fullscreenElement||document).querySelector('.stage .mmw'); if(!w||(w._k||0)>cellsOf(w).length) return;
+    const w=(document.fullscreenElement||document).querySelector('.stage .mmw'); if(!w||(w._k||0)>cellsOf(w).length+1) return;
     e.preventDefault(); e.stopImmediatePropagation(); if(!w._busy) run(w,false); },true);
   // a wide result (e.g. 1×3 with three-term sums) is shrunk until it fits the slide width
   function fit(w){ const row=w.querySelector('.mm-res'), m=row.querySelector('.mm-c'); m.style.fontSize='';
