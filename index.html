@@ -191,6 +191,13 @@ g.hlc1,g.hlc2,g.hlok,g.mk{stroke:currentColor;stroke-width:18}
 .fsexit.fsbtn{background:rgba(20,28,48,.82);font-size:18px;height:46px}
 .fspos{font-size:18px;font-variant-numeric:tabular-nums;min-width:110px;text-align:center;white-space:nowrap}
 .stage:fullscreen .scontent{padding-bottom:100px}
+/* presenter mode: the slide window on the second screen shows only the slide, filling the window */
+.m7show body{overflow:hidden}
+.m7show .stage{position:fixed;inset:0;z-index:1000;border-radius:0;border:0;box-shadow:none;min-height:0;aspect-ratio:auto;max-width:none}
+.m7show .stage .sbody{font-size:clamp(24px,2.8vw,44px)}
+.m7show .stage .stitle{font-size:clamp(32px,3.8vw,58px)}
+.m7show .fsnav,.m7show .fsexit{display:none!important}
+.m7tip{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:1001;background:rgba(20,28,48,.88);color:#fff;border-radius:999px;padding:8px 18px;font-size:16px;pointer-events:none;transition:opacity .4s}
 /* textbook flipbook */
 .bookbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
 .bkbtns{display:flex;gap:8px;flex-wrap:wrap}
@@ -567,7 +574,8 @@ function renderSlides(){
    <p class="hint">ໃຊ້ປຸ່ມລູກສອນ ← → ເທິງແປ້ນພິມເພື່ອປ່ຽນສະໄລ້</p>`;
   $('#sp').onclick=()=>go(-1); $('#sn').onclick=()=>{ if(si<c.slides.length-1) go(1); else {tab='ex';renderCh();} };
   pane.querySelectorAll('.dot').forEach(d=>d.onclick=()=>{si=+d.dataset.i;renderSlides();});
-  $('#fs').onclick=()=>{const st=$('#stage'); if(document.fullscreenElement) document.exitFullscreen().catch(()=>{}); else if(st.requestFullscreen) st.requestFullscreen().catch(()=>{});};
+  $('#fs').onclick=async()=>{const st=$('#stage'); if(document.fullscreenElement) document.exitFullscreen().catch(()=>{}); else if(await openShow()) return; else if(st.requestFullscreen) st.requestFullscreen().catch(()=>{});};
+  fsLabel();
   wireFsNav($('#stage'),go,si+1,c.slides.length);
   prep(pane);
 }
@@ -676,6 +684,58 @@ function renderQuiz(){
   wireQuiz('qa',qa,'q'+cur.n);
   if(rv.length) wireQuiz('qr',rv,'r'+cur.n);
   typeset(pane);
+}
+// ── presenter mode (like PowerPoint): with an extended display, ⛶ opens a slide window on the other screen;
+// this window stays as it is and controls it. The slide window (?show=1) mirrors this window's slide,
+// revealed steps, open <details> and animation steps; its arrow keys are sent back here.
+const SHOW=/[?&]show=1/.test(location.search), ANIM='.mmw,.ivw,.i3w';
+const bc='BroadcastChannel' in window?new BroadcastChannel('m7-show'):null;
+let showWin=null, linked=false, lastSt='', postT=0;
+function fsLabel(){ const b=$('#fs'); if(b) b.textContent=showWin&&!showWin.closed?'✕ ປິດຈໍທີ 2':'⛶ ເຕັມຈໍ'; }
+async function openShow(){
+  if(SHOW||!cur) return false;
+  if(showWin&&!showWin.closed){ showWin.close(); showWin=null; linked=false; fsLabel(); return true; }
+  if(!(window.screen.isExtended&&window.getScreenDetails)) return false; // one screen, or a browser without the Window Management API
+  let sd; try{ sd=await window.getScreenDetails(); }catch(e){ return false; }
+  const o=sd.screens.find(s=>s!==sd.currentScreen); if(!o) return false;
+  const w=window.open(location.pathname+'?show=1#ch'+cur.n,'m7show',`popup,left=${o.availLeft},top=${o.availTop},width=${o.availWidth},height=${o.availHeight}`);
+  if(!w){ alert('ກະລຸນາອະນຸຍາດ pop-up ສຳລັບເວັບນີ້ ເພື່ອສະແດງສະໄລ້ຢູ່ຈໍທີ 2'); return true; }
+  showWin=w; linked=true; lastSt=''; fsLabel(); return true;
+}
+function showState(){ const st=$('#stage'); if(!cur||tab!=='slides'||!st) return null;
+  return {n:cur.n,si,stp:[...st.querySelectorAll('.stp')].map(s=>s.classList.contains('stp-h')?0:1).join(''),
+    det:[...st.querySelectorAll('details')].map(d=>d.open?1:0).join(''),anim:[...st.querySelectorAll(ANIM)].map(w=>w._k||0)}; }
+function postState(force){ if(!bc||SHOW||!linked) return; const s=showState(); if(!s) return;
+  const j=JSON.stringify(s); if(!force&&j===lastSt) return; lastSt=j; bc.postMessage({t:'state',s}); }
+function applyState(s){
+  if(!cur||cur.n!==s.n||tab!=='slides') openCh(s.n,'slides');
+  if(si!==s.si){ si=s.si; renderSlides(); }
+  const st=$('#stage'); if(!st) return;
+  st.querySelectorAll('details').forEach((d,i)=>{ const o=s.det[i]==='1'; if(d.open!==o) d.open=o; });
+  const stps=[...st.querySelectorAll('.stp')]; let last=null;
+  stps.forEach((p,i)=>{ const on=s.stp[i]==='1', hid=p.classList.contains('stp-h');
+    if(on&&hid){ p.classList.remove('stp-h'); p.classList.add('stp-in'); last=p; } else if(!on&&!hid){ p.classList.add('stp-h'); p.classList.remove('stp-in'); } });
+  new Set(stps.map(p=>p.parentNode)).forEach(b=>b._upd&&b._upd());
+  if(last) last.scrollIntoView({block:'nearest',behavior:'smooth'});
+  st.querySelectorAll(ANIM).forEach((w,i)=>{ if(s.anim[i]!=null) M7_SYNC(w,s.anim[i]); });
+}
+if(bc&&SHOW){
+  document.documentElement.classList.add('m7show'); document.title='ສະໄລ້ · '+document.title;
+  bc.onmessage=e=>{ if(e.data&&e.data.t==='state') applyState(e.data.s); };
+  bc.postMessage({t:'hello'});
+  window.addEventListener('keydown',e=>{ const d=(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' ')?1:(e.key==='ArrowLeft'||e.key==='PageUp')?-1:0;
+    if(!d) return; e.preventDefault(); e.stopImmediatePropagation(); bc.postMessage({t:'key',d}); },true);
+  const tip=document.createElement('div'); tip.className='m7tip'; tip.textContent='ກົດບ່ອນໃດກໍໄດ້ຢູ່ຈໍນີ້ ເພື່ອເຕັມຈໍ · ຄວບຄຸມສະໄລ້ຈາກຈໍຫຼັກ'; document.body.appendChild(tip);
+  const hideTip=()=>{ tip.style.opacity=0; }; setTimeout(hideTip,8000);
+  document.addEventListener('click',()=>{ if(!document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{}); hideTip(); },true);
+  document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen().then(hideTip).catch(()=>{});
+} else if(bc){
+  bc.onmessage=e=>{ const m=e.data||{};
+    if(m.t==='hello'){ linked=true; postState(true); }
+    else if(m.t==='key'&&linked) document.dispatchEvent(new KeyboardEvent('keydown',{key:m.d>0?'ArrowRight':'ArrowLeft',bubbles:true})); };
+  new MutationObserver(()=>{ if(linked){ clearTimeout(postT); postT=setTimeout(postState,40); } })
+    .observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class','open']});
+  setInterval(()=>{ if(showWin&&showWin.closed){ showWin=null; linked=false; fsLabel(); } },1000);
 }
 function fromHash(){const h=(location.hash.match(/^#ch(\d+)$/)||[])[1]; if(h){ if(!cur||cur.n!==+h) openCh(+h);} else if(cur) home();}
 window.addEventListener('hashchange',fromHash);

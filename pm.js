@@ -51,7 +51,7 @@ const M7_INV3=M=>{ const pr=v=>v<0?`(${v})`:''+v, sum=a=>a.reduce((s,v)=>s+v,0),
 // M7_C(w) is where w's buttons are now; M7_W(b,sel) is the animation a clicked button belongs to.
 const M7_C=w=>w._bar||w, M7_W=(b,sel)=>b.closest(sel)||(b.closest('.mm-bar')||{})._w;
 // → / PageDown, "ຕໍ່ໄປ →" and the fullscreen ▶ play the next step of an unfinished animation instead of changing slide
-const M7_NEXT=(sel,done,run)=>{ const hit=e=>{ const w=(document.fullscreenElement||document).querySelector('.stage '+sel); if(!w||done(w)) return;
+const M7_NEXT=(sel,done,run)=>{ const hit=e=>{ const w=(document.fullscreenElement||document).querySelector('.stage '+sel); if(!w||done(w)||document.documentElement.classList.contains("m7show")) return;
     e.preventDefault(); e.stopImmediatePropagation(); if(!w._busy) run(w,false); };
   window.addEventListener('keydown',e=>{ if(e.key==='ArrowRight'||e.key==='PageDown') hit(e); },true);
   window.addEventListener('click',e=>{ if(e.target.closest('#sn,.fsnext')) hit(e); },true); };
@@ -59,9 +59,16 @@ const M7_NEXT=(sel,done,run)=>{ const hit=e=>{ const w=(document.fullscreenEleme
 let M7_FAST=false;
 const M7_WAIT=ms=>M7_FAST?Promise.resolve():new Promise(r=>setTimeout(r,ms));
 const M7_PREV=(w,k)=>{ const q=M7_C(w).querySelector('[data-mm=prev],[data-iv=prev],[data-i3=prev]'); if(q) q.disabled=!k&&!w._busy; };
-const M7_BACK=async(w,reset,run)=>{ const k=Math.max(0,(w._k||0)-1); reset(w); if(!k) return;
+const M7_JUMP=async(w,reset,run,k)=>{ reset(w); if(!k) return;
   w.classList.add('m7-fast'); M7_FAST=true;
   try{ await run(w,true,k); } finally{ M7_FAST=false; void w.offsetWidth; w.classList.remove('m7-fast'); } };
+const M7_BACK=(w,reset,run)=>M7_JUMP(w,reset,run,Math.max(0,(w._k||0)-1));
+// second-screen show window: bring animation w to step k (animate one step forward, otherwise jump there)
+const M7_SYNC=(w,k)=>{ w._want=k; if(!w._run){ if(w.isConnected) setTimeout(()=>M7_SYNC(w,w._want),60); return; }
+  const now=w._k||0; if(now===k) return;
+  const again=()=>{ if(w.isConnected&&!w._busy&&(w._k||0)!==w._want) M7_SYNC(w,w._want); };
+  if(k===now+1){ if(!w._busy) w._run(w,false).then(again); }
+  else M7_JUMP(w,w._reset,w._run,k).then(again); };
 (function(){
   const css=document.createElement('style'); css.textContent=`.scontrols .mm-bar{margin:0;flex:1 1 auto;justify-content:center}
 .m7-fast,.m7-fast *{transition:none!important;animation:none!important}`; document.head.appendChild(css);
@@ -149,7 +156,7 @@ g.cp{color:#cc5de8}g.co{color:#f76707}
     if(need>avail&&avail>0) m.style.fontSize=(1.1*Math.max(.55,avail/need)).toFixed(3)+'em'; }
   const fitAll=()=>document.querySelectorAll('.mmw').forEach(fit);
   window.addEventListener('resize',fitAll); document.addEventListener('fullscreenchange',()=>setTimeout(fitAll,50));
-  new MutationObserver(()=>document.querySelectorAll('.mmw:not([data-ok])').forEach(w=>{ w.dataset.ok=1; ui(w); fit(w); })).observe(document.documentElement,{childList:true,subtree:true});
+  new MutationObserver(()=>document.querySelectorAll('.mmw:not([data-ok])').forEach(w=>{ w.dataset.ok=1; w._run=run; w._reset=reset; ui(w); fit(w); })).observe(document.documentElement,{childList:true,subtree:true});
 })();
 // runtime for M7_INV2
 (function(){
@@ -200,7 +207,7 @@ g.cp{color:#cc5de8}g.co{color:#f76707}
     const w=M7_W(b,'.ivw'), a=b.dataset.iv;
     if(a==='reset') reset(w); else if(a==='prev') M7_BACK(w,reset,run); else if(a==='play'){ if((w._k||0)>=N) reset(w); run(w,true); } else run(w,false); },true);
   M7_NEXT('.ivw',w=>(w._k||0)>=N,run);
-  new MutationObserver(()=>document.querySelectorAll('.ivw:not([data-ok])').forEach(w=>{ w.dataset.ok=1; reset(w); })).observe(document.documentElement,{childList:true,subtree:true});
+  new MutationObserver(()=>document.querySelectorAll('.ivw:not([data-ok])').forEach(w=>{ w.dataset.ok=1; w._run=run; w._reset=reset; reset(w); })).observe(document.documentElement,{childList:true,subtree:true});
 })();
 // runtime for M7_INV3: step 0 = det, 1–9 = cofactor C_ij, 10 = adj, 11 = inverse
 (function(){
@@ -232,7 +239,7 @@ g.cp{color:#cc5de8}g.co{color:#f76707}
     const w=M7_W(b,'.i3w'), a=b.dataset.i3;
     if(a==='reset') reset(w); else if(a==='prev') M7_BACK(w,reset,run); else if(a==='play'){ if((w._k||0)>=N) reset(w); run(w,true); } else run(w,false); },true);
   M7_NEXT('.i3w',w=>(w._k||0)>=N,run);
-  new MutationObserver(()=>document.querySelectorAll('.i3w:not([data-ok])').forEach(w=>{ w.dataset.ok=1; reset(w); })).observe(document.documentElement,{childList:true,subtree:true});
+  new MutationObserver(()=>document.querySelectorAll('.i3w:not([data-ok])').forEach(w=>{ w.dataset.ok=1; w._run=run; w._reset=reset; reset(w); })).observe(document.documentElement,{childList:true,subtree:true});
 })();
 M7.ch.push({
 n:101, label:"1", part:9, title:"ມາຕຣິດ ແລະ ຄຸນລັກສະນະຂອງມາຕຣິດ", summaryEnd:true,
