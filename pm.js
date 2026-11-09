@@ -12,6 +12,21 @@ const M7_MMUL=(A,B)=>{ const f=v=>v<0?'−'+(-v):''+v;
   return `<div class="mmw"><div class="mm-row"><span class="mm-lbl">AB =</span>${mat(A,'mm-a')}${mat(B,'mm-b')}</div>
 <div class="mm-row mm-res"><span class="mm-lbl">=</span><span class="mm-mat mm-c" style="--c:${B[0].length}">${C}</span></div>
 <div class="mm-bar"><button class="btn primary" data-mm="play">▶ ຫຼິ້ນ</button><button class="btn" data-mm="next">ຂັ້ນຕໍ່ໄປ ▸</button><button class="btn" data-mm="reset">↺ ເລີ່ມໃໝ່</button><span class="hint mm-cnt"></span></div><p class="hint mm-note"></p></div>`; };
+// animated 2×2 inverse, one row per step: det A, the formula, a↔d swap and b,c sign change (numbers fly from A),
+// divide every entry by det A, simplify. Same ▶ / → controls as M7_MMUL.
+const M7_INV2=(a,b,c,d)=>{ const f=v=>v<0?'−'+(-v):''+v, p=v=>v<0?`(${f(v)})`:f(v), D=a*d-b*c, g=(x,y)=>y?g(y,x%y):Math.abs(x);
+  const q=(n,m)=>`<span class="iv-fr"><span>${n}</span><span>${m}</span></span>`;
+  const fr=(n,m)=>{ if(m<0){n=-n;m=-m;} const k=g(n,m)||1; n/=k; m/=k; return m===1?f(n):(n<0?'−':'')+q(Math.abs(n),m); };
+  const mat=(xs,at='')=>`<span class="mm-mat" style="--c:2">${xs.map((x,i)=>`<span class="mm-n"${at?` data-${at}="${'abcd'[i]}"`:''}>${x}</span>`).join('')}</span>`;
+  const o=s=>`<b class="iv-o">${s}</b>`, u=s=>`<b class="iv-p">${s}</b>`, it=s=>`<i class="iv-v">${s}</i>`;
+  const row=(l,h)=>`<div class="mm-row iv-st"><span class="mm-lbl">${l}</span>${h}</div>`;
+  return `<div class="ivw" data-v="${[d,-b,-c,a].map(f)}"><div class="mm-row"><span class="mm-lbl">A =</span>${mat([a,b,c,d].map(f),'k')}</div>
+${row('det A =',`<span class="iv-eq">${it('a')}${it('d')} − ${it('b')}${it('c')} = ${o(p(a))}×${o(p(d))} − ${u(p(b))}×${u(p(c))} = ${f(a*d)} − ${p(b*c)} = <b>${f(D)}</b></span>`)}
+${row('A<sup>−1</sup> =',q('1','det A')+mat([o(it('d')),u('−'+it('b')),u('−'+it('c')),o(it('a'))]))}
+${row('=',q(1,f(D))+mat(['','','',''],'t'))}
+${row('=',mat([q(f(d),f(D)),q(f(-b),f(D)),q(f(-c),f(D)),q(f(a),f(D))]))}
+${row('A<sup>−1</sup> =',`<span class="iv-ans">${mat([fr(d,D),fr(-b,D),fr(-c,D),fr(a,D)])}</span>`)}
+<div class="mm-bar"><button class="btn primary" data-iv="play">▶ ຫຼິ້ນ</button><button class="btn" data-iv="next">ຂັ້ນຕໍ່ໄປ ▸</button><button class="btn" data-iv="reset">↺ ເລີ່ມໃໝ່</button><span class="hint mm-cnt"></span></div><p class="hint mm-note"></p></div>`; };
 (function(){
   const css=document.createElement('style'); css.textContent=`
 g.cp{color:#cc5de8}g.co{color:#f76707}
@@ -94,6 +109,59 @@ g.cp{color:#cc5de8}g.co{color:#f76707}
   const fitAll=()=>document.querySelectorAll('.mmw').forEach(fit);
   window.addEventListener('resize',fitAll); document.addEventListener('fullscreenchange',()=>setTimeout(fitAll,50));
   new MutationObserver(()=>document.querySelectorAll('.mmw:not([data-ok])').forEach(w=>{ w.dataset.ok=1; ui(w); fit(w); })).observe(document.documentElement,{childList:true,subtree:true});
+})();
+// runtime for M7_INV2
+(function(){
+  const css=document.createElement('style'); css.textContent=`
+.ivw{position:relative;margin:.3em 0}.ivw .mm-lbl{min-width:4.2em}
+.iv-st{opacity:0;transition:opacity .4s}.iv-st.on{opacity:1}
+.iv-fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;font-size:.95em;margin:0 .15em;line-height:1.15}
+.iv-fr>:last-child{border-top:1.5px solid currentColor;padding:0 .2em}
+.ivw .mm-mat .iv-fr{font-size:.9em}.iv-v{font-family:"Times New Roman",serif}
+.iv-o,.mm-n.iv-o{color:#f76707}.iv-p,.mm-n.iv-p{color:#845ef7}.mm-n.iv-o,.mm-n.iv-p{font-weight:700}
+.iv-t{display:inline-block;min-width:1.4em;font-weight:700}.iv-t.neg{animation:ivneg .6s}
+@keyframes ivneg{0%{transform:scale(1)}40%{transform:scale(1.5)}100%{transform:scale(1)}}
+.iv-ans .mm-mat{border-color:#2f9e44;border-width:3px;font-weight:700}`; document.head.appendChild(css);
+  const wait=ms=>new Promise(r=>setTimeout(r,ms)), N=5;
+  const notes=['ຂັ້ນທີ 1: ຊອກ $\\det A=ad-bc$ (<b class="iv-o">ຄູນເສັ້ນເນັ່ງຈອມ</b> ລົບ <b class="iv-p">ຄູນອີກເສັ້ນ</b>)',
+    'ຂັ້ນທີ 2: ຂຽນສູດ — <b class="iv-o">ສັບບ່ອນ a ກັບ d</b>, <b class="iv-p">ປ່ຽນເຄື່ອງໝາຍ b ກັບ c</b>',
+    'ຂັ້ນທີ 3: ແທນຄ່າ — <b class="iv-o">a ↔ d ສັບບ່ອນກັນ</b>, <b class="iv-p">b ແລະ c ປ່ຽນເຄື່ອງໝາຍ</b>',
+    'ຂັ້ນທີ 4: ເອົາ $\\frac{1}{\\det A}$ ຄູນເຂົ້າທຸກອົງປະກອບ (ຫານທຸກຕົວດ້ວຍ $\\det A$)',
+    'ສຳເລັດ! ຫຍໍ້ເສດສ່ວນ ກໍໄດ້ $A^{-1}$'];
+  const rows=w=>[...w.querySelectorAll('.iv-st')];
+  function note(w,h){ const n=w.querySelector('.mm-note'); n.innerHTML=h; if(window.MathJax&&MathJax.typesetPromise) MathJax.typesetPromise([n]).catch(()=>{}); }
+  function ui(w){ const k=w._k||0, end=k>=N, p=w.querySelector('[data-iv=play]'), n=w.querySelector('[data-iv=next]');
+    p.textContent=end?'↺ ເບິ່ງອີກຄັ້ງ':k?'▶ ສືບຕໍ່':'▶ ຫຼິ້ນ'; p.disabled=n.disabled=!!w._busy; n.hidden=end;
+    w.querySelector('.mm-cnt').textContent=`ຂັ້ນ ${k} / ${N}`; }
+  function reset(w){ w._gen=(w._gen||0)+1; w._k=0; w._busy=false; w.querySelectorAll('.mm-fly').forEach(x=>x.remove());
+    rows(w).forEach(r=>r.classList.remove('on')); w.querySelectorAll('[data-k]').forEach(x=>x.classList.remove('iv-o','iv-p'));
+    w.querySelectorAll('[data-t]').forEach(x=>{ x.innerHTML='<span class="iv-t"></span>'; }); note(w,''); ui(w); }
+  // a copy of A's entry travels on an arc into its slot, then turns into the slot's value (the sign flips for b and c)
+  function fly(w,src,dst,v,gen){ const r=w.getBoundingClientRect(), s=src.getBoundingClientRect(), t=dst.getBoundingClientRect();
+    const c=document.createElement('span'); c.className='mm-fly '+(src.classList.contains('iv-o')?'iv-o':'iv-p'); c.textContent=src.textContent;
+    Object.assign(c.style,{left:s.left-r.left+'px',top:s.top-r.top+'px',width:s.width+'px',height:s.height+'px'}); w.appendChild(c);
+    const dx=t.left+t.width/2-s.left-s.width/2, dy=t.top+t.height/2-s.top-s.height/2;
+    return c.animate([{transform:'translate(0,0) scale(1.2)'},{transform:`translate(${dx/2}px,${dy/2-40}px) scale(1.4)`},{transform:`translate(${dx}px,${dy}px) scale(1)`}],
+      {duration:1000,easing:'ease-in-out'}).finished.catch(()=>{}).then(async()=>{ c.remove(); if(gen!==w._gen) return;
+        const e=dst.querySelector('.iv-t'); e.textContent=src.textContent; e.className='iv-t '+c.className.split(' ')[1];
+        if(v!==src.textContent){ await wait(350); if(gen!==w._gen) return; e.textContent=v; e.classList.add('neg'); } }); }
+  async function step(w,k,gen){ const r=rows(w)[k], A=x=>w.querySelector(`[data-k="${x}"]`), T=x=>w.querySelector(`[data-t="${x}"]`), v=w.dataset.v.split(',');
+    note(w,notes[k]);
+    if(k===0){ ['a','d'].forEach(x=>A(x).classList.add('iv-o')); ['b','c'].forEach(x=>A(x).classList.add('iv-p')); }
+    r.classList.add('on'); await wait(700);
+    if(k===2){ await Promise.all([fly(w,A('d'),T('a'),v[0],gen),fly(w,A('a'),T('d'),v[3],gen)]); if(gen!==w._gen) return; await wait(300);
+      await Promise.all([fly(w,A('b'),T('b'),v[1],gen),fly(w,A('c'),T('c'),v[2],gen)]); await wait(400); } }
+  async function run(w,all){ if(w._busy||(w._k||0)>=N) return; const gen=w._gen=(w._gen||0); w._k=w._k||0; w._busy=true; ui(w);
+    do{ await step(w,w._k,gen); if(gen!==w._gen) return; w._k++; ui(w); if(all&&w._k<N) await wait(1200); } while(all&&w._k<N&&gen===w._gen);
+    w._busy=false; ui(w); }
+  document.addEventListener('click',e=>{ const b=e.target.closest('.ivw [data-iv]'); if(!b) return; e.stopPropagation();
+    const w=b.closest('.ivw'), a=b.dataset.iv;
+    if(a==='reset') reset(w); else if(a==='play'){ if((w._k||0)>=N) reset(w); run(w,true); } else run(w,false); },true);
+  // → / PageDown on a slide with an unfinished animation plays its next step instead of changing slide
+  window.addEventListener('keydown',e=>{ if(e.key!=='ArrowRight'&&e.key!=='PageDown') return;
+    const w=(document.fullscreenElement||document).querySelector('.stage .ivw'); if(!w||(w._k||0)>=N) return;
+    e.preventDefault(); e.stopImmediatePropagation(); if(!w._busy) run(w,false); },true);
+  new MutationObserver(()=>document.querySelectorAll('.ivw:not([data-ok])').forEach(w=>{ w.dataset.ok=1; reset(w); })).observe(document.documentElement,{childList:true,subtree:true});
 })();
 M7.ch.push({
 n:101, label:"1", part:9, title:"ມາຕຣິດ ແລະ ຄຸນລັກສະນະຂອງມາຕຣິດ", summaryEnd:true,
@@ -186,8 +254,8 @@ $$\det A=a_{11}C_{11}+a_{12}C_{12}+a_{13}C_{13}=a_{11}M_{11}-a_{12}M_{12}+a_{13}
 [R`ຄຸນລັກສະນະຂອງເດແຕກມີນັງ`, R`<div class="box"><span class="lbl">ຄຸນລັກສະນະ</span><ol><li>$\det I=1$</li><li>ມີແຖວ ຫຼື ຖັນໃດໜຶ່ງເປັນສູນໝົດ ⇒ $\det A=0$</li><li>ມີ 2 ແຖວ ຫຼື 2 ຖັນຄືກັນ ⇒ $\det A=0$</li><li>$\det(AB)=\det A\cdot\det B$</li></ol></div>
 <div class="ex"><span class="lbl">ຕົວຢ່າງ</span>$\begin{vmatrix}1&2&3\\0&0&0\\2&4&5\end{vmatrix}=0$ (ແຖວສູນ) · $\begin{vmatrix}1&-2&2\\3&2&-1\\1&-2&2\end{vmatrix}=0$ (ແຖວ 1 = ແຖວ 3)</div>`],
 [R`ມາຕຣິດປີ້ນ 2×2`, R`<div class="box"><span class="lbl">ນິຍາມ</span>ຖ້າ $AB=BA=I$ ແລ້ວ $B=A^{-1}$ ແມ່ນ <b>ມາຕຣິດປີ້ນ</b> ຂອງ $A$.</div>
-<div class="box"><span class="lbl">ສູດ</span>ຖ້າ $\det A=ad-bc\ne0$: $$\begin{pmatrix}a&b\\c&d\end{pmatrix}^{-1}=\frac{1}{ad-bc}\begin{pmatrix}d&-b\\-c&a\end{pmatrix}$$ ຖ້າ $\det A=0$ ແມ່ນບໍ່ມີມາຕຣິດປີ້ນ.</div>
-<div class="ex"><span class="lbl">ຕົວຢ່າງ</span>$A=\begin{pmatrix}1&2\\3&4\end{pmatrix}$: $\det A=-2$, $A^{-1}=\begin{pmatrix}-2&1\\ \frac32&-\frac12\end{pmatrix}$</div>`],
+<div class="box"><span class="lbl">ສູດ</span>ຖ້າ $\det A=ad-bc\ne0$: $$\begin{pmatrix}a&b\\c&d\end{pmatrix}^{-1}=\frac{1}{ad-bc}\begin{pmatrix}d&-b\\-c&a\end{pmatrix}$$ ຖ້າ $\det A=0$ ແມ່ນບໍ່ມີມາຕຣິດປີ້ນ.</div>`],
+[R`ຕົວຢ່າງ: ຊອກຫາມາຕຣິດປີ້ນ 2×2`, R`<p>ໃຫ້ $A=\begin{pmatrix}1&2\\3&4\end{pmatrix}$ ຈົ່ງຊອກຫາ $A^{-1}$. ກົດ <b>▶ ຫຼິ້ນ</b> (ຫຼື ປຸ່ມ → ເທື່ອລະຂັ້ນ).</p>`+M7_INV2(1,2,3,4)],
 [R`ແກ້ສົມຜົນມາຕຣິດ`, R`<div class="box"><span class="lbl">ຄຸນລັກສະນະ</span>$(A^{-1})^{-1}=A$ · $(AB)^{-1}=B^{-1}A^{-1}$ · $(P^{-1}AP)^n=P^{-1}A^nP$</div>
 <div class="ex"><span class="lbl">ຕົວຢ່າງ</span>$A=\begin{pmatrix}1&2\\3&4\end{pmatrix},\ B=\begin{pmatrix}3&0\\1&1\end{pmatrix}$<br>$AX=B\Rightarrow X=A^{-1}B=\begin{pmatrix}-5&1\\4&-\frac12\end{pmatrix}$<br>$XA=B\Rightarrow X=BA^{-1}=\begin{pmatrix}-6&3\\-\frac12&\frac12\end{pmatrix}$</div>
 <div class="box red"><span class="lbl">ລະວັງ</span>$AX=B$ ຄູນ $A^{-1}$ ທາງ<b>ຊ້າຍ</b>; $XA=B$ ຄູນ $A^{-1}$ ທາງ<b>ຂວາ</b>.</div>`],
