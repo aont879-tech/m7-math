@@ -27,6 +27,26 @@ ${row('=',q(1,f(D))+mat(['','','',''],'t'))}
 ${row('=',mat([q(f(d),f(D)),q(f(-b),f(D)),q(f(-c),f(D)),q(f(a),f(D))]))}
 ${row('A<sup>−1</sup> =',`<span class="iv-ans">${mat([fr(d,D),fr(-b,D),fr(-c,D),fr(a,D)])}</span>`)}
 <div class="mm-bar"><button class="btn primary" data-iv="play">▶ ຫຼິ້ນ</button><button class="btn" data-iv="next">ຂັ້ນຕໍ່ໄປ ▸</button><button class="btn" data-iv="reset">↺ ເລີ່ມໃໝ່</button><span class="hint mm-cnt"></span></div><p class="hint mm-note"></p></div>`; };
+// animated 3×3 inverse in four panels: det A (Sarrus), the nine cofactors one at a time (row i and column j of A
+// crossed out), adj A as the transpose of [C_ij], then A⁻¹ = adj A ÷ det A. MathJax renders the lines; ▶ / → drive it.
+const M7_INV3=M=>{ const pr=v=>v<0?`(${v})`:''+v, sum=a=>a.reduce((s,v)=>s+v,0), g=(x,y)=>y?g(y,x%y):Math.abs(x);
+  const pm=R=>`\\begin{pmatrix}${R.map(r=>r.join('&')).join('\\\\')}\\end{pmatrix}`;
+  const fr=(n,m)=>{ if(m<0){n=-n;m=-m;} const k=g(n,m)||1; n/=k; m/=k; return m===1?''+n:`${n<0?'-':''}\\frac{${Math.abs(n)}}{${m}}`; };
+  const tri=ix=>ix.map(([a,b,c])=>M[0][a]*M[1][b]*M[2][c]);
+  const P=tri([[0,1,2],[1,2,0],[2,0,1]]), Q=tri([[2,1,0],[0,2,1],[1,0,2]]), D=sum(P)-sum(Q);
+  const terms=P.map((t,k)=>k?(t<0?`-${-t}`:`+${t}`):''+t).join('')+Q.map(t=>t<0?`+${-t}`:`-${t}`).join('');
+  const C=[0,1,2].map(i=>[0,1,2].map(j=>{ const r=[0,1,2].filter(x=>x!==i), c=[0,1,2].filter(x=>x!==j), m=r.map(x=>c.map(y=>M[x][y]));
+    const s=(i+j)%2?-1:1, pt=m[0][0]*m[1][1], qr=m[0][1]*m[1][0];
+    return {i,j,v:s*(pt-qr),l:[`C_{${i+1}${j+1}}=${s<0?'-':''}\\begin{vmatrix}${m[0].join('&')}\\\\${m[1].join('&')}\\end{vmatrix}`,
+      s<0?`=-(${pt}-${pr(qr)})`:`=${pt}-${pr(qr)}`, `=${s*(pt-qr)}`]}; }));
+  const Cv=C.map(r=>r.map(c=>c.v)), adj=Cv[0].map((_,j)=>Cv.map(r=>r[j]));
+  const L=s=>`<div class="i3-l">$\\displaystyle ${s}$</div>`, T=h=>`<div class="i3-h">${h}</div>`;
+  return `<div class="i3w"><div class="i3-top"><div class="mm-row"><span class="mm-lbl">A =</span><span class="mm-mat" style="--c:3">${M.map((r,i)=>r.map((v,j)=>`<span class="mm-n" data-i="${i}" data-j="${j}">${v<0?'−'+(-v):v}</span>`).join('')).join('')}</span></div>
+<div class="i3-ps"><div class="i3-p">${T('ຂັ້ນທີ 1: ຊອກ $\\det(A)$')}${L(`\\det(A)=${terms}`)}${L(`=${sum(P)}-${pr(sum(Q))}`)}${L(`=${D}`)}${D?`<div class="i3-l">ເນື່ອງຈາກ $\\det(A)\\ne0$ ສະແດງວ່າ $A$ ມີມາຕຣິດປີ້ນ</div>`:''}</div>
+<div class="i3-p">${T('ຂັ້ນທີ 2: ຊອກຫາຕົວປະກອບຮ່ວມ (cofactor) $C_{ij}=(-1)^{i+j}M_{ij}$')}<div class="i3-g">${C.flat().map(c=>`<div class="i3-c" data-i="${c.i}" data-j="${c.j}">${c.l.map(L).join('')}</div>`).join('')}</div></div>
+<div class="i3-p">${T('ຂັ້ນທີ 3: ຊອກ $\\operatorname{adj}(A)$ — ແຖວກາຍເປັນຖັນ')}${L(`\\operatorname{adj}(A)=${pm(Cv)}^{T}`)}${L(`=${pm(adj)}`)}</div>
+<div class="i3-p">${T('ຂັ້ນທີ 4: ຊອກ $A^{-1}$')}${L(`A^{-1}=\\frac{1}{\\det(A)}\\operatorname{adj}(A)`)}${L(`=\\frac{1}{${D}}${pm(adj)}`)}<div class="i3-l i3-ans">$\\displaystyle =${pm(adj.map(r=>r.map(v=>fr(v,D))))}$</div></div></div></div>
+<div class="mm-bar"><button class="btn primary" data-i3="play">▶ ຫຼິ້ນ</button><button class="btn" data-i3="next">ຂັ້ນຕໍ່ໄປ ▸</button><button class="btn" data-i3="reset">↺ ເລີ່ມໃໝ່</button><span class="hint mm-cnt"></span></div></div>`; };
 (function(){
   const css=document.createElement('style'); css.textContent=`
 g.cp{color:#cc5de8}g.co{color:#f76707}
@@ -163,6 +183,41 @@ g.cp{color:#cc5de8}g.co{color:#f76707}
     e.preventDefault(); e.stopImmediatePropagation(); if(!w._busy) run(w,false); },true);
   new MutationObserver(()=>document.querySelectorAll('.ivw:not([data-ok])').forEach(w=>{ w.dataset.ok=1; reset(w); })).observe(document.documentElement,{childList:true,subtree:true});
 })();
+// runtime for M7_INV3: step 0 = det, 1–9 = cofactor C_ij, 10 = adj, 11 = inverse
+(function(){
+  const css=document.createElement('style'); css.textContent=`
+.i3w{margin:.3em 0}.i3-top{display:flex;gap:.6em 2em;align-items:flex-start;flex-wrap:wrap}.i3w .mm-mat{font-size:1em;gap:.1em .9em}
+.i3-ps{display:grid;flex:1 1 max-content}.i3-p{grid-area:1/1;opacity:0;visibility:hidden;transition:opacity .4s}.i3-p.on{opacity:1;visibility:visible}
+.i3-h{font-weight:700;color:var(--ink);margin-bottom:.4em}
+.i3-l{opacity:0;transition:opacity .4s;margin:.25em 0}.i3-l.on{opacity:1}
+.i3-g{display:grid;grid-template-columns:repeat(3,auto);gap:.6em 1.6em;justify-content:start}.i3-c{font-size:.9em}.i3-c .i3-l{margin:0}
+.i3-c.cur{outline:2px dashed #f76707;outline-offset:4px;border-radius:6px}
+.i3w .mm-n.x{opacity:.25;text-decoration:line-through}.i3w .mm-n.k{color:#f76707;font-weight:700}
+.i3-ans mjx-container{color:#2f9e44}`; document.head.appendChild(css);
+  const wait=ms=>new Promise(r=>setTimeout(r,ms)), N=12, P=w=>[...w.querySelectorAll('.i3-p')];
+  function ui(w){ const k=w._k||0, end=k>=N, p=w.querySelector('[data-i3=play]'), n=w.querySelector('[data-i3=next]');
+    p.textContent=end?'↺ ເບິ່ງອີກຄັ້ງ':k?'▶ ສືບຕໍ່':'▶ ຫຼິ້ນ'; p.disabled=n.disabled=!!w._busy; n.hidden=end;
+    w.querySelector('.mm-cnt').textContent=`ຂັ້ນ ${k} / ${N}`; }
+  function mark(w,i,j){ w.querySelectorAll('.mm-n').forEach(x=>{ x.classList.remove('x','k'); if(i!=null) x.classList.add(x.dataset.i==i||x.dataset.j==j?'x':'k'); }); }
+  function reset(w){ w._gen=(w._gen||0)+1; w._k=0; w._busy=false; mark(w);
+    w.querySelectorAll('.i3-p,.i3-l').forEach(x=>x.classList.remove('on')); w.querySelectorAll('.i3-c').forEach(x=>x.classList.remove('cur')); ui(w); }
+  async function step(w,k,gen){ const ps=P(w), pi=k<1?0:k<10?1:k-8; let box=ps[pi];
+    ps.forEach((p,i)=>p.classList.toggle('on',i===pi)); w.querySelectorAll('.i3-c').forEach(x=>x.classList.remove('cur')); mark(w);
+    if(pi===1){ box=ps[1].querySelectorAll('.i3-c')[k-1]; box.classList.add('cur'); mark(w,box.dataset.i,box.dataset.j); }
+    await wait(400);
+    for(const l of box.querySelectorAll(':scope>.i3-l')){ if(gen!==w._gen) return; l.classList.add('on'); await wait(700); } }
+  async function run(w,all){ if(w._busy||(w._k||0)>=N) return; const gen=w._gen=(w._gen||0); w._k=w._k||0; w._busy=true; ui(w);
+    do{ await step(w,w._k,gen); if(gen!==w._gen) return; w._k++; ui(w); if(all&&w._k<N) await wait(900); } while(all&&w._k<N&&gen===w._gen);
+    w._busy=false; ui(w); }
+  document.addEventListener('click',e=>{ const b=e.target.closest('.i3w [data-i3]'); if(!b) return; e.stopPropagation();
+    const w=b.closest('.i3w'), a=b.dataset.i3;
+    if(a==='reset') reset(w); else if(a==='play'){ if((w._k||0)>=N) reset(w); run(w,true); } else run(w,false); },true);
+  // → / PageDown on a slide with an unfinished animation plays its next step instead of changing slide
+  window.addEventListener('keydown',e=>{ if(e.key!=='ArrowRight'&&e.key!=='PageDown') return;
+    const w=(document.fullscreenElement||document).querySelector('.stage .i3w'); if(!w||(w._k||0)>=N) return;
+    e.preventDefault(); e.stopImmediatePropagation(); if(!w._busy) run(w,false); },true);
+  new MutationObserver(()=>document.querySelectorAll('.i3w:not([data-ok])').forEach(w=>{ w.dataset.ok=1; reset(w); })).observe(document.documentElement,{childList:true,subtree:true});
+})();
 M7.ch.push({
 n:101, label:"1", part:9, title:"ມາຕຣິດ ແລະ ຄຸນລັກສະນະຂອງມາຕຣິດ", summaryEnd:true,
 goal:R`ຮູ້ຈັກມາຕຣິດ ແລະ ຊະນິດຕ່າງໆ, ຄິດໄລ່ການບວກ, ການລົບ, ການຄູນມາຕຣິດ ແລະ ນຳໃຊ້ຄຸນລັກສະນະ $A^2-(a+d)A+(ad-bc)I=O$ ເພື່ອຊອກກຳລັງຂອງມາຕຣິດ.`,
@@ -260,8 +315,8 @@ $$\det A=a_{11}C_{11}+a_{12}C_{12}+a_{13}C_{13}=a_{11}M_{11}-a_{12}M_{12}+a_{13}
 <div class="ex"><span class="lbl">ຕົວຢ່າງ</span>$A=\begin{pmatrix}1&2\\3&4\end{pmatrix},\ B=\begin{pmatrix}3&0\\1&1\end{pmatrix}$<br>$AX=B\Rightarrow X=A^{-1}B=\begin{pmatrix}-5&1\\4&-\frac12\end{pmatrix}$<br>$XA=B\Rightarrow X=BA^{-1}=\begin{pmatrix}-6&3\\-\frac12&\frac12\end{pmatrix}$</div>
 <div class="box red"><span class="lbl">ລະວັງ</span>$AX=B$ ຄູນ $A^{-1}$ ທາງ<b>ຊ້າຍ</b>; $XA=B$ ຄູນ $A^{-1}$ ທາງ<b>ຂວາ</b>.</div>`],
 [R`ມາຕຣິດປີ້ນ 3×3`, R`<p><b>ມາຕຣິດປ່ຽນແຖວເປັນຖັນ</b> $\,{}^tA$: ແຖວທີ $i$ ຂອງ $A$ ກາຍເປັນຖັນທີ $i$. $\ adj(A)={}^t[C_{ij}]$</p>
-<div class="box"><span class="lbl">ສູດ</span>$$A^{-1}=\frac{1}{\det A}\,adj(A),\quad \det A\ne0$$</div>
-<div class="ex"><span class="lbl">ຕົວຢ່າງ</span>$A=\begin{pmatrix}1&2&3\\1&3&5\\1&5&12\end{pmatrix}$, $\det A=3$<br>$C_{11}=11,C_{12}=-7,C_{13}=2;\ C_{21}=-9,C_{22}=9,C_{23}=-3;\ C_{31}=1,C_{32}=-2,C_{33}=1$<br>$A^{-1}=\frac13\begin{pmatrix}11&-9&1\\-7&9&-2\\2&-3&1\end{pmatrix}$</div>`],
+<div class="box"><span class="lbl">ສູດ</span>$$A^{-1}=\frac{1}{\det A}\,adj(A),\quad \det A\ne0$$</div>`],
+[R`ຕົວຢ່າງ: ຊອກຫາມາຕຣິດປີ້ນ 3×3`, R`<p>ຈົ່ງຊອກຫາ $A^{-1}$ ຂອງມາຕຣິດ $A$ ລຸ່ມນີ້. ກົດ <b>▶ ຫຼິ້ນ</b> (ຫຼື ປຸ່ມ → ເທື່ອລະຂັ້ນ).</p>`+M7_INV3([[1,2,3],[1,3,5],[1,5,12]])],
 [R`ສະຫຼຸບບົດ`, R`<ul><li>$\begin{vmatrix}a&b\\c&d\end{vmatrix}=ad-bc$; 3×3 ໃຊ້ວິທີຊາຣຸສ ຫຼື ແຍກຕາມແຖວ</li><li>$C_{ij}=(-1)^{i+j}M_{ij}$; $\det(AB)=\det A\det B$</li><li>$A^{-1}$ ມີ ⇔ $\det A\ne0$; $A^{-1}=\frac1{\det A}adj(A)$</li><li>$(AB)^{-1}=B^{-1}A^{-1}$</li></ul>`]
 ],
 ex:[
