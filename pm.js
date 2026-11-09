@@ -11,7 +11,7 @@ const M7_MMUL=(A,B)=>{ const f=v=>v<0?'−'+(-v):''+v;
   const C=A.map((r,i)=>B[0].map((_,j)=>`<span class="mm-cell" data-i="${i}" data-j="${j}"><span class="mm-expr">${r.map((a,k)=>`${k?'<i class="op">+</i>':''}<span class="mm-s" data-v="${p(a)}"></span><i class="op">×</i><span class="mm-s" data-v="${p(B[k][j])}"></span>`).join('')}</span><span class="mm-prod">${r.map((a,k)=>p(a*B[k][j]||0)).join('<i class="op">+</i>')}</span><span class="mm-val">${f(r.reduce((s,a,k)=>s+a*B[k][j],0))}</span></span>`).join('')).join('');
   return `<div class="mmw"><div class="mm-row"><span class="mm-lbl">AB =</span>${mat(A,'mm-a')}${mat(B,'mm-b')}</div>
 <div class="mm-row mm-res"><span class="mm-lbl">=</span><span class="mm-mat mm-c" style="--c:${B[0].length}">${C}</span></div>
-<div class="mm-bar"><button class="btn primary" data-mm="play">▶ ຫຼິ້ນ</button><button class="btn" data-mm="next">ຂັ້ນຕໍ່ໄປ ▸</button><button class="btn" data-mm="reset">↺ ເລີ່ມໃໝ່</button><span class="hint mm-cnt"></span></div><p class="hint mm-note"></p></div>`; };
+<div class="mm-bar"><button class="btn primary" data-mm="play">▶ ຫຼິ້ນ</button><button class="btn" data-mm="prev">◂ ກ່ອນໜ້ານັ້ນ</button><button class="btn" data-mm="next">ຂັ້ນຕໍ່ໄປ ▸</button><button class="btn" data-mm="reset">↺ ເລີ່ມໃໝ່</button><span class="hint mm-cnt"></span></div><p class="hint mm-note"></p></div>`; };
 // animated 2×2 inverse, one row per step: det A, the formula, a↔d swap and b,c sign change (numbers fly from A),
 // divide every entry by det A, simplify. Same ▶ / → controls as M7_MMUL.
 const M7_INV2=(a,b,c,d)=>{ const f=v=>v<0?'−'+(-v):''+v, p=v=>v<0?`(${f(v)})`:f(v), D=a*d-b*c, g=(x,y)=>y?g(y,x%y):Math.abs(x);
@@ -26,7 +26,7 @@ ${row('A<sup>−1</sup> =',q('1','det A')+mat([o(it('d')),u('−'+it('b')),u('�
 ${row('=',q(1,f(D))+mat(['','','',''],'t'))}
 ${row('=',mat([q(f(d),f(D)),q(f(-b),f(D)),q(f(-c),f(D)),q(f(a),f(D))]))}
 ${row('A<sup>−1</sup> =',`<span class="iv-ans">${mat([fr(d,D),fr(-b,D),fr(-c,D),fr(a,D)])}</span>`)}
-<div class="mm-bar"><button class="btn primary" data-iv="play">▶ ຫຼິ້ນ</button><button class="btn" data-iv="next">ຂັ້ນຕໍ່ໄປ ▸</button><button class="btn" data-iv="reset">↺ ເລີ່ມໃໝ່</button><span class="hint mm-cnt"></span></div><p class="hint mm-note"></p></div>`; };
+<div class="mm-bar"><button class="btn primary" data-iv="play">▶ ຫຼິ້ນ</button><button class="btn" data-iv="prev">◂ ກ່ອນໜ້ານັ້ນ</button><button class="btn" data-iv="next">ຂັ້ນຕໍ່ໄປ ▸</button><button class="btn" data-iv="reset">↺ ເລີ່ມໃໝ່</button><span class="hint mm-cnt"></span></div><p class="hint mm-note"></p></div>`; };
 // animated 3×3 inverse in four panels: det A (Sarrus), the nine cofactors one at a time (row i and column j of A
 // crossed out), adj A as the transpose of [C_ij], then A⁻¹ = adj A ÷ det A. MathJax renders the lines; ▶ / → drive it.
 const M7_INV3=M=>{ const pr=v=>v<0?`(${v})`:''+v, sum=a=>a.reduce((s,v)=>s+v,0), g=(x,y)=>y?g(y,x%y):Math.abs(x);
@@ -46,7 +46,7 @@ const M7_INV3=M=>{ const pr=v=>v<0?`(${v})`:''+v, sum=a=>a.reduce((s,v)=>s+v,0),
 <div class="i3-p">${T('ຂັ້ນທີ 2: ຊອກຫາຕົວປະກອບຮ່ວມ (cofactor) $C_{ij}=(-1)^{i+j}M_{ij}$')}<div class="i3-g">${C.flat().map(c=>`<div class="i3-c" data-i="${c.i}" data-j="${c.j}">${c.l.map(L).join('')}</div>`).join('')}</div></div>
 <div class="i3-p">${T('ຂັ້ນທີ 3: ຊອກ $\\operatorname{adj}(A)$ — ແຖວກາຍເປັນຖັນ')}${L(`\\operatorname{adj}(A)=${pm(Cv)}^{T}`)}${L(`=${pm(adj)}`)}</div>
 <div class="i3-p">${T('ຂັ້ນທີ 4: ຊອກ $A^{-1}$')}${L(`A^{-1}=\\frac{1}{\\det(A)}\\operatorname{adj}(A)`)}${L(`=\\frac{1}{${D}}${pm(adj)}`)}<div class="i3-l i3-ans">$\\displaystyle =${pm(adj.map(r=>r.map(v=>fr(v,D))))}$</div></div></div></div>
-<div class="mm-bar"><button class="btn primary" data-i3="play">▶ ຫຼິ້ນ</button><button class="btn" data-i3="next">ຂັ້ນຕໍ່ໄປ ▸</button><button class="btn" data-i3="reset">↺ ເລີ່ມໃໝ່</button><span class="hint mm-cnt"></span></div></div>`; };
+<div class="mm-bar"><button class="btn primary" data-i3="play">▶ ຫຼິ້ນ</button><button class="btn" data-i3="prev">◂ ກ່ອນໜ້ານັ້ນ</button><button class="btn" data-i3="next">ຂັ້ນຕໍ່ໄປ ▸</button><button class="btn" data-i3="reset">↺ ເລີ່ມໃໝ່</button><span class="hint mm-cnt"></span></div></div>`; };
 // An animation's ▶ / next / reset bar is docked in the slide's bottom bar, after "← ກ່ອນໜ້າ".
 // M7_C(w) is where w's buttons are now; M7_W(b,sel) is the animation a clicked button belongs to.
 const M7_C=w=>w._bar||w, M7_W=(b,sel)=>b.closest(sel)||(b.closest('.mm-bar')||{})._w;
@@ -55,8 +55,16 @@ const M7_NEXT=(sel,done,run)=>{ const hit=e=>{ const w=(document.fullscreenEleme
     e.preventDefault(); e.stopImmediatePropagation(); if(!w._busy) run(w,false); };
   window.addEventListener('keydown',e=>{ if(e.key==='ArrowRight'||e.key==='PageDown') hit(e); },true);
   window.addEventListener('click',e=>{ if(e.target.closest('#sn,.fsnext')) hit(e); },true); };
+// "◂ ກ່ອນໜ້ານັ້ນ": start over, then replay instantly (no waits, flights or transitions) up to one step before
+let M7_FAST=false;
+const M7_WAIT=ms=>M7_FAST?Promise.resolve():new Promise(r=>setTimeout(r,ms));
+const M7_PREV=(w,k)=>{ const q=M7_C(w).querySelector('[data-mm=prev],[data-iv=prev],[data-i3=prev]'); if(q) q.disabled=!k&&!w._busy; };
+const M7_BACK=async(w,reset,run)=>{ const k=Math.max(0,(w._k||0)-1); reset(w); if(!k) return;
+  w.classList.add('m7-fast'); M7_FAST=true;
+  try{ await run(w,true,k); } finally{ M7_FAST=false; void w.offsetWidth; w.classList.remove('m7-fast'); } };
 (function(){
-  const css=document.createElement('style'); css.textContent=`.scontrols .mm-bar{margin:0;flex:1 1 auto;justify-content:center}`; document.head.appendChild(css);
+  const css=document.createElement('style'); css.textContent=`.scontrols .mm-bar{margin:0;flex:1 1 auto;justify-content:center}
+.m7-fast,.m7-fast *{transition:none!important;animation:none!important}`; document.head.appendChild(css);
   new MutationObserver(()=>{ const sc=document.querySelector('.scontrols'); if(!sc) return;
     sc.querySelectorAll('.mm-bar').forEach(b=>{ if(!b._w||!b._w.isConnected) b.remove(); }); // left over from a slide changed in fullscreen
     document.querySelectorAll('.stage :is(.mmw,.ivw,.i3w)>.mm-bar').forEach(b=>{ b._w=b.parentNode; b._w._bar=b; sc.querySelector('#sp').after(b); });
@@ -88,18 +96,19 @@ g.cp{color:#cc5de8}g.co{color:#f76707}
 .mm-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:.6em;font-size:14px}
 .mm-note{min-height:1.6em;margin:.3em 0 0}
 .mmw.fin .mm-expr,.mmw.fin .mm-prod{display:none}.mmw.fin .mm-val{position:static}`; document.head.appendChild(css);
-  const wait=ms=>new Promise(r=>setTimeout(r,ms));
+  const wait=M7_WAIT;
   const cellsOf=w=>[...w.querySelectorAll('.mm-cell')];
   function ui(w){ const N=cellsOf(w).length+2, k=w._k||0, end=k>=N;
     const p=M7_C(w).querySelector('[data-mm=play]'), n=M7_C(w).querySelector('[data-mm=next]');
-    p.textContent=end?'↺ ເບິ່ງອີກຄັ້ງ':k?'▶ ສືບຕໍ່':'▶ ຫຼິ້ນ'; p.disabled=n.disabled=!!w._busy; n.hidden=end;
+    p.textContent=end?'↺ ເບິ່ງອີກຄັ້ງ':k?'▶ ສືບຕໍ່':'▶ ຫຼິ້ນ'; p.disabled=n.disabled=!!w._busy; n.hidden=end; M7_PREV(w,k);
     M7_C(w).querySelector('.mm-cnt').textContent=`ຂັ້ນ ${k} / ${N}`; }
   function note(w,h){ w.querySelector('.mm-note').innerHTML=h; }
   function reset(w){ w._gen=(w._gen||0)+1; w._k=0; w._busy=false; w.classList.remove('fin'); fit(w); w.querySelectorAll('.mm-fly').forEach(x=>x.remove());
     cellsOf(w).forEach(c=>{ c.classList.remove('on','prod','done'); c.querySelectorAll('.mm-s').forEach(s=>{ s.textContent=''; s.className='mm-s'; }); });
     w.querySelectorAll('.mm-n').forEach(x=>x.classList.remove('hr','hc')); note(w,''); ui(w); }
   // a copy of src's number travels on a small arc into slot dst
-  function fly(w,src,dst,cls,gen){ const r=w.getBoundingClientRect(), a=src.getBoundingClientRect(), b=dst.getBoundingClientRect();
+  function fly(w,src,dst,cls,gen){ if(M7_FAST){ const t=src.textContent; dst.textContent=t[0]==='−'?`(${t})`:t; dst.className='mm-s '+cls; return Promise.resolve(); }
+    const r=w.getBoundingClientRect(), a=src.getBoundingClientRect(), b=dst.getBoundingClientRect();
     const c=document.createElement('span'); c.className='mm-fly mm-s '+cls; c.textContent=src.textContent;
     Object.assign(c.style,{left:a.left-r.left+'px',top:a.top-r.top+'px',width:a.width+'px',height:a.height+'px'}); w.appendChild(c);
     const dx=b.left+b.width/2-a.left-a.width/2, dy=b.top+b.height/2-a.top-a.height/2;
@@ -122,15 +131,15 @@ g.cp{color:#cc5de8}g.co{color:#f76707}
     for(const c of cellsOf(w)){ if(gen!==w._gen) return; c.classList.add('done'); await wait(350); }
     await wait(300); if(gen===w._gen){ w.classList.add('fin'); fit(w); }
     note(w,'ສຳເລັດ! ແຕ່ລະອົງປະກອບຂອງ AB ແມ່ນ <b>ແຖວ × ຖັນ</b>.'); }
-  async function run(w,all){ if(w._busy) return; const cells=cellsOf(w), gen=w._gen=(w._gen||0); w._k=w._k||0;
-    const last=cells.length+1; if(w._k>last) return; w._busy=true; ui(w);
+  async function run(w,all,to){ if(w._busy) return; const cells=cellsOf(w), gen=w._gen=(w._gen||0); w._k=w._k||0;
+    const last=cells.length+1, stop=to||last+1; if(w._k>last) return; w._busy=true; ui(w);
     do{ if(w._k<cells.length) await entry(w,cells[w._k],gen); else if(w._k===cells.length) await products(w,gen); else await finish(w,gen);
-      if(gen!==w._gen) return; w._k++; ui(w); if(all&&w._k<=last) await wait(w._k>cells.length?1200:500); }
-    while(all&&w._k<=last&&gen===w._gen);
+      if(gen!==w._gen) return; w._k++; ui(w); if(all&&w._k<stop) await wait(w._k>cells.length?1200:500); }
+    while(all&&w._k<stop&&gen===w._gen);
     w._busy=false; ui(w); }
   document.addEventListener('click',e=>{ const b=e.target.closest('[data-mm]'); if(!b) return; e.stopPropagation();
     const w=M7_W(b,'.mmw'), a=b.dataset.mm;
-    if(a==='reset') reset(w); else if(a==='play'){ if((w._k||0)>cellsOf(w).length+1) reset(w); run(w,true); } else run(w,false); },true);
+    if(a==='reset') reset(w); else if(a==='prev') M7_BACK(w,reset,run); else if(a==='play'){ if((w._k||0)>cellsOf(w).length+1) reset(w); run(w,true); } else run(w,false); },true);
   M7_NEXT('.mmw',w=>(w._k||0)>cellsOf(w).length+1,run);
   // a wide result (e.g. 1×3 with three-term sums) is shrunk until it fits the slide width
   function fit(w){ const row=w.querySelector('.mm-res'), m=row.querySelector('.mm-c'); m.style.fontSize='';
@@ -154,7 +163,7 @@ g.cp{color:#cc5de8}g.co{color:#f76707}
 .iv-t{display:inline-block;min-width:1.4em;font-weight:700}.iv-t.neg{animation:ivneg .6s}
 @keyframes ivneg{0%{transform:scale(1)}40%{transform:scale(1.5)}100%{transform:scale(1)}}
 .iv-ans .mm-mat{border-color:#2f9e44;border-width:3px;font-weight:700}`; document.head.appendChild(css);
-  const wait=ms=>new Promise(r=>setTimeout(r,ms)), N=5;
+  const wait=M7_WAIT, N=5;
   const notes=['ຂັ້ນທີ 1: ຊອກ $\\det A=ad-bc$ (<b class="iv-o">ຄູນເສັ້ນເນັ່ງຈອມ</b> ລົບ <b class="iv-p">ຄູນອີກເສັ້ນ</b>)',
     'ຂັ້ນທີ 2: ຂຽນສູດ — <b class="iv-o">ສັບບ່ອນ a ກັບ d</b>, <b class="iv-p">ປ່ຽນເຄື່ອງໝາຍ b ກັບ c</b>',
     'ຂັ້ນທີ 3: ແທນຄ່າ — <b class="iv-o">a ↔ d ສັບບ່ອນກັນ</b>, <b class="iv-p">b ແລະ c ປ່ຽນເຄື່ອງໝາຍ</b>',
@@ -163,13 +172,14 @@ g.cp{color:#cc5de8}g.co{color:#f76707}
   const rows=w=>[...w.querySelectorAll('.iv-st')];
   function note(w,h){ const n=w.querySelector('.mm-note'); n.innerHTML=h; if(window.MathJax&&MathJax.typesetPromise) MathJax.typesetPromise([n]).catch(()=>{}); }
   function ui(w){ const k=w._k||0, end=k>=N, p=M7_C(w).querySelector('[data-iv=play]'), n=M7_C(w).querySelector('[data-iv=next]');
-    p.textContent=end?'↺ ເບິ່ງອີກຄັ້ງ':k?'▶ ສືບຕໍ່':'▶ ຫຼິ້ນ'; p.disabled=n.disabled=!!w._busy; n.hidden=end;
+    p.textContent=end?'↺ ເບິ່ງອີກຄັ້ງ':k?'▶ ສືບຕໍ່':'▶ ຫຼິ້ນ'; p.disabled=n.disabled=!!w._busy; n.hidden=end; M7_PREV(w,k);
     M7_C(w).querySelector('.mm-cnt').textContent=`ຂັ້ນ ${k} / ${N}`; }
   function reset(w){ w._gen=(w._gen||0)+1; w._k=0; w._busy=false; w.querySelectorAll('.mm-fly').forEach(x=>x.remove());
     rows(w).forEach(r=>r.classList.remove('on')); w.querySelectorAll('[data-k]').forEach(x=>x.classList.remove('iv-o','iv-p'));
     w.querySelectorAll('[data-t]').forEach(x=>{ x.innerHTML='<span class="iv-t"></span>'; }); note(w,''); ui(w); }
   // a copy of A's entry travels on an arc into its slot, then turns into the slot's value (the sign flips for b and c)
-  function fly(w,src,dst,v,gen){ const r=w.getBoundingClientRect(), s=src.getBoundingClientRect(), t=dst.getBoundingClientRect();
+  function fly(w,src,dst,v,gen){ if(M7_FAST){ const e=dst.querySelector('.iv-t'); e.textContent=v; e.className='iv-t '+(src.classList.contains('iv-o')?'iv-o':'iv-p'); return Promise.resolve(); }
+    const r=w.getBoundingClientRect(), s=src.getBoundingClientRect(), t=dst.getBoundingClientRect();
     const c=document.createElement('span'); c.className='mm-fly '+(src.classList.contains('iv-o')?'iv-o':'iv-p'); c.textContent=src.textContent;
     Object.assign(c.style,{left:s.left-r.left+'px',top:s.top-r.top+'px',width:s.width+'px',height:s.height+'px'}); w.appendChild(c);
     const dx=t.left+t.width/2-s.left-s.width/2, dy=t.top+t.height/2-s.top-s.height/2;
@@ -183,12 +193,12 @@ g.cp{color:#cc5de8}g.co{color:#f76707}
     r.classList.add('on'); await wait(700);
     if(k===2){ await Promise.all([fly(w,A('d'),T('a'),v[0],gen),fly(w,A('a'),T('d'),v[3],gen)]); if(gen!==w._gen) return; await wait(300);
       await Promise.all([fly(w,A('b'),T('b'),v[1],gen),fly(w,A('c'),T('c'),v[2],gen)]); await wait(400); } }
-  async function run(w,all){ if(w._busy||(w._k||0)>=N) return; const gen=w._gen=(w._gen||0); w._k=w._k||0; w._busy=true; ui(w);
-    do{ await step(w,w._k,gen); if(gen!==w._gen) return; w._k++; ui(w); if(all&&w._k<N) await wait(1200); } while(all&&w._k<N&&gen===w._gen);
+  async function run(w,all,to){ if(w._busy||(w._k||0)>=N) return; const gen=w._gen=(w._gen||0); w._k=w._k||0; w._busy=true; ui(w);
+    do{ await step(w,w._k,gen); if(gen!==w._gen) return; w._k++; ui(w); if(all&&w._k<(to||N)) await wait(1200); } while(all&&w._k<(to||N)&&gen===w._gen);
     w._busy=false; ui(w); }
   document.addEventListener('click',e=>{ const b=e.target.closest('[data-iv]'); if(!b) return; e.stopPropagation();
     const w=M7_W(b,'.ivw'), a=b.dataset.iv;
-    if(a==='reset') reset(w); else if(a==='play'){ if((w._k||0)>=N) reset(w); run(w,true); } else run(w,false); },true);
+    if(a==='reset') reset(w); else if(a==='prev') M7_BACK(w,reset,run); else if(a==='play'){ if((w._k||0)>=N) reset(w); run(w,true); } else run(w,false); },true);
   M7_NEXT('.ivw',w=>(w._k||0)>=N,run);
   new MutationObserver(()=>document.querySelectorAll('.ivw:not([data-ok])').forEach(w=>{ w.dataset.ok=1; reset(w); })).observe(document.documentElement,{childList:true,subtree:true});
 })();
@@ -203,9 +213,9 @@ g.cp{color:#cc5de8}g.co{color:#f76707}
 .i3-c.cur{outline:2px dashed #f76707;outline-offset:4px;border-radius:6px}
 .i3w .mm-n.x{opacity:.25;text-decoration:line-through}.i3w .mm-n.k{color:#f76707;font-weight:700}
 .i3-ans mjx-container{color:#2f9e44}`; document.head.appendChild(css);
-  const wait=ms=>new Promise(r=>setTimeout(r,ms)), N=12, P=w=>[...w.querySelectorAll('.i3-p')];
+  const wait=M7_WAIT, N=12, P=w=>[...w.querySelectorAll('.i3-p')];
   function ui(w){ const k=w._k||0, end=k>=N, p=M7_C(w).querySelector('[data-i3=play]'), n=M7_C(w).querySelector('[data-i3=next]');
-    p.textContent=end?'↺ ເບິ່ງອີກຄັ້ງ':k?'▶ ສືບຕໍ່':'▶ ຫຼິ້ນ'; p.disabled=n.disabled=!!w._busy; n.hidden=end;
+    p.textContent=end?'↺ ເບິ່ງອີກຄັ້ງ':k?'▶ ສືບຕໍ່':'▶ ຫຼິ້ນ'; p.disabled=n.disabled=!!w._busy; n.hidden=end; M7_PREV(w,k);
     M7_C(w).querySelector('.mm-cnt').textContent=`ຂັ້ນ ${k} / ${N}`; }
   function mark(w,i,j){ w.querySelectorAll('.mm-n').forEach(x=>{ x.classList.remove('x','k'); if(i!=null) x.classList.add(x.dataset.i==i||x.dataset.j==j?'x':'k'); }); }
   function reset(w){ w._gen=(w._gen||0)+1; w._k=0; w._busy=false; mark(w);
@@ -215,12 +225,12 @@ g.cp{color:#cc5de8}g.co{color:#f76707}
     if(pi===1){ box=ps[1].querySelectorAll('.i3-c')[k-1]; box.classList.add('cur'); mark(w,box.dataset.i,box.dataset.j); }
     await wait(400);
     for(const l of box.querySelectorAll(':scope>.i3-l')){ if(gen!==w._gen) return; l.classList.add('on'); await wait(700); } }
-  async function run(w,all){ if(w._busy||(w._k||0)>=N) return; const gen=w._gen=(w._gen||0); w._k=w._k||0; w._busy=true; ui(w);
-    do{ await step(w,w._k,gen); if(gen!==w._gen) return; w._k++; ui(w); if(all&&w._k<N) await wait(900); } while(all&&w._k<N&&gen===w._gen);
+  async function run(w,all,to){ if(w._busy||(w._k||0)>=N) return; const gen=w._gen=(w._gen||0); w._k=w._k||0; w._busy=true; ui(w);
+    do{ await step(w,w._k,gen); if(gen!==w._gen) return; w._k++; ui(w); if(all&&w._k<(to||N)) await wait(900); } while(all&&w._k<(to||N)&&gen===w._gen);
     w._busy=false; ui(w); }
   document.addEventListener('click',e=>{ const b=e.target.closest('[data-i3]'); if(!b) return; e.stopPropagation();
     const w=M7_W(b,'.i3w'), a=b.dataset.i3;
-    if(a==='reset') reset(w); else if(a==='play'){ if((w._k||0)>=N) reset(w); run(w,true); } else run(w,false); },true);
+    if(a==='reset') reset(w); else if(a==='prev') M7_BACK(w,reset,run); else if(a==='play'){ if((w._k||0)>=N) reset(w); run(w,true); } else run(w,false); },true);
   M7_NEXT('.i3w',w=>(w._k||0)>=N,run);
   new MutationObserver(()=>document.querySelectorAll('.i3w:not([data-ok])').forEach(w=>{ w.dataset.ok=1; reset(w); })).observe(document.documentElement,{childList:true,subtree:true});
 })();
