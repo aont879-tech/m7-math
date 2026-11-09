@@ -47,6 +47,21 @@ const M7_INV3=M=>{ const pr=v=>v<0?`(${v})`:''+v, sum=a=>a.reduce((s,v)=>s+v,0),
 <div class="i3-p">${T('ຂັ້ນທີ 3: ຊອກ $\\operatorname{adj}(A)$ — ແຖວກາຍເປັນຖັນ')}${L(`\\operatorname{adj}(A)=${pm(Cv)}^{T}`)}${L(`=${pm(adj)}`)}</div>
 <div class="i3-p">${T('ຂັ້ນທີ 4: ຊອກ $A^{-1}$')}${L(`A^{-1}=\\frac{1}{\\det(A)}\\operatorname{adj}(A)`)}${L(`=\\frac{1}{${D}}${pm(adj)}`)}<div class="i3-l i3-ans">$\\displaystyle =${pm(adj.map(r=>r.map(v=>fr(v,D))))}$</div></div></div></div>
 <div class="mm-bar"><button class="btn primary" data-i3="play">▶ ຫຼິ້ນ</button><button class="btn" data-i3="next">ຂັ້ນຕໍ່ໄປ ▸</button><button class="btn" data-i3="reset">↺ ເລີ່ມໃໝ່</button><span class="hint mm-cnt"></span></div></div>`; };
+// An animation's ▶ / next / reset bar is docked in the slide's bottom bar, after "← ກ່ອນໜ້າ".
+// M7_C(w) is where w's buttons are now; M7_W(b,sel) is the animation a clicked button belongs to.
+const M7_C=w=>w._bar||w, M7_W=(b,sel)=>b.closest(sel)||(b.closest('.mm-bar')||{})._w;
+// → / PageDown, "ຕໍ່ໄປ →" and the fullscreen ▶ play the next step of an unfinished animation instead of changing slide
+const M7_NEXT=(sel,done,run)=>{ const hit=e=>{ const w=(document.fullscreenElement||document).querySelector('.stage '+sel); if(!w||done(w)) return;
+    e.preventDefault(); e.stopImmediatePropagation(); if(!w._busy) run(w,false); };
+  window.addEventListener('keydown',e=>{ if(e.key==='ArrowRight'||e.key==='PageDown') hit(e); },true);
+  window.addEventListener('click',e=>{ if(e.target.closest('#sn,.fsnext')) hit(e); },true); };
+(function(){
+  const css=document.createElement('style'); css.textContent=`.scontrols .mm-bar{margin:0;flex:1 1 auto;justify-content:center}`; document.head.appendChild(css);
+  new MutationObserver(()=>{ const sc=document.querySelector('.scontrols'); if(!sc) return;
+    sc.querySelectorAll('.mm-bar').forEach(b=>{ if(!b._w||!b._w.isConnected) b.remove(); }); // left over from a slide changed in fullscreen
+    document.querySelectorAll('.stage :is(.mmw,.ivw,.i3w)>.mm-bar').forEach(b=>{ b._w=b.parentNode; b._w._bar=b; sc.querySelector('#sp').after(b); });
+  }).observe(document.documentElement,{childList:true,subtree:true});
+})();
 (function(){
   const css=document.createElement('style'); css.textContent=`
 g.cp{color:#cc5de8}g.co{color:#f76707}
@@ -76,9 +91,9 @@ g.cp{color:#cc5de8}g.co{color:#f76707}
   const wait=ms=>new Promise(r=>setTimeout(r,ms));
   const cellsOf=w=>[...w.querySelectorAll('.mm-cell')];
   function ui(w){ const N=cellsOf(w).length+2, k=w._k||0, end=k>=N;
-    const p=w.querySelector('[data-mm=play]'), n=w.querySelector('[data-mm=next]');
+    const p=M7_C(w).querySelector('[data-mm=play]'), n=M7_C(w).querySelector('[data-mm=next]');
     p.textContent=end?'↺ ເບິ່ງອີກຄັ້ງ':k?'▶ ສືບຕໍ່':'▶ ຫຼິ້ນ'; p.disabled=n.disabled=!!w._busy; n.hidden=end;
-    w.querySelector('.mm-cnt').textContent=`ຂັ້ນ ${k} / ${N}`; }
+    M7_C(w).querySelector('.mm-cnt').textContent=`ຂັ້ນ ${k} / ${N}`; }
   function note(w,h){ w.querySelector('.mm-note').innerHTML=h; }
   function reset(w){ w._gen=(w._gen||0)+1; w._k=0; w._busy=false; w.classList.remove('fin'); fit(w); w.querySelectorAll('.mm-fly').forEach(x=>x.remove());
     cellsOf(w).forEach(c=>{ c.classList.remove('on','prod','done'); c.querySelectorAll('.mm-s').forEach(s=>{ s.textContent=''; s.className='mm-s'; }); });
@@ -113,13 +128,10 @@ g.cp{color:#cc5de8}g.co{color:#f76707}
       if(gen!==w._gen) return; w._k++; ui(w); if(all&&w._k<=last) await wait(w._k>cells.length?1200:500); }
     while(all&&w._k<=last&&gen===w._gen);
     w._busy=false; ui(w); }
-  document.addEventListener('click',e=>{ const b=e.target.closest('.mmw [data-mm]'); if(!b) return; e.stopPropagation();
-    const w=b.closest('.mmw'), a=b.dataset.mm;
+  document.addEventListener('click',e=>{ const b=e.target.closest('[data-mm]'); if(!b) return; e.stopPropagation();
+    const w=M7_W(b,'.mmw'), a=b.dataset.mm;
     if(a==='reset') reset(w); else if(a==='play'){ if((w._k||0)>cellsOf(w).length+1) reset(w); run(w,true); } else run(w,false); },true);
-  // → / PageDown on a slide with an unfinished animation plays its next step instead of changing slide
-  window.addEventListener('keydown',e=>{ if(e.key!=='ArrowRight'&&e.key!=='PageDown') return;
-    const w=(document.fullscreenElement||document).querySelector('.stage .mmw'); if(!w||(w._k||0)>cellsOf(w).length+1) return;
-    e.preventDefault(); e.stopImmediatePropagation(); if(!w._busy) run(w,false); },true);
+  M7_NEXT('.mmw',w=>(w._k||0)>cellsOf(w).length+1,run);
   // a wide result (e.g. 1×3 with three-term sums) is shrunk until it fits the slide width
   function fit(w){ const row=w.querySelector('.mm-res'), m=row.querySelector('.mm-c'); m.style.fontSize='';
     const sl=[...m.querySelectorAll('.mm-s')], old=sl.map(s=>s.textContent); sl.forEach(s=>s.textContent=s.dataset.v);
@@ -150,9 +162,9 @@ g.cp{color:#cc5de8}g.co{color:#f76707}
     'ສຳເລັດ! ຫຍໍ້ເສດສ່ວນ ກໍໄດ້ $A^{-1}$'];
   const rows=w=>[...w.querySelectorAll('.iv-st')];
   function note(w,h){ const n=w.querySelector('.mm-note'); n.innerHTML=h; if(window.MathJax&&MathJax.typesetPromise) MathJax.typesetPromise([n]).catch(()=>{}); }
-  function ui(w){ const k=w._k||0, end=k>=N, p=w.querySelector('[data-iv=play]'), n=w.querySelector('[data-iv=next]');
+  function ui(w){ const k=w._k||0, end=k>=N, p=M7_C(w).querySelector('[data-iv=play]'), n=M7_C(w).querySelector('[data-iv=next]');
     p.textContent=end?'↺ ເບິ່ງອີກຄັ້ງ':k?'▶ ສືບຕໍ່':'▶ ຫຼິ້ນ'; p.disabled=n.disabled=!!w._busy; n.hidden=end;
-    w.querySelector('.mm-cnt').textContent=`ຂັ້ນ ${k} / ${N}`; }
+    M7_C(w).querySelector('.mm-cnt').textContent=`ຂັ້ນ ${k} / ${N}`; }
   function reset(w){ w._gen=(w._gen||0)+1; w._k=0; w._busy=false; w.querySelectorAll('.mm-fly').forEach(x=>x.remove());
     rows(w).forEach(r=>r.classList.remove('on')); w.querySelectorAll('[data-k]').forEach(x=>x.classList.remove('iv-o','iv-p'));
     w.querySelectorAll('[data-t]').forEach(x=>{ x.innerHTML='<span class="iv-t"></span>'; }); note(w,''); ui(w); }
@@ -174,13 +186,10 @@ g.cp{color:#cc5de8}g.co{color:#f76707}
   async function run(w,all){ if(w._busy||(w._k||0)>=N) return; const gen=w._gen=(w._gen||0); w._k=w._k||0; w._busy=true; ui(w);
     do{ await step(w,w._k,gen); if(gen!==w._gen) return; w._k++; ui(w); if(all&&w._k<N) await wait(1200); } while(all&&w._k<N&&gen===w._gen);
     w._busy=false; ui(w); }
-  document.addEventListener('click',e=>{ const b=e.target.closest('.ivw [data-iv]'); if(!b) return; e.stopPropagation();
-    const w=b.closest('.ivw'), a=b.dataset.iv;
+  document.addEventListener('click',e=>{ const b=e.target.closest('[data-iv]'); if(!b) return; e.stopPropagation();
+    const w=M7_W(b,'.ivw'), a=b.dataset.iv;
     if(a==='reset') reset(w); else if(a==='play'){ if((w._k||0)>=N) reset(w); run(w,true); } else run(w,false); },true);
-  // → / PageDown on a slide with an unfinished animation plays its next step instead of changing slide
-  window.addEventListener('keydown',e=>{ if(e.key!=='ArrowRight'&&e.key!=='PageDown') return;
-    const w=(document.fullscreenElement||document).querySelector('.stage .ivw'); if(!w||(w._k||0)>=N) return;
-    e.preventDefault(); e.stopImmediatePropagation(); if(!w._busy) run(w,false); },true);
+  M7_NEXT('.ivw',w=>(w._k||0)>=N,run);
   new MutationObserver(()=>document.querySelectorAll('.ivw:not([data-ok])').forEach(w=>{ w.dataset.ok=1; reset(w); })).observe(document.documentElement,{childList:true,subtree:true});
 })();
 // runtime for M7_INV3: step 0 = det, 1–9 = cofactor C_ij, 10 = adj, 11 = inverse
@@ -195,9 +204,9 @@ g.cp{color:#cc5de8}g.co{color:#f76707}
 .i3w .mm-n.x{opacity:.25;text-decoration:line-through}.i3w .mm-n.k{color:#f76707;font-weight:700}
 .i3-ans mjx-container{color:#2f9e44}`; document.head.appendChild(css);
   const wait=ms=>new Promise(r=>setTimeout(r,ms)), N=12, P=w=>[...w.querySelectorAll('.i3-p')];
-  function ui(w){ const k=w._k||0, end=k>=N, p=w.querySelector('[data-i3=play]'), n=w.querySelector('[data-i3=next]');
+  function ui(w){ const k=w._k||0, end=k>=N, p=M7_C(w).querySelector('[data-i3=play]'), n=M7_C(w).querySelector('[data-i3=next]');
     p.textContent=end?'↺ ເບິ່ງອີກຄັ້ງ':k?'▶ ສືບຕໍ່':'▶ ຫຼິ້ນ'; p.disabled=n.disabled=!!w._busy; n.hidden=end;
-    w.querySelector('.mm-cnt').textContent=`ຂັ້ນ ${k} / ${N}`; }
+    M7_C(w).querySelector('.mm-cnt').textContent=`ຂັ້ນ ${k} / ${N}`; }
   function mark(w,i,j){ w.querySelectorAll('.mm-n').forEach(x=>{ x.classList.remove('x','k'); if(i!=null) x.classList.add(x.dataset.i==i||x.dataset.j==j?'x':'k'); }); }
   function reset(w){ w._gen=(w._gen||0)+1; w._k=0; w._busy=false; mark(w);
     w.querySelectorAll('.i3-p,.i3-l').forEach(x=>x.classList.remove('on')); w.querySelectorAll('.i3-c').forEach(x=>x.classList.remove('cur')); ui(w); }
@@ -209,13 +218,10 @@ g.cp{color:#cc5de8}g.co{color:#f76707}
   async function run(w,all){ if(w._busy||(w._k||0)>=N) return; const gen=w._gen=(w._gen||0); w._k=w._k||0; w._busy=true; ui(w);
     do{ await step(w,w._k,gen); if(gen!==w._gen) return; w._k++; ui(w); if(all&&w._k<N) await wait(900); } while(all&&w._k<N&&gen===w._gen);
     w._busy=false; ui(w); }
-  document.addEventListener('click',e=>{ const b=e.target.closest('.i3w [data-i3]'); if(!b) return; e.stopPropagation();
-    const w=b.closest('.i3w'), a=b.dataset.i3;
+  document.addEventListener('click',e=>{ const b=e.target.closest('[data-i3]'); if(!b) return; e.stopPropagation();
+    const w=M7_W(b,'.i3w'), a=b.dataset.i3;
     if(a==='reset') reset(w); else if(a==='play'){ if((w._k||0)>=N) reset(w); run(w,true); } else run(w,false); },true);
-  // → / PageDown on a slide with an unfinished animation plays its next step instead of changing slide
-  window.addEventListener('keydown',e=>{ if(e.key!=='ArrowRight'&&e.key!=='PageDown') return;
-    const w=(document.fullscreenElement||document).querySelector('.stage .i3w'); if(!w||(w._k||0)>=N) return;
-    e.preventDefault(); e.stopImmediatePropagation(); if(!w._busy) run(w,false); },true);
+  M7_NEXT('.i3w',w=>(w._k||0)>=N,run);
   new MutationObserver(()=>document.querySelectorAll('.i3w:not([data-ok])').forEach(w=>{ w.dataset.ok=1; reset(w); })).observe(document.documentElement,{childList:true,subtree:true});
 })();
 M7.ch.push({
